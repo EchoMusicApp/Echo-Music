@@ -45,7 +45,7 @@ object RingtoneHelper {
     startMs: Long,
     endMs: Long,
     onProgress: (Float, String) -> Unit,
-    onComplete: (Boolean, String, Uri?) -> Unit
+    onComplete: (Boolean, String, Uri?) -> Unit,
   ) =
     withContext(Dispatchers.IO) {
       try {
@@ -127,7 +127,7 @@ object RingtoneHelper {
               val uri =
                 context.contentResolver.insert(
                   MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                  contentValues
+                  contentValues,
                 ) ?: throw Exception("Failed to create MediaStore entry")
 
               context.contentResolver.openOutputStream(uri)?.use { outputStream ->
@@ -159,7 +159,7 @@ object RingtoneHelper {
 
               context.contentResolver.insert(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                contentValues
+                contentValues,
               ) ?: Uri.fromFile(file)
             }
           } finally {
@@ -174,7 +174,7 @@ object RingtoneHelper {
           onComplete(
             true,
             "\"$title\" added to system ringtones. Please select it from settings.",
-            ringtoneUri
+            ringtoneUri,
           )
         }
       } catch (e: Exception) {
@@ -188,7 +188,7 @@ object RingtoneHelper {
     inputFile: File,
     outputFile: File,
     startMs: Long,
-    endMs: Long
+    endMs: Long,
   ): Boolean =
     withContext(Dispatchers.IO) {
       try {

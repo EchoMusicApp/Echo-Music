@@ -10,15 +10,15 @@ data class Song(
   val isExplicit: Boolean = false,
   val isLocal: Boolean = false,
   val liked: Boolean = false,
-  val totalPlayTimeMs: Long = 0L
+  val totalPlayTimeMs: Long = 0L,
 )
 
 data class ArtistRef(
   val id: String,
-  val name: String
+  val name: String,
 )
 
 data class AlbumRef(
   val id: String,
-  val title: String
+  val title: String,
 )

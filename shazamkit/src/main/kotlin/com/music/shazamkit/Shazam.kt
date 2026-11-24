@@ -84,7 +84,7 @@ object Shazam {
       "Dalvik/1.6.0 (Linux; U; Android 4.4.2; SM-T210 Build/KOT49H)",
       "Dalvik/2.1.0 (Linux; U; Android 5.1.1; SM-P905V Build/LMY47X)",
       "Dalvik/2.1.0 (Linux; U; Android 6.0.1; SM-G920F Build/MMB29K)",
-      "Dalvik/2.1.0 (Linux; U; Android 5.0; SM-G900F Build/LRX21T)"
+      "Dalvik/2.1.0 (Linux; U; Android 5.0; SM-G900F Build/LRX21T)",
     )
 
   private val timezones =
@@ -94,7 +94,7 @@ object Shazam {
       "America/New_York",
       "America/Los_Angeles",
       "Asia/Tokyo",
-      "Asia/Dubai"
+      "Asia/Dubai",
     )
 
   /**
@@ -139,27 +139,26 @@ object Shazam {
   /** Enqueue request for processing */
   private suspend fun enqueueRequest(
     signature: String,
-    sampleDurationMs: Long
+    sampleDurationMs: Long,
   ): Result<RecognitionResult> {
-    val request =
-      requestMutex.withLock {
-        if (requestQueue.size >= MAX_QUEUE_SIZE) {
-          return Result.failure(Exception("Request queue is full. Please wait."))
-        }
-
-        val requestId = nextRequestId++
-        val request =
-          PendingRequest(id = requestId, signature = signature, sampleDurationMs = sampleDurationMs)
-
-        requestQueue.offer(request)
-
-        if (!isProcessingQueue) {
-          isProcessingQueue = true
-          scope.launch { processQueue() }
-        }
-
-        request
+    val request = requestMutex.withLock {
+      if (requestQueue.size >= MAX_QUEUE_SIZE) {
+        return Result.failure(Exception("Request queue is full. Please wait."))
       }
+
+      val requestId = nextRequestId++
+      val request =
+        PendingRequest(id = requestId, signature = signature, sampleDurationMs = sampleDurationMs)
+
+      requestQueue.offer(request)
+
+      if (!isProcessingQueue) {
+        isProcessingQueue = true
+        scope.launch { processQueue() }
+      }
+
+      request
+    }
 
     return request.awaitResult()
   }
@@ -195,7 +194,7 @@ object Shazam {
   /** Execute recognition request with retry logic */
   private suspend fun executeRequest(
     signature: String,
-    sampleDurationMs: Long
+    sampleDurationMs: Long,
   ): Result<RecognitionResult> {
     var lastException: Exception? = null
 
@@ -233,7 +232,7 @@ object Shazam {
   /** Perform actual recognition request */
   private suspend fun performRecognition(
     signature: String,
-    sampleDurationMs: Long
+    sampleDurationMs: Long,
   ): RecognitionResult {
     val timestamp = System.currentTimeMillis() / 1000
     val uuid1 = UUID.randomUUID().toString().uppercase()
@@ -245,16 +244,16 @@ object Shazam {
           ShazamRequestJson.Geolocation(
             altitude = Random.nextDouble() * 400 + 100,
             latitude = Random.nextDouble() * 180 - 90,
-            longitude = Random.nextDouble() * 360 - 180
+            longitude = Random.nextDouble() * 360 - 180,
           ),
         signature =
           ShazamRequestJson.Signature(
             samplems = sampleDurationMs,
             timestamp = timestamp,
-            uri = signature
+            uri = signature,
           ),
         timestamp = timestamp,
-        timezone = timezones.random()
+        timezone = timezones.random(),
       )
 
     val response =
@@ -395,7 +394,7 @@ object Shazam {
       appleMusicUrl = appleAction?.uri,
       spotifyUrl = spotifyProvider?.actions?.firstOrNull()?.uri,
       isrc = track.isrc,
-      youtubeVideoId = youtubeVideoId
+      youtubeVideoId = youtubeVideoId,
     )
   }
 

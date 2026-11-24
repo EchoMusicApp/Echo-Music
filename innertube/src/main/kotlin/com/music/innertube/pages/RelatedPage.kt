@@ -63,7 +63,8 @@ data class RelatedPage(
             ?.text
             ?.runs
             ?.firstOrNull()
-            ?.text?.let(ApiText::clean) ?: return null,
+            ?.text
+            ?.let(ApiText::clean) ?: return null,
         artists =
           secondaryLineRuns?.firstOrNull()?.oddElements()?.map {
             Artist(
@@ -92,7 +93,7 @@ data class RelatedPage(
             it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
           } != null,
         libraryAddToken = libraryTokens.addToken,
-        libraryRemoveToken = libraryTokens.removeToken
+        libraryRemoveToken = libraryTokens.removeToken,
       )
     }
 
@@ -112,7 +113,10 @@ data class RelatedPage(
             title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             artists =
               renderer.subtitle?.runs?.splitBySeparator()?.getOrNull(1)?.oddElements()?.map {
-                Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                Artist(
+                  name = ApiText.clean(it.text),
+                  id = it.navigationEndpoint?.browseEndpoint?.browseId,
+                )
               },
             year = renderer.subtitle?.runs?.lastOrNull()?.text?.toIntOrNull(),
             thumbnail =
@@ -129,7 +133,10 @@ data class RelatedPage(
                 ?: return null,
             title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             author =
-              Artist(name = ApiText.clean(renderer.subtitle?.runs?.lastOrNull()?.text ?: return null), id = null),
+              Artist(
+                name = ApiText.clean(renderer.subtitle?.runs?.lastOrNull()?.text ?: return null),
+                id = null,
+              ),
             songCountText =
               renderer.subtitle
                 ?.runs
@@ -159,7 +166,7 @@ data class RelatedPage(
                 .find { it.menuNavigationItemRenderer?.icon?.iconType == "MIX" }
                 ?.menuNavigationItemRenderer
                 ?.navigationEndpoint
-                ?.watchPlaylistEndpoint
+                ?.watchPlaylistEndpoint,
           )
         renderer.isArtist -> {
           ArtistItem(

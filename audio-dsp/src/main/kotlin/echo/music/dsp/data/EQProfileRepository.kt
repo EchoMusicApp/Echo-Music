@@ -17,7 +17,9 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 @Singleton
-class EQProfileRepository @Inject constructor(@param:ApplicationContext private val context: Context) {
+class EQProfileRepository
+@Inject
+constructor(@param:ApplicationContext private val context: Context) {
   private val prefs: SharedPreferences =
     context.getSharedPreferences("nanosonic_eq_profiles", Context.MODE_PRIVATE)
 
@@ -125,7 +127,7 @@ class EQProfileRepository @Inject constructor(@param:ApplicationContext private 
           bands = parametricEQ.bands,
           preamp = parametricEQ.preamp,
           isActive = false,
-          isCustom = true
+          isCustom = true,
         )
 
       saveProfile(customProfile)

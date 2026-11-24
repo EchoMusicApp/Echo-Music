@@ -40,7 +40,7 @@ class CustomEqualizerAudioProcessor : AudioProcessor {
     if (sampleRate == 0) {
       Timber.tag(TAG)
         .d(
-          "Audio processor not configured yet. Storing profile as pending with ${parametricEQ.bands.size} bands"
+          "Audio processor not configured yet. Storing profile as pending with ${parametricEQ.bands.size} bands",
         )
       pendingProfile = parametricEQ
       return
@@ -81,7 +81,7 @@ class CustomEqualizerAudioProcessor : AudioProcessor {
             frequency = band.frequency,
             gain = band.gain,
             q = band.q,
-            filterType = band.filterType
+            filterType = band.filterType,
           )
         }
 

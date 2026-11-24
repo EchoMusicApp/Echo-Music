@@ -127,13 +127,15 @@ fun GlassEffectSettings(
 
   Column(
     Modifier.windowInsetsPadding(
-        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal),
       )
       .verticalScroll(rememberScrollState())
       .padding(horizontal = 16.dp),
   ) {
     Spacer(
-      Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top))
+      Modifier.windowInsetsPadding(
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top),
+      ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -155,17 +157,17 @@ fun GlassEffectSettings(
                   Icon(
                     painter =
                       painterResource(
-                        id = if (globalEnabled) R.drawable.check else R.drawable.close
+                        id = if (globalEnabled) R.drawable.check else R.drawable.close,
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onGlobalEnabledChange(!globalEnabled) }
-          )
-        )
+            onClick = { onGlobalEnabledChange(!globalEnabled) },
+          ),
+        ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -186,17 +188,17 @@ fun GlassEffectSettings(
                   Icon(
                     painter =
                       painterResource(
-                        id = if (useFloatingNavBar) R.drawable.check else R.drawable.close
+                        id = if (useFloatingNavBar) R.drawable.check else R.drawable.close,
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onUseFloatingNavBarChange(!useFloatingNavBar) }
+            onClick = { onUseFloatingNavBarChange(!useFloatingNavBar) },
           ),
-        )
+        ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -209,25 +211,25 @@ fun GlassEffectSettings(
             icon = painterResource(R.drawable.tune),
             title = { Text(stringResource(R.string.liquid_glass_vibrancy)) },
             description = { Text(stringResource(R.string.liquid_glass_vibrancy_desc)) },
-            onClick = { showVibrancyDialog = true }
+            onClick = { showVibrancyDialog = true },
           ),
           Material3SettingsItem(
             icon = painterResource(R.drawable.tune),
             title = { Text(stringResource(R.string.liquid_glass_blur_radius)) },
             description = { Text(stringResource(R.string.liquid_glass_blur_radius_desc)) },
-            onClick = { showBlurRadiusDialog = true }
+            onClick = { showBlurRadiusDialog = true },
           ),
           Material3SettingsItem(
             icon = painterResource(R.drawable.tune),
             title = { Text(stringResource(R.string.liquid_glass_lens_height)) },
             description = { Text(stringResource(R.string.liquid_glass_lens_height_desc)) },
-            onClick = { showLensHeightDialog = true }
+            onClick = { showLensHeightDialog = true },
           ),
           Material3SettingsItem(
             icon = painterResource(R.drawable.tune),
             title = { Text(stringResource(R.string.liquid_glass_lens_amount)) },
             description = { Text(stringResource(R.string.liquid_glass_lens_amount_desc)) },
-            onClick = { showLensAmountDialog = true }
+            onClick = { showLensAmountDialog = true },
           ),
           Material3SettingsItem(
             icon = painterResource(R.drawable.tune),
@@ -241,15 +243,15 @@ fun GlassEffectSettings(
                   Icon(
                     painter =
                       painterResource(
-                        id = if (chromaticAberration) R.drawable.check else R.drawable.close
+                        id = if (chromaticAberration) R.drawable.check else R.drawable.close,
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onChromaticAberrationChange(!chromaticAberration) }
+            onClick = { onChromaticAberrationChange(!chromaticAberration) },
           ),
           Material3SettingsItem(
             icon = painterResource(R.drawable.tune),
@@ -264,14 +266,14 @@ fun GlassEffectSettings(
                     painter =
                       painterResource(id = if (depthEffect) R.drawable.check else R.drawable.close),
                     contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onDepthEffectChange(!depthEffect) }
+            onClick = { onDepthEffectChange(!depthEffect) },
           ),
-        )
+        ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -284,21 +286,21 @@ fun GlassEffectSettings(
             icon = painterResource(R.drawable.contrast),
             title = { Text(stringResource(R.string.liquid_glass_surface_tint)) },
             description = { Text(stringResource(R.string.liquid_glass_surface_tint_desc)) },
-            onClick = { showSurfaceTintDialog = true }
+            onClick = { showSurfaceTintDialog = true },
           ),
           Material3SettingsItem(
             icon = painterResource(R.drawable.tune),
             title = { Text(stringResource(R.string.liquid_glass_surface_opacity)) },
             description = { Text(stringResource(R.string.liquid_glass_surface_opacity_desc)) },
-            onClick = { showSurfaceOpacityDialog = true }
+            onClick = { showSurfaceOpacityDialog = true },
           ),
           Material3SettingsItem(
             icon = painterResource(R.drawable.ic_text_color),
             title = { Text(stringResource(R.string.liquid_glass_text_color)) },
             description = { Text(stringResource(R.string.liquid_glass_text_color_desc)) },
-            onClick = { showTextColorDialog = true }
+            onClick = { showTextColorDialog = true },
           ),
-        )
+        ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -319,15 +321,15 @@ fun GlassEffectSettings(
                   Icon(
                     painter =
                       painterResource(
-                        id = if (playerEnabled) R.drawable.check else R.drawable.close
+                        id = if (playerEnabled) R.drawable.check else R.drawable.close,
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onPlayerEnabledChange(!playerEnabled) }
+            onClick = { onPlayerEnabledChange(!playerEnabled) },
           ),
           Material3SettingsItem(
             icon = painterResource(R.drawable.drag_handle),
@@ -341,15 +343,15 @@ fun GlassEffectSettings(
                   Icon(
                     painter =
                       painterResource(
-                        id = if (miniPlayerEnabled) R.drawable.check else R.drawable.close
+                        id = if (miniPlayerEnabled) R.drawable.check else R.drawable.close,
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onMiniPlayerEnabledChange(!miniPlayerEnabled) }
+            onClick = { onMiniPlayerEnabledChange(!miniPlayerEnabled) },
           ),
           Material3SettingsItem(
             icon = painterResource(R.drawable.nav_bar),
@@ -363,24 +365,24 @@ fun GlassEffectSettings(
                   Icon(
                     painter =
                       painterResource(
-                        id = if (navBarEnabled) R.drawable.check else R.drawable.close
+                        id = if (navBarEnabled) R.drawable.check else R.drawable.close,
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onNavBarEnabledChange(!navBarEnabled) }
+            onClick = { onNavBarEnabledChange(!navBarEnabled) },
           ),
-        )
+        ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
     Spacer(
       Modifier.windowInsetsPadding(
-        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)
-      )
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom),
+      ),
     )
   }
 
@@ -398,7 +400,7 @@ fun GlassEffectSettings(
           onClick = {
             tempValue = vibrancy
             showVibrancyDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.cancel))
         }
@@ -406,31 +408,31 @@ fun GlassEffectSettings(
           onClick = {
             onVibrancyChange(tempValue)
             showVibrancyDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.ok))
         }
-      }
+      },
     ) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp),
       ) {
         Text(
           text = stringResource(R.string.liquid_glass_vibrancy),
           style = MaterialTheme.typography.headlineSmall,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Text(
           text = "%.2f".format(tempValue),
           style = MaterialTheme.typography.bodyLarge,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Slider(
           value = tempValue,
           onValueChange = { tempValue = it },
           valueRange = 0f..2f,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
       }
     }
@@ -450,7 +452,7 @@ fun GlassEffectSettings(
           onClick = {
             tempValue = blurRadius
             showBlurRadiusDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.cancel))
         }
@@ -458,31 +460,31 @@ fun GlassEffectSettings(
           onClick = {
             onBlurRadiusChange(tempValue)
             showBlurRadiusDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.ok))
         }
-      }
+      },
     ) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp),
       ) {
         Text(
           text = stringResource(R.string.liquid_glass_blur_radius),
           style = MaterialTheme.typography.headlineSmall,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Text(
           text = "%.0f".format(tempValue),
           style = MaterialTheme.typography.bodyLarge,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Slider(
           value = tempValue,
           onValueChange = { tempValue = it },
           valueRange = 0f..100f,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
       }
     }
@@ -502,7 +504,7 @@ fun GlassEffectSettings(
           onClick = {
             tempValue = lensHeight
             showLensHeightDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.cancel))
         }
@@ -510,31 +512,31 @@ fun GlassEffectSettings(
           onClick = {
             onLensHeightChange(tempValue)
             showLensHeightDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.ok))
         }
-      }
+      },
     ) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp),
       ) {
         Text(
           text = stringResource(R.string.liquid_glass_lens_height),
           style = MaterialTheme.typography.headlineSmall,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Text(
           text = "%.2f".format(tempValue),
           style = MaterialTheme.typography.bodyLarge,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Slider(
           value = tempValue,
           onValueChange = { tempValue = it },
           valueRange = 0f..1f,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
       }
     }
@@ -554,7 +556,7 @@ fun GlassEffectSettings(
           onClick = {
             tempValue = lensAmount
             showLensAmountDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.cancel))
         }
@@ -562,31 +564,31 @@ fun GlassEffectSettings(
           onClick = {
             onLensAmountChange(tempValue)
             showLensAmountDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.ok))
         }
-      }
+      },
     ) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp),
       ) {
         Text(
           text = stringResource(R.string.liquid_glass_lens_amount),
           style = MaterialTheme.typography.headlineSmall,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Text(
           text = "%.2f".format(tempValue),
           style = MaterialTheme.typography.bodyLarge,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Slider(
           value = tempValue,
           onValueChange = { tempValue = it },
           valueRange = 0f..1f,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
       }
     }
@@ -606,7 +608,7 @@ fun GlassEffectSettings(
           onClick = {
             tempValue = surfaceOpacity
             showSurfaceOpacityDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.cancel))
         }
@@ -614,31 +616,31 @@ fun GlassEffectSettings(
           onClick = {
             onSurfaceOpacityChange(tempValue)
             showSurfaceOpacityDialog = false
-          }
+          },
         ) {
           Text(stringResource(android.R.string.ok))
         }
-      }
+      },
     ) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp),
       ) {
         Text(
           text = stringResource(R.string.liquid_glass_surface_opacity),
           style = MaterialTheme.typography.headlineSmall,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Text(
           text = "%.2f".format(tempValue),
           style = MaterialTheme.typography.bodyLarge,
-          modifier = Modifier.padding(bottom = 16.dp)
+          modifier = Modifier.padding(bottom = 16.dp),
         )
         Slider(
           value = tempValue,
           onValueChange = { tempValue = it },
           valueRange = 0f..1f,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
       }
     }
@@ -689,6 +691,6 @@ fun GlassEffectSettings(
           contentDescription = null,
         )
       }
-    }
+    },
   )
 }

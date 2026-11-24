@@ -58,7 +58,7 @@ object NextPage {
           it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
         } != null,
       libraryAddToken = libraryTokens.addToken,
-      libraryRemoveToken = libraryTokens.removeToken
+      libraryRemoveToken = libraryTokens.removeToken,
     )
   }
 }

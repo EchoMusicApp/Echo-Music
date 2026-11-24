@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 fun PlayerSyncedLyricsView(
   mediaMetadata: MediaMetadata?,
   positionProvider: () -> Long,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   val playerConnection = LocalPlayerConnection.current ?: return
   val currentLyrics by playerConnection.currentLyrics.collectAsState(initial = null)
@@ -69,7 +69,7 @@ fun PlayerSyncedLyricsView(
           val entryPoint =
             EntryPointAccessors.fromApplication(
               context.applicationContext,
-              echo.music.iad1tya.di.LyricsHelperEntryPoint::class.java
+              echo.music.iad1tya.di.LyricsHelperEntryPoint::class.java,
             )
           val lyricsHelper = entryPoint.lyricsHelper()
           val fetchedLyricsWithProvider = lyricsHelper.getLyrics(mediaMetadata)
@@ -78,8 +78,8 @@ fun PlayerSyncedLyricsView(
               LyricsEntity(
                 mediaMetadata.id,
                 fetchedLyricsWithProvider.lyrics ?: "",
-                fetchedLyricsWithProvider.providerName
-              )
+                fetchedLyricsWithProvider.providerName,
+              ),
             )
           }
         } catch (e: Exception) {
@@ -92,7 +92,8 @@ fun PlayerSyncedLyricsView(
   val lines =
     remember(currentLyrics) {
       val lyricsText = currentLyrics?.lyrics?.trim()
-      if (lyricsText.isNullOrEmpty() || lyricsText == LyricsEntity.LYRICS_NOT_FOUND) return@remember emptyList()
+      if (lyricsText.isNullOrEmpty() || lyricsText == LyricsEntity.LYRICS_NOT_FOUND)
+        return@remember emptyList()
       parseLyrics(lyricsText).filter { it.text.isNotBlank() }
     }
 
@@ -110,7 +111,7 @@ fun PlayerSyncedLyricsView(
       modifier
         .fillMaxWidth()
         .padding(horizontal = echo.music.iad1tya.constants.PlayerHorizontalPadding),
-    contentAlignment = Alignment.CenterStart
+    contentAlignment = Alignment.CenterStart,
   ) {
     if (currentLyrics == null) {
       // Loading skeleton
@@ -118,7 +119,7 @@ fun PlayerSyncedLyricsView(
         TextPlaceholder(
           height = 20.dp,
           shape = RoundedCornerShape(8.dp),
-          modifier = Modifier.fillMaxWidth(0.6f)
+          modifier = Modifier.fillMaxWidth(0.6f),
         )
       }
     } else if (lines.isEmpty()) {
@@ -135,20 +136,25 @@ fun PlayerSyncedLyricsView(
         targetState = currentLine,
         transitionSpec = {
           (fadeIn(animationSpec = tween(400, easing = FastOutSlowInEasing)) +
-            slideInVertically(
-              animationSpec =
-                spring(
-                  dampingRatio = Spring.DampingRatioLowBouncy,
-                  stiffness = Spring.StiffnessLow
-                )
-            ) { height -> height / 2 })
+              slideInVertically(
+                animationSpec =
+                  spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow,
+                  ),
+              ) { height ->
+                height / 2
+              })
             .togetherWith(
               fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing)) +
-                slideOutVertically(animationSpec = tween(250, easing = FastOutSlowInEasing)) { height -> -height / 2 }
+                slideOutVertically(animationSpec = tween(250, easing = FastOutSlowInEasing)) {
+                  height ->
+                  -height / 2
+                },
             )
             .using(SizeTransform(clip = false))
         },
-        label = "SyncedLyrics"
+        label = "SyncedLyrics",
       ) { lineText ->
         Text(
           text = lineText,
@@ -156,7 +162,7 @@ fun PlayerSyncedLyricsView(
           fontSize = 18.sp,
           fontWeight = FontWeight.Bold,
           textAlign = TextAlign.Left,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
       }
     }

@@ -11,7 +11,8 @@ class MetadataCleanerTest {
 
   @Test
   fun testOfficialMusicVideoAndQualityStripped() {
-    val result = MetadataCleaner.clean("Alan Walker - Faded (Official Music Video) [4K]", "Alan Walker")
+    val result =
+      MetadataCleaner.clean("Alan Walker - Faded (Official Music Video) [4K]", "Alan Walker")
     assertEquals("Faded", result.cleanTitle)
     assertEquals("Alan Walker", result.primaryArtist)
     assertNull(result.version)
@@ -20,7 +21,11 @@ class MetadataCleanerTest {
 
   @Test
   fun testRemixPreservedInVersionInfo() {
-    val result = MetadataCleaner.clean("Illenium - Crawl Outta Love (The Glitch Mob Remix) [Official Audio]", "Illenium")
+    val result =
+      MetadataCleaner.clean(
+        "Illenium - Crawl Outta Love (The Glitch Mob Remix) [Official Audio]",
+        "Illenium",
+      )
     assertEquals("Crawl Outta Love", result.cleanTitle)
     assertEquals("Illenium", result.primaryArtist)
     assertNotNull(result.version)
@@ -32,7 +37,11 @@ class MetadataCleanerTest {
 
   @Test
   fun testFeaturingArtistsExtractedFromTitle() {
-    val result = MetadataCleaner.clean("Major Lazer - Lean On (feat. MØ) (Official Lyric Video)", "Major Lazer")
+    val result =
+      MetadataCleaner.clean(
+        "Major Lazer - Lean On (feat. MØ) (Official Lyric Video)",
+        "Major Lazer",
+      )
     assertEquals("Lean On", result.cleanTitle)
     assertEquals("Major Lazer", result.primaryArtist)
     assertTrue("Should contain MØ in featured artists", result.featuredArtists.contains("MØ"))
@@ -86,7 +95,10 @@ class MetadataCleanerTest {
     val result = MetadataCleaner.clean("Title", "Calvin Harris & Dua Lipa")
     assertEquals("Calvin Harris", result.primaryArtist)
     assertEquals("Calvin Harris & Dua Lipa", result.cleanArtist)
-    assertTrue("Should include Dua Lipa in featured artists", result.featuredArtists.contains("Dua Lipa"))
+    assertTrue(
+      "Should include Dua Lipa in featured artists",
+      result.featuredArtists.contains("Dua Lipa"),
+    )
     val (queryTitle, queryArtist) = result.toSearchQuery()
     assertEquals("Title", queryTitle)
     assertEquals("Calvin Harris & Dua Lipa", queryArtist)
@@ -105,7 +117,6 @@ class MetadataCleanerTest {
     assertEquals("Alan Walker", result.primaryArtist)
     assertTrue("Title should not be set to junk", result.cleanTitle != "Official Music Video")
   }
-
 
   @Test
   fun testHtmlEntitiesAndSmartQuotes() {

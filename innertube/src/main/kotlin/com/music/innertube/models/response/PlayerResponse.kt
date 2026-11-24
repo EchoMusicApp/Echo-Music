@@ -59,7 +59,7 @@ data class PlayerResponse(
       val lastModified: Long?,
       val signatureCipher: String?,
       val cipher: String?,
-      val audioTrack: AudioTrack?
+      val audioTrack: AudioTrack?,
     ) {
       val isAudio: Boolean
         get() = width == null

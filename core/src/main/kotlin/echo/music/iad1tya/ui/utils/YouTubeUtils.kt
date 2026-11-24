@@ -13,7 +13,7 @@ fun String.resize(
     val targetQuality = if (width != null && width >= 1200) "maxresdefault.jpg" else "hqdefault.jpg"
     return this.replace(
       Regex("(default|mqdefault|hqdefault|sddefault|maxresdefault|hq720)\\.jpg"),
-      targetQuality
+      targetQuality,
     )
   }
 
@@ -48,10 +48,11 @@ fun String.resize(
 fun ytimgFallbackUrl(url: String): String? {
   if (!url.contains("ytimg.com")) return null
   val path = url.substringBefore('?')
-  val next = when {
-    path.endsWith("/maxresdefault.jpg") || path.endsWith("/sddefault.jpg") -> "hq720.jpg"
-    path.endsWith("/hq720.jpg") -> "hqdefault.jpg"
-    else -> return null
-  }
+  val next =
+    when {
+      path.endsWith("/maxresdefault.jpg") || path.endsWith("/sddefault.jpg") -> "hq720.jpg"
+      path.endsWith("/hq720.jpg") -> "hqdefault.jpg"
+      else -> return null
+    }
   return path.substringBeforeLast('/') + "/" + next
 }

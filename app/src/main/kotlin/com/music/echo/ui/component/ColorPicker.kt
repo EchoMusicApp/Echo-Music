@@ -176,7 +176,7 @@ fun ColorPickerDialog(
             } else {
               defaultColor?.let(::selectColor)
             }
-          }
+          },
         ) {
           Text(stringResource(R.string.reset))
         }
@@ -209,7 +209,7 @@ fun ColorPickerDialog(
           hue = h
           hexInput =
             ColorPickerConversions.colorToHex(
-              ColorPickerConversions.hsvToColor(h, saturation, value)
+              ColorPickerConversions.hsvToColor(h, saturation, value),
             )
           hexError = false
         },
@@ -223,7 +223,7 @@ fun ColorPickerDialog(
             Modifier.size(40.dp)
               .clip(CircleShape)
               .background(selectedColor)
-              .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+              .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape),
         )
 
         Spacer(Modifier.width(12.dp))
@@ -295,7 +295,7 @@ private fun PresetSwatch(
             },
           shape = CircleShape,
         )
-        .clickable(onClick = onClick)
+        .clickable(onClick = onClick),
   )
 }
 

@@ -30,8 +30,8 @@ import timber.log.Timber
 /**
  * Manages Spotify authentication session state, persistence, and token refreshes.
  *
- * Preserves Echo Music's individual DataStore preference keys so all downstream
- * settings, library observers, and playback components continue working without disruption.
+ * Preserves Echo Music's individual DataStore preference keys so all downstream settings, library
+ * observers, and playback components continue working without disruption.
  */
 object SpotifySessionManager {
   private const val TOKEN_EXPIRY_GRACE_MS = 60_000L
@@ -55,26 +55,27 @@ object SpotifySessionManager {
   suspend fun saveSession(
     context: Context,
     session: SpotifySession,
-  ) = withContext(Dispatchers.IO) {
-    context.dataStore.edit { prefs ->
-      prefs[SpotifySpDcKey] = session.spDc
-      if (!session.spKey.isNullOrBlank()) {
-        prefs[SpotifySpKeyKey] = session.spKey
-      } else {
-        prefs.remove(SpotifySpKeyKey)
-      }
-      if (!session.accessToken.isNullOrBlank()) {
-        prefs[SpotifyAccessTokenKey] = session.accessToken
-        prefs[SpotifyAccessTokenExpiresAtKey] = session.expiresAt
-      }
-      if (!session.accountName.isNullOrBlank()) {
-        prefs[SpotifyAccountNameKey] = session.accountName
-      }
-      if (!session.accountAvatarUrl.isNullOrBlank()) {
-        prefs[SpotifyAccountAvatarUrlKey] = session.accountAvatarUrl
+  ) =
+    withContext(Dispatchers.IO) {
+      context.dataStore.edit { prefs ->
+        prefs[SpotifySpDcKey] = session.spDc
+        if (!session.spKey.isNullOrBlank()) {
+          prefs[SpotifySpKeyKey] = session.spKey
+        } else {
+          prefs.remove(SpotifySpKeyKey)
+        }
+        if (!session.accessToken.isNullOrBlank()) {
+          prefs[SpotifyAccessTokenKey] = session.accessToken
+          prefs[SpotifyAccessTokenExpiresAtKey] = session.expiresAt
+        }
+        if (!session.accountName.isNullOrBlank()) {
+          prefs[SpotifyAccountNameKey] = session.accountName
+        }
+        if (!session.accountAvatarUrl.isNullOrBlank()) {
+          prefs[SpotifyAccountAvatarUrlKey] = session.accountAvatarUrl
+        }
       }
     }
-  }
 
   suspend fun clearSession(context: Context) =
     withContext(Dispatchers.IO) {
@@ -91,23 +92,23 @@ object SpotifySessionManager {
     }
 
   /**
-   * Retrieves an active, non-expired access token. If the cached token is expired or
-   * missing, automatically refreshes it using the persisted `sp_dc` cookie.
+   * Retrieves an active, non-expired access token. If the cached token is expired or missing,
+   * automatically refreshes it using the persisted `sp_dc` cookie.
    */
   suspend fun getValidAccessToken(context: Context): String? =
     withContext(Dispatchers.IO) {
       val session = getSession(context) ?: return@withContext null
 
-      if (!session.accessToken.isNullOrBlank() &&
-        session.expiresAt > System.currentTimeMillis() + TOKEN_EXPIRY_GRACE_MS
+      if (
+        !session.accessToken.isNullOrBlank() &&
+          session.expiresAt > System.currentTimeMillis() + TOKEN_EXPIRY_GRACE_MS
       ) {
         Spotify.accessToken = session.accessToken
         return@withContext session.accessToken
       }
 
       try {
-        val token =
-          SpotifyAuth.fetchAccessToken(session.spDc, session.spKey.orEmpty()).getOrThrow()
+        val token = SpotifyAuth.fetchAccessToken(session.spDc, session.spKey.orEmpty()).getOrThrow()
         Spotify.accessToken = token.accessToken
 
         context.dataStore.edit { prefs ->

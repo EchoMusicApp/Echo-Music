@@ -16,7 +16,7 @@ object PageHelper {
   /** Data class to hold both library feedback tokens extracted from a menu */
   data class LibraryFeedbackTokens(
     val addToken: String?, // Token to add song to library (from BOOKMARK_BORDER)
-    val removeToken: String? // Token to remove song from library (from BOOKMARK)
+    val removeToken: String?, // Token to remove song from library (from BOOKMARK)
   )
 
   /**
@@ -83,7 +83,7 @@ object PageHelper {
    * @return LibraryFeedbackTokens containing both add and remove tokens
    */
   fun extractLibraryTokensFromMenuItems(
-    menuItems: List<Menu.MenuRenderer.Item>?
+    menuItems: List<Menu.MenuRenderer.Item>?,
   ): LibraryFeedbackTokens {
     if (menuItems == null) return LibraryFeedbackTokens(null, null)
 
@@ -134,7 +134,7 @@ object PageHelper {
    */
   fun extractFeedbackToken(
     menu: Menu.MenuRenderer.Item.ToggleMenuServiceRenderer?,
-    type: String
+    type: String,
   ): String? {
     if (menu == null) return null
     val defaultToken = menu.defaultServiceEndpoint.feedbackEndpoint?.feedbackToken

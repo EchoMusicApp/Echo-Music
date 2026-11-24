@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class StandbyCrossfadeSchedulerImpl(
   private val scope: CoroutineScope,
-  override val preArmManager: AdaptivePreArmManager = AdaptivePreArmManager()
+  override val preArmManager: AdaptivePreArmManager = AdaptivePreArmManager(),
 ) : StandbyCrossfadeScheduler {
 
   private val _isCrossfading = MutableStateFlow(false)
@@ -22,7 +22,9 @@ class StandbyCrossfadeSchedulerImpl(
   private val _armedState = MutableStateFlow<ArmedStatus>(ArmedStatus.Idle)
   override val armedState: StateFlow<ArmedStatus> = _armedState.asStateFlow()
 
-  override var onCrossfadeSwapped: ((outgoingPlayer: ExoPlayer, incomingPlayer: ExoPlayer) -> Unit)? = null
+  override var onCrossfadeSwapped:
+    ((outgoingPlayer: ExoPlayer, incomingPlayer: ExoPlayer) -> Unit)? =
+    null
 
   private var nextMediaItem: MediaItem? = null
   private var crossfadeDurationMs: Long = 0L
@@ -34,7 +36,7 @@ class StandbyCrossfadeSchedulerImpl(
   override fun onQueueOrTrackChanged(
     primaryPlayer: ExoPlayer,
     nextItem: MediaItem?,
-    crossfadeDurationMs: Long
+    crossfadeDurationMs: Long,
   ) {
     if (nextMediaItem?.mediaId != nextItem?.mediaId) {
       cancelCrossfade()
@@ -47,7 +49,7 @@ class StandbyCrossfadeSchedulerImpl(
     primaryPlayer: ExoPlayer,
     currentPositionMs: Long,
     durationMs: Long,
-    playerFactory: () -> ExoPlayer
+    playerFactory: () -> ExoPlayer,
   ) {
     if (crossfadeDurationMs <= 0 || durationMs <= crossfadeDurationMs || nextMediaItem == null) {
       return
@@ -57,7 +59,11 @@ class StandbyCrossfadeSchedulerImpl(
     val leadTimeMs = preArmManager.currentLeadTimeMs
 
     // Check if we need to pre-arm
-    if (_armedState.value is ArmedStatus.Idle && remainingMs <= leadTimeMs && remainingMs > crossfadeDurationMs) {
+    if (
+      _armedState.value is ArmedStatus.Idle &&
+        remainingMs <= leadTimeMs &&
+        remainingMs > crossfadeDurationMs
+    ) {
       val targetItem = nextMediaItem ?: return
       prepStartTimeMs = System.currentTimeMillis()
       _armedState.value = ArmedStatus.Preparing(targetItem.mediaId, prepStartTimeMs)
@@ -67,11 +73,12 @@ class StandbyCrossfadeSchedulerImpl(
       standby.volume = 0f
       standby.playWhenReady = false
 
-      val listener = object : Player.Listener {
-        override fun onPlaybackStateChanged(playbackState: Int) {
-          this@StandbyCrossfadeSchedulerImpl.onStandbyPlayerStateChanged(playbackState)
+      val listener =
+        object : Player.Listener {
+          override fun onPlaybackStateChanged(playbackState: Int) {
+            this@StandbyCrossfadeSchedulerImpl.onStandbyPlayerStateChanged(playbackState)
+          }
         }
-      }
       standbyListener = listener
       standby.addListener(listener)
 
@@ -85,7 +92,11 @@ class StandbyCrossfadeSchedulerImpl(
     }
 
     // Check if trigger timestamp has arrived
-    if (_armedState.value is ArmedStatus.Armed && remainingMs <= crossfadeDurationMs && !_isCrossfading.value) {
+    if (
+      _armedState.value is ArmedStatus.Armed &&
+        remainingMs <= crossfadeDurationMs &&
+        !_isCrossfading.value
+    ) {
       startCrossfade(primaryPlayer)
     }
   }

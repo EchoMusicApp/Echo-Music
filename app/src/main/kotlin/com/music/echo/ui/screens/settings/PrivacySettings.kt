@@ -46,7 +46,7 @@ import echo.music.iad1tya.utils.rememberPreference
 fun PrivacySettings(
   navController: NavController,
   scrollBehavior: TopAppBarScrollBehavior,
-  highlightKey: String? = null
+  highlightKey: String? = null,
 ) {
   val scrollState = androidx.compose.foundation.rememberScrollState()
 
@@ -122,13 +122,15 @@ fun PrivacySettings(
 
   Column(
     Modifier.windowInsetsPadding(
-        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal),
       )
       .verticalScroll(scrollState)
-      .padding(horizontal = 16.dp)
+      .padding(horizontal = 16.dp),
   ) {
     Spacer(
-      Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top))
+      Modifier.windowInsetsPadding(
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top),
+      ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -151,24 +153,24 @@ fun PrivacySettings(
                   Icon(
                     painter =
                       painterResource(
-                        id = if (pauseListenHistory) R.drawable.check else R.drawable.close
+                        id = if (pauseListenHistory) R.drawable.check else R.drawable.close,
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize)
+                    modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onPauseListenHistoryChange(!pauseListenHistory) }
+            onClick = { onPauseListenHistoryChange(!pauseListenHistory) },
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.clear_listen_history)),
             icon = painterResource(R.drawable.delete_history),
             title = { Text(stringResource(R.string.clear_listen_history)) },
             description = { Text(stringResource(R.string.clear_listen_history_desc)) },
-            onClick = { showClearListenHistoryDialog = true }
-          )
-        )
+            onClick = { showClearListenHistoryDialog = true },
+          ),
+        ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -191,24 +193,24 @@ fun PrivacySettings(
                   Icon(
                     painter =
                       painterResource(
-                        id = if (pauseSearchHistory) R.drawable.check else R.drawable.close
+                        id = if (pauseSearchHistory) R.drawable.check else R.drawable.close,
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize)
+                    modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onPauseSearchHistoryChange(!pauseSearchHistory) }
+            onClick = { onPauseSearchHistoryChange(!pauseSearchHistory) },
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.clear_search_history)),
             icon = painterResource(R.drawable.clear_all),
             title = { Text(stringResource(R.string.clear_search_history)) },
             description = { Text(stringResource(R.string.clear_search_history_desc)) },
-            onClick = { showClearSearchHistoryDialog = true }
-          )
-        )
+            onClick = { showClearSearchHistoryDialog = true },
+          ),
+        ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -231,24 +233,24 @@ fun PrivacySettings(
                   Icon(
                     painter =
                       painterResource(
-                        id = if (disableScreenshot) R.drawable.check else R.drawable.close
+                        id = if (disableScreenshot) R.drawable.check else R.drawable.close,
                       ),
                     contentDescription = null,
-                    modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize)
+                    modifier = Modifier.size(androidx.compose.material3.SwitchDefaults.IconSize),
                   )
-                }
+                },
               )
             },
-            onClick = { onDisableScreenshotChange(!disableScreenshot) }
-          )
-        )
+            onClick = { onDisableScreenshotChange(!disableScreenshot) },
+          ),
+        ),
     )
     Spacer(modifier = Modifier.height(16.dp))
 
     Spacer(
       Modifier.windowInsetsPadding(
-        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)
-      )
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom),
+      ),
     )
   }
 
@@ -264,6 +266,6 @@ fun PrivacySettings(
           contentDescription = null,
         )
       }
-    }
+    },
   )
 }

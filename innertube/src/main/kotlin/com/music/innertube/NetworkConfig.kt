@@ -38,7 +38,7 @@ object NetworkConfig {
             explicitNulls = false
             encodeDefaults = true
             isLenient = true
-          }
+          },
         )
       }
 
@@ -95,7 +95,7 @@ object NetworkConfig {
         TimeoutConfig(
           connectTimeout = CONNECT_TIMEOUT_SECONDS * 1000,
           readTimeout = READ_TIMEOUT_SECONDS * 1000,
-          requestTimeout = REQUEST_TIMEOUT_MILLIS
+          requestTimeout = REQUEST_TIMEOUT_MILLIS,
         )
     }
   }
@@ -104,12 +104,12 @@ object NetworkConfig {
     EXCELLENT,
     GOOD,
     POOR,
-    UNKNOWN
+    UNKNOWN,
   }
 
   data class TimeoutConfig(
     val connectTimeout: Long,
     val readTimeout: Long,
-    val requestTimeout: Long
+    val requestTimeout: Long,
   )
 }

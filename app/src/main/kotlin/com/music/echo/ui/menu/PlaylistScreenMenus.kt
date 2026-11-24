@@ -32,7 +32,7 @@ fun LocalPlaylistMenu(
   onExport: () -> Unit,
   onModifyWithAi: () -> Unit,
   onQueue: () -> Unit,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
 ) {
   val listenTogetherManager = LocalListenTogetherManager.current
   val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
@@ -47,7 +47,7 @@ fun LocalPlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
       Download.STATE_QUEUED,
       Download.STATE_DOWNLOADING ->
@@ -58,7 +58,7 @@ fun LocalPlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
       else ->
         Material3MenuItemData(
@@ -70,7 +70,7 @@ fun LocalPlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
     }
 
@@ -85,8 +85,8 @@ fun LocalPlaylistMenu(
         onClick = {
           onEdit()
           onDismiss()
-        }
-      )
+        },
+      ),
     )
 
     if (playlist.playlist.isEditable) {
@@ -97,14 +97,14 @@ fun LocalPlaylistMenu(
           icon = {
             Icon(
               painter = painterResource(R.drawable.edit), // Or another icon
-              contentDescription = null
+              contentDescription = null,
             )
           },
           onClick = {
             onModifyWithAi()
             onDismiss()
-          }
-        )
+          },
+        ),
       )
     }
 
@@ -118,8 +118,8 @@ fun LocalPlaylistMenu(
         onClick = {
           onExport()
           onDismiss()
-        }
-      )
+        },
+      ),
     )
 
     if (isYouTubePlaylist) {
@@ -131,8 +131,8 @@ fun LocalPlaylistMenu(
           onClick = {
             onSync()
             onDismiss()
-          }
-        )
+          },
+        ),
       )
     }
 
@@ -147,8 +147,8 @@ fun LocalPlaylistMenu(
           onClick = {
             onQueue()
             onDismiss()
-          }
-        )
+          },
+        ),
       )
     }
 
@@ -175,8 +175,8 @@ fun LocalPlaylistMenu(
           val shareIntent = Intent.createChooser(sendIntent, null)
           context.startActivity(shareIntent)
           onDismiss()
-        }
-      )
+        },
+      ),
     )
 
     add(
@@ -187,8 +187,8 @@ fun LocalPlaylistMenu(
         onClick = {
           onDelete()
           onDismiss()
-        }
-      )
+        },
+      ),
     )
   }
 
@@ -200,7 +200,7 @@ fun AutoPlaylistMenu(
   downloadState: Int,
   onQueue: () -> Unit,
   onDownload: () -> Unit,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
 ) {
   val listenTogetherManager = LocalListenTogetherManager.current
   val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
@@ -215,7 +215,7 @@ fun AutoPlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
       Download.STATE_QUEUED,
       Download.STATE_DOWNLOADING ->
@@ -226,7 +226,7 @@ fun AutoPlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
       else ->
         Material3MenuItemData(
@@ -238,7 +238,7 @@ fun AutoPlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
     }
 
@@ -255,11 +255,11 @@ fun AutoPlaylistMenu(
             onClick = {
               onQueue()
               onDismiss()
-            }
+            },
           )
         } else null,
-        downloadMenuItem
-      )
+        downloadMenuItem,
+      ),
   )
 }
 
@@ -268,7 +268,7 @@ fun TopPlaylistMenu(
   downloadState: Int,
   onQueue: () -> Unit,
   onDownload: () -> Unit,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
 ) {
   val listenTogetherManager = LocalListenTogetherManager.current
   val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
@@ -283,7 +283,7 @@ fun TopPlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
       Download.STATE_QUEUED,
       Download.STATE_DOWNLOADING ->
@@ -294,7 +294,7 @@ fun TopPlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
       else ->
         Material3MenuItemData(
@@ -306,7 +306,7 @@ fun TopPlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
     }
 
@@ -323,11 +323,11 @@ fun TopPlaylistMenu(
             onClick = {
               onQueue()
               onDismiss()
-            }
+            },
           )
         } else null,
-        downloadMenuItem
-      )
+        downloadMenuItem,
+      ),
   )
 }
 
@@ -336,7 +336,7 @@ fun CachePlaylistMenu(
   downloadState: Int,
   onQueue: () -> Unit,
   onDownload: () -> Unit,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
 ) {
   val listenTogetherManager = LocalListenTogetherManager.current
   val isGuest = listenTogetherManager?.isGuestPlaybackRestricted == true
@@ -351,7 +351,7 @@ fun CachePlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
       Download.STATE_QUEUED,
       Download.STATE_DOWNLOADING ->
@@ -362,7 +362,7 @@ fun CachePlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
       else ->
         Material3MenuItemData(
@@ -374,7 +374,7 @@ fun CachePlaylistMenu(
           onClick = {
             onDownload()
             onDismiss()
-          }
+          },
         )
     }
 
@@ -391,10 +391,10 @@ fun CachePlaylistMenu(
             onClick = {
               onQueue()
               onDismiss()
-            }
+            },
           )
         } else null,
-        downloadMenuItem
-      )
+        downloadMenuItem,
+      ),
   )
 }

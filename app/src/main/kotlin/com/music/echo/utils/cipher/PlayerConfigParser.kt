@@ -59,7 +59,7 @@ object PlayerConfigParser {
     if (schemaVersion <= 0) return ParseResult.Failure("schemaVersion must be positive")
     if (schemaVersion > SUPPORTED_SCHEMA_VERSION) {
       return ParseResult.Failure(
-        "unsupported schemaVersion $schemaVersion (supported: $SUPPORTED_SCHEMA_VERSION)"
+        "unsupported schemaVersion $schemaVersion (supported: $SUPPORTED_SCHEMA_VERSION)",
       )
     }
 

@@ -23,7 +23,7 @@ object Wikipedia {
           Json {
             isLenient = true
             ignoreUnknownKeys = true
-          }
+          },
         )
       }
       defaultRequest { url("https://en.wikipedia.org/api/rest_v1/") }
@@ -31,8 +31,7 @@ object Wikipedia {
     }
   }
 
-  @Serializable
-  data class WikiThumbnail(val source: String? = null)
+  @Serializable data class WikiThumbnail(val source: String? = null)
 
   @Serializable
   data class WikiSummary(
@@ -43,29 +42,34 @@ object Wikipedia {
     val type: String? = null,
   )
 
-  suspend fun fetchSummary(title: String): WikiSummary? =
-    runCatching {
-        client
-          .get("page/summary/${title.replace(" ", "_").encodeURLQueryComponent()}")
-          .body<WikiSummary>()
+  suspend fun fetchSummary(title: String): WikiSummary? = runCatching {
+    client
+      .get("page/summary/${title.replace(" ", "_").encodeURLQueryComponent()}")
+      .body<WikiSummary>()
+  }
+    .onFailure {
+      if (it is ResponseException && it.response.status == HttpStatusCode.NotFound) {
+        Timber.d("No Wikipedia summary found for: $title")
+      } else {
+        Timber.w("Failed to fetch Wikipedia summary for: $title (${it.message})")
       }
-      .onFailure {
-        if (it is ResponseException && it.response.status == HttpStatusCode.NotFound) {
-          Timber.d("No Wikipedia summary found for: $title")
-        } else {
-          Timber.w("Failed to fetch Wikipedia summary for: $title (${it.message})")
-        }
-      }
-      .getOrNull()
-      ?.takeIf { it.extract != null && !it.extract.contains("may refer to", ignoreCase = true) }
+    }
+    .getOrNull()
+    ?.takeIf { it.extract != null && !it.extract.contains("may refer to", ignoreCase = true) }
 
   private suspend fun fetchPageSummary(title: String): String? = fetchSummary(title)?.extract
 
-  suspend fun searchWikipedia(query: String, filterKeywords: List<String> = emptyList()): WikiSummary? =
+  suspend fun searchWikipedia(
+    query: String,
+    filterKeywords: List<String> = emptyList(),
+  ): WikiSummary? =
     withContext(Dispatchers.IO) {
       runCatching {
         val enc = java.net.URLEncoder.encode(query, "UTF-8")
-        val url = java.net.URL("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$enc&utf8=&format=json")
+        val url =
+          java.net.URL(
+            "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$enc&utf8=&format=json",
+          )
         val conn = url.openConnection() as java.net.HttpURLConnection
         conn.setRequestProperty("User-Agent", "EchoMusic/1.0 (Android; support@echomusic.app)")
         conn.connectTimeout = 4000
@@ -77,9 +81,11 @@ object Wikipedia {
           val item = searchList.getJSONObject(i)
           val itemTitle = item.optString("title")
           val snippet = item.optString("snippet")
-          val matchesKeyword = filterKeywords.isEmpty() || filterKeywords.any {
-            snippet.contains(it, ignoreCase = true) || itemTitle.contains(it, ignoreCase = true)
-          }
+          val matchesKeyword =
+            filterKeywords.isEmpty() ||
+              filterKeywords.any {
+                snippet.contains(it, ignoreCase = true) || itemTitle.contains(it, ignoreCase = true)
+              }
           if (matchesKeyword) {
             val summary = fetchSummary(itemTitle)
             if (summary != null && !summary.extract.isNullOrBlank()) {
@@ -88,31 +94,58 @@ object Wikipedia {
           }
         }
         null
-      }.getOrNull()
+      }
+        .getOrNull()
     }
 
   suspend fun fetchArtistBio(artistName: String): WikiSummary? {
     val clean = artistName.replace(Regex("(?i)\\s*-\\s*Topic|\\s*\\(.*\\)"), "").trim()
     if (clean.isBlank()) return null
-    val direct = fetchSummary("$clean (musician)")
-      ?: fetchSummary("$clean (singer)")
-      ?: fetchSummary("$clean (composer)")
-      ?: fetchSummary(clean)?.takeIf {
-        val desc = it.description.orEmpty().lowercase()
-        val ext = it.extract.orEmpty().lowercase()
-        val musicKeywords = listOf("music", "singer", "composer", "artist", "band", "song", "rapper", "producer", "playback")
-        musicKeywords.any { kw -> desc.contains(kw) || ext.contains(kw) }
-      }
+    val direct =
+      fetchSummary("$clean (musician)")
+        ?: fetchSummary("$clean (singer)")
+        ?: fetchSummary("$clean (composer)")
+        ?: fetchSummary(clean)?.takeIf {
+          val desc = it.description.orEmpty().lowercase()
+          val ext = it.extract.orEmpty().lowercase()
+          val musicKeywords =
+            listOf(
+              "music",
+              "singer",
+              "composer",
+              "artist",
+              "band",
+              "song",
+              "rapper",
+              "producer",
+              "playback",
+            )
+          musicKeywords.any { kw -> desc.contains(kw) || ext.contains(kw) }
+        }
     if (direct != null) return direct
 
-    return searchWikipedia(clean, listOf("singer", "composer", "musician", "band", "music", "artist", "rapper", "soundtrack"))
+    return searchWikipedia(
+      clean,
+      listOf("singer", "composer", "musician", "band", "music", "artist", "rapper", "soundtrack"),
+    )
   }
 
-  suspend fun fetchSongStory(songTitle: String, artistName: String?, albumTitle: String?): WikiSummary? {
-    val cleanTitle = songTitle.replace(Regex("(?i)\\s*\\(From.*?\\)|\\s*\\[.*?\\]|\\s*\\(Official.*?\\)|\\s*\\(Lyric.*?\\)"), "").trim()
+  suspend fun fetchSongStory(
+    songTitle: String,
+    artistName: String?,
+    albumTitle: String?,
+  ): WikiSummary? {
+    val cleanTitle =
+      songTitle
+        .replace(
+          Regex("(?i)\\s*\\(From.*?\\)|\\s*\\[.*?\\]|\\s*\\(Official.*?\\)|\\s*\\(Lyric.*?\\)"),
+          "",
+        )
+        .trim()
     if (cleanTitle.isNotBlank()) {
-      val direct = fetchSummary("$cleanTitle (song)")
-        ?: if (artistName != null) fetchSummary("$cleanTitle ($artistName song)") else null
+      val direct =
+        fetchSummary("$cleanTitle (song)")
+          ?: if (artistName != null) fetchSummary("$cleanTitle ($artistName song)") else null
       if (direct != null) return direct
     }
 
@@ -127,14 +160,18 @@ object Wikipedia {
     }
 
     if (!albumTitle.isNullOrBlank() && !albumTitle.equals("Unknown", ignoreCase = true)) {
-      val albumSummary = fetchSummary("$albumTitle (soundtrack)")
-        ?: fetchSummary("$albumTitle (album)")
-        ?: fetchSummary(albumTitle)
+      val albumSummary =
+        fetchSummary("$albumTitle (soundtrack)")
+          ?: fetchSummary("$albumTitle (album)")
+          ?: fetchSummary(albumTitle)
       if (albumSummary != null) return albumSummary
     }
 
     if (cleanTitle.isNotBlank()) {
-      return searchWikipedia("$cleanTitle ${artistName.orEmpty()}", listOf("song", "soundtrack", "album", "single", "composed", "film", "music"))
+      return searchWikipedia(
+        "$cleanTitle ${artistName.orEmpty()}",
+        listOf("song", "soundtrack", "album", "single", "composed", "film", "music"),
+      )
     }
     return null
   }

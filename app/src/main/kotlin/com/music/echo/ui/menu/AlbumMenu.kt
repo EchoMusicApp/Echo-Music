@@ -260,7 +260,7 @@ fun AlbumMenu(
           painter =
             painterResource(
               if (album.album.bookmarkedAt != null) R.drawable.favorite
-              else R.drawable.favorite_border
+              else R.drawable.favorite_border,
             ),
           tint =
             if (album.album.bookmarkedAt != null) MaterialTheme.colorScheme.error
@@ -298,7 +298,7 @@ fun AlbumMenu(
                     painter = painterResource(R.drawable.play),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.play),
@@ -306,10 +306,10 @@ fun AlbumMenu(
                   onDismiss()
                   if (songs.isNotEmpty()) {
                     playerConnection.playQueue(
-                      ListQueue(title = album.album.title, items = songs.map(Song::toMediaItem))
+                      ListQueue(title = album.album.title, items = songs.map(Song::toMediaItem)),
                     )
                   }
-                }
+                },
               )
 
               NewAction(
@@ -318,7 +318,7 @@ fun AlbumMenu(
                     painter = painterResource(R.drawable.shuffle),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.shuffle),
@@ -331,11 +331,11 @@ fun AlbumMenu(
                     playerConnection.playQueue(
                       ListQueue(
                         title = album.album.title,
-                        items = songs.shuffled().map(Song::toMediaItem)
-                      )
+                        items = songs.shuffled().map(Song::toMediaItem),
+                      ),
                     )
                   }
-                }
+                },
               )
             } else null,
             NewAction(
@@ -344,7 +344,7 @@ fun AlbumMenu(
                   painter = painterResource(R.drawable.share),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.share),
@@ -356,15 +356,15 @@ fun AlbumMenu(
                     type = "text/plain"
                     putExtra(
                       Intent.EXTRA_TEXT,
-                      "https://share.echomusic.fun/playlist?list=${album.album.playlistId}"
+                      "https://share.echomusic.fun/playlist?list=${album.album.playlistId}",
                     )
                   }
                 context.startActivity(Intent.createChooser(intent, null))
-              }
-            )
+              },
+            ),
           ),
         modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
-        columns = if (isGuest) 1 else 3
+        columns = if (isGuest) 1 else 3,
       )
     }
     item {
@@ -378,13 +378,13 @@ fun AlbumMenu(
                 icon = {
                   Icon(
                     painter = painterResource(R.drawable.playlist_play),
-                    contentDescription = null
+                    contentDescription = null,
                   )
                 },
                 onClick = {
                   onDismiss()
                   playerConnection.playNext(songs.map { it.toMediaItem() })
-                }
+                },
               )
             } else null,
             if (!isGuest) {
@@ -397,7 +397,7 @@ fun AlbumMenu(
                 onClick = {
                   onDismiss()
                   playerConnection.addToQueue(songs.map { it.toMediaItem() })
-                }
+                },
               )
             } else null,
             Material3MenuItemData(
@@ -406,7 +406,7 @@ fun AlbumMenu(
               icon = {
                 Icon(painter = painterResource(R.drawable.playlist_add), contentDescription = null)
               },
-              onClick = { showChoosePlaylistDialog = true }
+              onClick = { showChoosePlaylistDialog = true },
             ),
             Material3MenuItemData(
               title = {
@@ -431,15 +431,15 @@ fun AlbumMenu(
                         subtitle = album.artists.joinToString(", ") { it.name },
                         thumbnailUrl = album.album.thumbnailUrl,
                         type = "ALBUM",
-                        explicit = album.album.explicit
-                      )
+                        explicit = album.album.explicit,
+                      ),
                     )
                   }
                 }
                 onDismiss()
-              }
-            )
-          )
+              },
+            ),
+          ),
       )
     }
 
@@ -465,7 +465,7 @@ fun AlbumMenu(
                         false,
                       )
                     }
-                  }
+                  },
                 )
               }
               STATE_QUEUED,
@@ -484,7 +484,7 @@ fun AlbumMenu(
                         false,
                       )
                     }
-                  }
+                  },
                 )
               }
               else -> {
@@ -508,11 +508,11 @@ fun AlbumMenu(
                         false,
                       )
                     }
-                  }
+                  },
                 )
               }
-            }
-          )
+            },
+          ),
       )
     }
 
@@ -535,7 +535,7 @@ fun AlbumMenu(
                 } else {
                   showSelectArtistDialog = true
                 }
-              }
+              },
             ),
             Material3MenuItemData(
               title = { Text(text = stringResource(R.string.refetch)) },
@@ -544,7 +544,7 @@ fun AlbumMenu(
                 Icon(
                   painter = painterResource(R.drawable.sync),
                   contentDescription = null,
-                  modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation)
+                  modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation),
                 )
               },
               onClick = {
@@ -554,24 +554,26 @@ fun AlbumMenu(
                     database.transaction { update(album.album, it, album.artists) }
                   }
                 }
-              }
+              },
             ),
             Material3MenuItemData(
               title = {
                 Text(
-                  text = if (isAlbumExcluded) "Allow in recommendations" else "Never recommend again"
+                  text =
+                    if (isAlbumExcluded) "Allow in recommendations" else "Never recommend again",
                 )
               },
               description = {
                 Text(
                   text =
                     if (isAlbumExcluded) "Remove album exclusion from taste recommendations"
-                    else "Exclude album from local taste recommendations"
+                    else "Exclude album from local taste recommendations",
                 )
               },
               icon = {
                 Icon(
-                  painter = painterResource(if (isAlbumExcluded) R.drawable.remove else R.drawable.close),
+                  painter =
+                    painterResource(if (isAlbumExcluded) R.drawable.remove else R.drawable.close),
                   contentDescription = null,
                 )
               },
@@ -582,7 +584,7 @@ fun AlbumMenu(
                   if (wasExcluded) {
                     albumSongs.forEach { song ->
                       database.recommendationExclusionDao.delete(
-                        trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name })
+                        trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name }),
                       )
                     }
                   } else {
@@ -596,7 +598,7 @@ fun AlbumMenu(
                           trackName = song.song.title,
                           artistName = artistName,
                         )
-                      }
+                      },
                     )
                   }
                 }
@@ -604,13 +606,13 @@ fun AlbumMenu(
                     context,
                     if (wasExcluded) "Album re-allowed in recommendations"
                     else "Album excluded from recommendations",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT,
                   )
                   .show()
                 onDismiss()
-              }
-            )
-          )
+              },
+            ),
+          ),
       )
     }
   }

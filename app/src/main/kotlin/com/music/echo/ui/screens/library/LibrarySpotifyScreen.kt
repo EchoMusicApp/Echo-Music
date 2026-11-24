@@ -83,7 +83,8 @@ import java.text.Collator
 import java.util.Locale
 import kotlinx.coroutines.launch
 
-internal const val SPOTIFY_LIKED_SONGS_COVER = "https://misc.scdn.co/liked-songs/liked-songs-640.png"
+internal const val SPOTIFY_LIKED_SONGS_COVER =
+  "https://misc.scdn.co/liked-songs/liked-songs-640.png"
 
 private enum class SpotifyPlaylistSortType {
   DEFAULT,
@@ -115,8 +116,7 @@ fun LibrarySpotifyScreen(
           SpotifyPlaylistSortType.DEFAULT -> uiState.playlists
           SpotifyPlaylistSortType.NAME ->
             uiState.playlists.sortedWith(compareBy(collator) { it.name })
-          SpotifyPlaylistSortType.SONG_COUNT ->
-            uiState.playlists.sortedBy { it.tracks?.total ?: 0 }
+          SpotifyPlaylistSortType.SONG_COUNT -> uiState.playlists.sortedBy { it.tracks?.total ?: 0 }
         }
       base.reversed(spotifySortDescending)
     }
@@ -173,8 +173,7 @@ fun LibrarySpotifyScreen(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             modifier =
-              Modifier
-                .fillMaxWidth()
+              Modifier.fillMaxWidth()
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 12.dp),
           )
         }
@@ -185,10 +184,7 @@ fun LibrarySpotifyScreen(
           contentType = CONTENT_TYPE_HEADER,
         ) {
           Row(
-            modifier =
-              Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, bottom = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
           ) {
             Icon(
@@ -220,12 +216,13 @@ fun LibrarySpotifyScreen(
               coroutineScope.launch {
                 val success = viewModel.refreshAndAwait()
                 Toast.makeText(
-                  context,
-                  context.getString(
-                    if (success) R.string.spotify_sync_success else R.string.spotify_sync_failed
-                  ),
-                  Toast.LENGTH_SHORT,
-                ).show()
+                    context,
+                    context.getString(
+                      if (success) R.string.spotify_sync_success else R.string.spotify_sync_failed,
+                    ),
+                    Toast.LENGTH_SHORT,
+                  )
+                  .show()
               }
             },
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -255,12 +252,13 @@ fun LibrarySpotifyScreen(
               coroutineScope.launch {
                 val success = viewModel.refreshAndAwait()
                 Toast.makeText(
-                  context,
-                  context.getString(
-                    if (success) R.string.spotify_sync_success else R.string.spotify_sync_failed
-                  ),
-                  Toast.LENGTH_SHORT,
-                ).show()
+                    context,
+                    context.getString(
+                      if (success) R.string.spotify_sync_success else R.string.spotify_sync_failed,
+                    ),
+                    Toast.LENGTH_SHORT,
+                  )
+                  .show()
               }
             },
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 4.dp),
@@ -275,9 +273,9 @@ fun LibrarySpotifyScreen(
         ) {
           val totalPlaylists = uiState.playlists.size + 1
           Row(
-            modifier = Modifier
-              .fillMaxWidth()
-              .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+            modifier =
+              Modifier.fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
           ) {
@@ -352,18 +350,18 @@ fun LibrarySpotifyScreen(
             },
             thumbnailContent = {
               Box(
-                modifier = Modifier
-                  .fillMaxSize()
-                  .clip(RoundedCornerShape(ThumbnailCornerRadius))
-                  .background(
-                    Brush.linearGradient(
-                      listOf(
-                        Color(0xFF450AF5),
-                        Color(0xFF8E8EE5),
-                        Color(0xFFABEDD8),
-                      )
-                    )
-                  ),
+                modifier =
+                  Modifier.fillMaxSize()
+                    .clip(RoundedCornerShape(ThumbnailCornerRadius))
+                    .background(
+                      Brush.linearGradient(
+                        listOf(
+                          Color(0xFF450AF5),
+                          Color(0xFF8E8EE5),
+                          Color(0xFFABEDD8),
+                        ),
+                      ),
+                    ),
                 contentAlignment = Alignment.Center,
               ) {
                 Icon(
@@ -381,9 +379,8 @@ fun LibrarySpotifyScreen(
               }
             },
             fillMaxWidth = true,
-            modifier = Modifier
-              .fillMaxWidth()
-              .clickable {
+            modifier =
+              Modifier.fillMaxWidth().clickable {
                 val titleEnc = Uri.encode("Liked Songs")
                 val coverEnc = Uri.encode(SPOTIFY_LIKED_SONGS_COVER)
                 navController.navigate("spotify_playlist/liked?title=$titleEnc&cover=$coverEnc")
@@ -425,19 +422,20 @@ fun LibrarySpotifyScreen(
                   model = coverUrl,
                   contentDescription = null,
                   contentScale = ContentScale.Crop,
-                  modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(ThumbnailCornerRadius))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                  modifier =
+                    Modifier.fillMaxSize()
+                      .clip(RoundedCornerShape(ThumbnailCornerRadius))
+                      .background(MaterialTheme.colorScheme.surfaceContainerHighest),
                 )
               },
               fillMaxWidth = true,
-              modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
+              modifier =
+                Modifier.fillMaxWidth().clickable {
                   val titleEnc = Uri.encode(playlist.name)
                   val coverEnc = Uri.encode(coverUrl.orEmpty())
-                  navController.navigate("spotify_playlist/${playlist.id}?title=$titleEnc&cover=$coverEnc")
+                  navController.navigate(
+                    "spotify_playlist/${playlist.id}?title=$titleEnc&cover=$coverEnc",
+                  )
                 },
             )
           }
@@ -450,17 +448,13 @@ fun LibrarySpotifyScreen(
 @Composable
 private fun SpotifyEmptyState(modifier: Modifier = Modifier) {
   Column(
-    modifier =
-      modifier
-        .fillMaxWidth()
-        .padding(horizontal = 32.dp, vertical = 72.dp),
+    modifier = modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 72.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
   ) {
     Box(
       modifier =
-        Modifier
-          .size(88.dp)
+        Modifier.size(88.dp)
           .clip(RoundedCornerShape(24.dp))
           .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
       contentAlignment = Alignment.Center,
@@ -521,18 +515,12 @@ internal fun SpotifyConnectBanner(
     color = MaterialTheme.colorScheme.surfaceContainer,
   ) {
     Column(
-      modifier =
-        Modifier
-          .fillMaxWidth()
-          .padding(horizontal = 24.dp, vertical = 28.dp),
+      modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 28.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       Box(
         modifier =
-          Modifier
-            .size(68.dp)
-            .clip(CircleShape)
-            .background(Color(0xFF1DB954).copy(alpha = 0.18f)),
+          Modifier.size(68.dp).clip(CircleShape).background(Color(0xFF1DB954).copy(alpha = 0.18f)),
         contentAlignment = Alignment.Center,
       ) {
         Icon(
@@ -572,10 +560,7 @@ internal fun SpotifyConnectBanner(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
           ),
-        modifier =
-          Modifier
-            .fillMaxWidth()
-            .height(48.dp),
+        modifier = Modifier.fillMaxWidth().height(48.dp),
       ) {
         Text(
           text = stringResource(R.string.spotify_connect_account),
@@ -588,8 +573,7 @@ internal fun SpotifyConnectBanner(
 
       Row(
         modifier =
-          Modifier
-            .clip(CircleShape)
+          Modifier.clip(CircleShape)
             .clickable(enabled = !isRefreshing, onClick = onRefresh)
             .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -599,10 +583,7 @@ internal fun SpotifyConnectBanner(
           painter = painterResource(R.drawable.cached),
           contentDescription = null,
           tint = MaterialTheme.colorScheme.secondary,
-          modifier =
-            Modifier
-              .size(16.dp)
-              .graphicsLayer { rotationZ = rotation.value },
+          modifier = Modifier.size(16.dp).graphicsLayer { rotationZ = rotation.value },
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
@@ -645,9 +626,7 @@ private fun SpotifyProfileHeader(
     modifier = modifier.fillMaxWidth(),
   ) {
     Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 12.dp),
+      modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -660,16 +639,14 @@ private fun SpotifyProfileHeader(
             model = avatarUrl,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-              .size(44.dp)
-              .clip(CircleShape),
+            modifier = Modifier.size(44.dp).clip(CircleShape),
           )
         } else {
           Box(
-            modifier = Modifier
-              .size(44.dp)
-              .clip(CircleShape)
-              .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            modifier =
+              Modifier.size(44.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             contentAlignment = Alignment.Center,
           ) {
             Icon(
@@ -695,10 +672,7 @@ private fun SpotifyProfileHeader(
           Spacer(modifier = Modifier.height(2.dp))
           Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-              modifier = Modifier
-                .size(7.dp)
-                .clip(CircleShape)
-                .background(Color(0xFF1DB954))
+              modifier = Modifier.size(7.dp).clip(CircleShape).background(Color(0xFF1DB954)),
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(

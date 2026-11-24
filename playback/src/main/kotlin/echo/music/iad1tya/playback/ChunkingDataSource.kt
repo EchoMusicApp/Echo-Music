@@ -11,7 +11,7 @@ import java.io.IOException
 class ChunkingDataSource(
   private val upstream: DataSource,
   private val chunkSize: Long,
-  private val maxRetries: Int = 3
+  private val maxRetries: Int = 3,
 ) : DataSource {
 
   private var dataSpec: DataSpec? = null
@@ -155,7 +155,7 @@ class ChunkingDataSource(
     if (bytesToRead != C.LENGTH_UNSET.toLong() && bytesReadTotal < bytesToRead) {
       throw IOException(
         "Premature EOF: expected $bytesToRead bytes, but only received $bytesReadTotal bytes after $maxRetries retries",
-        lastException
+        lastException,
       )
     }
 
@@ -174,7 +174,7 @@ class ChunkingDataSource(
 
 class ChunkingDataSourceFactory(
   private val upstreamFactory: DataSource.Factory,
-  private val chunkSize: Long = 5L * 1024 * 1024 // 5MB chunks
+  private val chunkSize: Long = 5L * 1024 * 1024, // 5MB chunks
 ) : DataSource.Factory {
   override fun createDataSource(): DataSource {
     return ChunkingDataSource(upstreamFactory.createDataSource(), chunkSize)

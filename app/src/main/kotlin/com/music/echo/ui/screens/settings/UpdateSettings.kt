@@ -1,7 +1,5 @@
 package echo.music.iad1tya.ui.screens.settings
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,7 +36,6 @@ import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.R
 import echo.music.iad1tya.echomusic.component.UpdateInfoDialog
 import echo.music.iad1tya.echomusic.updater.autoClearOldApks
-import echo.music.iad1tya.ui.utils.safeOpenUri
 import echo.music.iad1tya.echomusic.updater.getAutoUpdateCheckSetting
 import echo.music.iad1tya.echomusic.updater.getBetaUpdatesSetting
 import echo.music.iad1tya.echomusic.updater.getDownloadedApkCount
@@ -50,6 +47,7 @@ import echo.music.iad1tya.ui.component.Material3SettingsItem
 import echo.music.iad1tya.ui.utils.backToMain
 import echo.music.iad1tya.ui.utils.parseMarkdownToSections
 import echo.music.iad1tya.ui.utils.parseSimpleMarkdown
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import org.json.JSONObject
 
 /**
@@ -65,7 +63,7 @@ import org.json.JSONObject
 fun UpdateSettings(
   navController: NavController,
   scrollBehavior: TopAppBarScrollBehavior,
-  highlightKey: String? = null
+  highlightKey: String? = null,
 ) {
   val scrollState = androidx.compose.foundation.rememberScrollState()
 
@@ -103,13 +101,15 @@ fun UpdateSettings(
 
   Column(
     Modifier.windowInsetsPadding(
-        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal),
       )
       .verticalScroll(scrollState)
       .padding(horizontal = 16.dp),
   ) {
     Spacer(
-      Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top))
+      Modifier.windowInsetsPadding(
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top),
+      ),
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -127,7 +127,7 @@ fun UpdateSettings(
               if (isUpdateAvailable) {
                 Text(
                   text = "New update is available",
-                  color = androidx.compose.ui.graphics.Color.Red
+                  color = androidx.compose.ui.graphics.Color.Red,
                 )
               } else {
                 Text(stringResource(R.string.version, BuildConfig.VERSION_NAME))
@@ -135,9 +135,9 @@ fun UpdateSettings(
             },
             onClick = {
               context.safeOpenUri("https://echomusic.fun")
-            }
-          )
-        )
+            },
+          ),
+        ),
     )
 
     Text(
@@ -145,7 +145,7 @@ fun UpdateSettings(
         "To download updates, you will be redirected to our official site containing ads. This helps fund the app's development. Thank you for your support!",
       style = MaterialTheme.typography.bodySmall,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
-      modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp)
+      modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
     )
 
     releaseNotes?.let { notes ->
@@ -155,9 +155,9 @@ fun UpdateSettings(
         shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
         colors =
           androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
           ),
-        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
       ) {
         Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
           val (effectiveDescription, effectiveSections) =
@@ -168,7 +168,7 @@ fun UpdateSettings(
               text = parseSimpleMarkdown(effectiveDescription, MaterialTheme.colorScheme.primary),
               style = MaterialTheme.typography.bodyMedium,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
-              modifier = Modifier.padding(bottom = 8.dp)
+              modifier = Modifier.padding(bottom = 8.dp),
             )
           }
 
@@ -185,15 +185,15 @@ fun UpdateSettings(
                       top =
                         if (sectionIndex == 0 && effectiveDescription.isNullOrBlank()) 0.dp
                         else 10.dp,
-                      bottom = 4.dp
-                    )
+                      bottom = 4.dp,
+                    ),
                 )
               }
               section.items.forEach { item ->
                 if (item.isNotBlank()) {
                   Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                   ) {
                     Text(
                       text = "•",
@@ -205,7 +205,7 @@ fun UpdateSettings(
                       text = parseSimpleMarkdown(item.trim(), MaterialTheme.colorScheme.primary),
                       style = MaterialTheme.typography.bodyMedium,
                       color = MaterialTheme.colorScheme.onSurfaceVariant,
-                      modifier = Modifier.weight(1f)
+                      modifier = Modifier.weight(1f),
                     )
                   }
                 }
@@ -215,7 +215,7 @@ fun UpdateSettings(
             Text(
               text = parseSimpleMarkdown(notes, MaterialTheme.colorScheme.primary),
               style = MaterialTheme.typography.bodyMedium,
-              color = MaterialTheme.colorScheme.onSurfaceVariant
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -227,8 +227,8 @@ fun UpdateSettings(
 
     Spacer(
       Modifier.windowInsetsPadding(
-        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)
-      )
+        LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom),
+      ),
     )
   }
 
@@ -238,6 +238,6 @@ fun UpdateSettings(
       IconButton(onClick = navController::navigateUp, onLongClick = navController::backToMain) {
         Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
       }
-    }
+    },
   )
 }

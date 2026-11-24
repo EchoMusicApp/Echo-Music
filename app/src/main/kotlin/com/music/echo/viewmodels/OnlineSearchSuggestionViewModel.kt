@@ -87,7 +87,7 @@ constructor(
                       ?.filterVideoSongs(hideVideoSongs)
                       .orEmpty(),
                 isFromLink = parsedUrl != null,
-              )
+              ),
             )
           }
         }

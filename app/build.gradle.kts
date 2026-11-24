@@ -58,12 +58,12 @@ android {
       "String",
       "FLOW_NEURO_BASE_URL",
       project.findProperty("FLOW_NEURO_BASE_URL")?.toString()?.let { "\"$it\"" }
-        ?: "\"https://api.flowneuroengine.com\""
+        ?: "\"https://api.flowneuroengine.com\"",
     )
     buildConfigField(
       "String",
       "FLOW_NEURO_API_KEY",
-      project.findProperty("FLOW_NEURO_API_KEY")?.toString()?.let { "\"$it\"" } ?: "\"\""
+      project.findProperty("FLOW_NEURO_API_KEY")?.toString()?.let { "\"$it\"" } ?: "\"\"",
     )
 
     // add nightly build label support
@@ -155,7 +155,9 @@ android {
       isCrunchPngs = false
       isDebuggable = false
       signingConfig =
-        if (rootProject.file("keystore.jks").exists() || file("keystore/release.keystore").exists()) {
+        if (
+          rootProject.file("keystore.jks").exists() || file("keystore/release.keystore").exists()
+        ) {
           signingConfigs.getByName("release")
         } else {
           signingConfigs.getByName("debug")

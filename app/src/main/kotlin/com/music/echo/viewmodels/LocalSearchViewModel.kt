@@ -47,7 +47,7 @@ constructor(
               null
             }) ?: false
           }
-          .distinctUntilChanged()
+          .distinctUntilChanged(),
       ) { query, filter, hideVideoSongs ->
         Triple(query, filter, hideVideoSongs)
       }
@@ -93,7 +93,7 @@ constructor(
       .stateIn(
         viewModelScope,
         SharingStarted.Lazily,
-        LocalSearchResult("", filter.value, emptyMap())
+        LocalSearchResult("", filter.value, emptyMap()),
       )
 
   companion object {

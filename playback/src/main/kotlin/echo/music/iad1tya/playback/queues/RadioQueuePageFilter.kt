@@ -7,6 +7,5 @@ internal class RadioQueuePageFilter {
 
   fun reset() = seenSongIds.clear()
 
-  fun filter(songs: List<SongItem>): List<SongItem> =
-    songs.filter { seenSongIds.add(it.id) }
+  fun filter(songs: List<SongItem>): List<SongItem> = songs.filter { seenSongIds.add(it.id) }
 }

@@ -28,7 +28,7 @@ data class InnerShadow(
   val offset: DpOffset = DpOffset(0f.dp, radius),
   val color: Color = Color.Black.copy(alpha = 0.15f),
   @param:FloatRange(from = 0.0, to = 1.0) val alpha: Float = 1f,
-  val blendMode: BlendMode = DrawScope.DefaultBlendMode
+  val blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) {
 
   companion object {
@@ -44,6 +44,6 @@ fun lerp(start: InnerShadow, stop: InnerShadow, fraction: Float): InnerShadow {
     offset = lerp(start.offset, stop.offset, fraction),
     color = lerp(start.color, stop.color, fraction),
     alpha = lerp(start.alpha, stop.alpha, fraction),
-    blendMode = if (fraction < 0.5f) start.blendMode else stop.blendMode
+    blendMode = if (fraction < 0.5f) start.blendMode else stop.blendMode,
   )
 }

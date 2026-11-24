@@ -16,9 +16,7 @@ import dagger.hilt.components.SingletonComponent
 import echo.music.iad1tya.constants.MaxSongCacheSizeKey
 import echo.music.iad1tya.db.InternalDatabase
 import echo.music.iad1tya.db.MusicDatabase
-import echo.music.iad1tya.db.daos.TasteProfileDao
 import echo.music.iad1tya.generate.GenerationStatus
-import echo.music.iad1tya.generate.GenresRepository
 import echo.music.iad1tya.generate.LocalTasteEngine
 import echo.music.iad1tya.generate.RealGenerationStatus
 import echo.music.iad1tya.generate.RecommendationEngine
@@ -136,12 +134,14 @@ object AppModule {
               db.query("PRAGMA cache_size = -16000").close()
               db.query("PRAGMA wal_autocheckpoint = 1000").close()
               db.query("PRAGMA synchronous = NORMAL").close()
-              db.execSQL("DELETE FROM format WHERE (codecs = 'alac' OR bitrate = 1411200) AND id NOT LIKE 'local_%'")
+              db.execSQL(
+                "DELETE FROM format WHERE (codecs = 'alac' OR bitrate = 1411200) AND id NOT LIKE 'local_%'",
+              )
             } catch (e: Exception) {
               timber.log.Timber.tag("MusicDatabase").e(e, "Failed to set PRAGMA settings")
             }
           }
-        }
+        },
       )
       .build()
 

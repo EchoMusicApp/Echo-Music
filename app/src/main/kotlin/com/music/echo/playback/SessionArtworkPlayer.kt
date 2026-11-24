@@ -4,15 +4,15 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.DeviceInfo
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import androidx.media3.common.Player
-import androidx.media3.common.AudioAttributes
-import androidx.media3.common.DeviceInfo
 import androidx.media3.common.Metadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
+import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.Tracks
@@ -26,17 +26,15 @@ import echo.music.iad1tya.utils.AutomotiveArtwork.withAutomotiveArtworkUri
 /**
  * The player exposed through the [androidx.media3.session.MediaSession].
  *
- * Android Auto and the instrument cluster read the now-playing cover and the
- * queue from the legacy session, which Media3 builds from this player's getters
- * and listener callbacks. The items carry `https://` cover URLs, which those
- * surfaces do not load, so this swaps them for the local
- * [echo.music.iad1tya.utils.AutomotiveArtworkProvider] ones at the session
- * boundary only: the app UI keeps using the ExoPlayer directly and is unaffected.
+ * Android Auto and the instrument cluster read the now-playing cover and the queue from the legacy
+ * session, which Media3 builds from this player's getters and listener callbacks. The items carry
+ * `https://` cover URLs, which those surfaces do not load, so this swaps them for the local
+ * [echo.music.iad1tya.utils.AutomotiveArtworkProvider] ones at the session boundary only: the app
+ * UI keeps using the ExoPlayer directly and is unaffected.
  *
- * It also gives the queue a title when the app has not set one, so Auto shows
- * the queue with a header instead of an unnamed list, and adds the current
- * song's synced lyrics as `lyricInfo` for ColorOS / OxygenOS lock-screen and
- * AOD lyrics (see [OplusLyricInfo]).
+ * It also gives the queue a title when the app has not set one, so Auto shows the queue with a
+ * header instead of an unnamed list, and adds the current song's synced lyrics as `lyricInfo` for
+ * ColorOS / OxygenOS lock-screen and AOD lyrics (see [OplusLyricInfo]).
  */
 class SessionArtworkPlayer(
   private val context: Context,
@@ -53,12 +51,11 @@ class SessionArtworkPlayer(
   override fun getMediaMetadata(): MediaMetadata = sessionMetadata(super.getMediaMetadata())
 
   /**
-   * ExoPlayer merges the item's metadata with the metadata inside the stream, and
-   * Media3 prefers embedded artwork bytes over the artwork URI. Addon streams
-   * often embed a cover, so a few seconds into a track the session switched from
-   * the item's cover to the stream's: the head unit and cluster redrew it, and an
-   * undecodable embedded image left the track with no cover. When the item has
-   * its own cover, the stream's is dropped; local files without a URI keep theirs.
+   * ExoPlayer merges the item's metadata with the metadata inside the stream, and Media3 prefers
+   * embedded artwork bytes over the artwork URI. Addon streams often embed a cover, so a few
+   * seconds into a track the session switched from the item's cover to the stream's: the head unit
+   * and cluster redrew it, and an undecodable embedded image left the track with no cover. When the
+   * item has its own cover, the stream's is dropped; local files without a URI keep theirs.
    */
   private fun sessionMetadata(metadata: MediaMetadata): MediaMetadata {
     val mapped = metadata.withAutomotiveArtworkUri(context)
@@ -67,17 +64,20 @@ class SessionArtworkPlayer(
   }
 
   /**
-   * Media3 copies String extras into the platform session metadata, where
-   * ColorOS SystemUI reads `lyricInfo`. [MediaMetadata.equals] ignores extras,
-   * so the session would not republish an extras-only change (lyrics usually
-   * arrive after the track started); the station field takes part in equals,
-   * is not exported to the platform session and gets an invisible suffix
-   * (appended to any existing station) that alternates with every new payload.
+   * Media3 copies String extras into the platform session metadata, where ColorOS SystemUI reads
+   * `lyricInfo`. [MediaMetadata.equals] ignores extras, so the session would not republish an
+   * extras-only change (lyrics usually arrive after the track started); the station field takes
+   * part in equals, is not exported to the platform session and gets an invisible suffix (appended
+   * to any existing station) that alternates with every new payload.
    */
   private fun withLyricInfo(metadata: MediaMetadata): MediaMetadata {
     val info = lyricInfo?.current(super.getCurrentMediaItem()?.mediaId) ?: return metadata
-    val extras = Bundle(metadata.extras ?: Bundle()).apply { putString(OplusLyricInfo.METADATA_KEY, info.json) }
-    return metadata.buildUpon()
+    val extras =
+      Bundle(metadata.extras ?: Bundle()).apply {
+        putString(OplusLyricInfo.METADATA_KEY, info.json)
+      }
+    return metadata
+      .buildUpon()
       .setExtras(extras)
       .setStation("${metadata.station ?: ""}${info.stamp}")
       .build()
@@ -91,7 +91,8 @@ class SessionArtworkPlayer(
       val metadata = playerMediaMetadata()
       listeners.values.toList().forEach { it.onMediaMetadataChanged(metadata) }
     }
-    if (Looper.myLooper() == applicationLooper) dispatch.run() else Handler(applicationLooper).post(dispatch)
+    if (Looper.myLooper() == applicationLooper) dispatch.run()
+    else Handler(applicationLooper).post(dispatch)
   }
 
   override fun getCurrentMediaItem(): MediaItem? =
@@ -111,11 +112,13 @@ class SessionArtworkPlayer(
 
   override fun seekToPrevious() = seekRecoveringFromError { super.seekToPrevious() }
 
-  override fun seekToPreviousMediaItem() =
-    seekRecoveringFromError { super.seekToPreviousMediaItem() }
+  override fun seekToPreviousMediaItem() = seekRecoveringFromError {
+    super.seekToPreviousMediaItem()
+  }
 
-  override fun seekTo(mediaItemIndex: Int, positionMs: Long) =
-    seekRecoveringFromError { super.seekTo(mediaItemIndex, positionMs) }
+  override fun seekTo(mediaItemIndex: Int, positionMs: Long) = seekRecoveringFromError {
+    super.seekTo(mediaItemIndex, positionMs)
+  }
 
   /** Restarts only when idle because of an error: a stopped player stays stopped. */
   private inline fun seekRecoveringFromError(seek: () -> Unit) {
@@ -156,7 +159,11 @@ class SessionArtworkPlayer(
   private inner class ArtworkTimeline(timeline: Timeline) : ForwardingTimeline(timeline) {
     private val mappedItems = arrayOfNulls<MediaItem>(timeline.windowCount)
 
-    override fun getWindow(windowIndex: Int, window: Window, defaultPositionProjectionUs: Long): Window {
+    override fun getWindow(
+      windowIndex: Int,
+      window: Window,
+      defaultPositionProjectionUs: Long,
+    ): Window {
       super.getWindow(windowIndex, window, defaultPositionProjectionUs)
       val source = window.mediaItem
       val cached = mappedItems[windowIndex]
@@ -171,12 +178,12 @@ class SessionArtworkPlayer(
   }
 
   /**
-   * Media3 copies listener payloads (metadata, timeline) straight into what it
-   * sends controllers, so they need the same mapping as the getters.
+   * Media3 copies listener payloads (metadata, timeline) straight into what it sends controllers,
+   * so they need the same mapping as the getters.
    *
-   * Every callback is forwarded explicitly: Kotlin's `by` delegation does not
-   * forward Java default methods, and all of [Player.Listener]'s are defaults,
-   * so a delegated listener would silently drop playback-state updates.
+   * Every callback is forwarded explicitly: Kotlin's `by` delegation does not forward Java default
+   * methods, and all of [Player.Listener]'s are defaults, so a delegated listener would silently
+   * drop playback-state updates.
    */
   @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
   private inner class MappingListener(private val delegate: Player.Listener) : Player.Listener {
@@ -195,27 +202,45 @@ class SessionArtworkPlayer(
       delegate.onMediaItemTransition(mediaItem?.withAutomotiveArtworkUri(context), reason)
 
     override fun onEvents(player: Player, events: Player.Events) = delegate.onEvents(player, events)
+
     override fun onTracksChanged(tracks: Tracks) = delegate.onTracksChanged(tracks)
+
     override fun onIsLoadingChanged(isLoading: Boolean) = delegate.onIsLoadingChanged(isLoading)
+
     override fun onLoadingChanged(isLoading: Boolean) = delegate.onLoadingChanged(isLoading)
+
     override fun onAvailableCommandsChanged(availableCommands: Player.Commands) =
       delegate.onAvailableCommandsChanged(availableCommands)
+
     override fun onTrackSelectionParametersChanged(parameters: TrackSelectionParameters) =
       delegate.onTrackSelectionParametersChanged(parameters)
+
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) =
       delegate.onPlayerStateChanged(playWhenReady, playbackState)
-    override fun onPlaybackStateChanged(playbackState: Int) = delegate.onPlaybackStateChanged(playbackState)
+
+    override fun onPlaybackStateChanged(playbackState: Int) =
+      delegate.onPlaybackStateChanged(playbackState)
+
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) =
       delegate.onPlayWhenReadyChanged(playWhenReady, reason)
+
     override fun onPlaybackSuppressionReasonChanged(playbackSuppressionReason: Int) =
       delegate.onPlaybackSuppressionReasonChanged(playbackSuppressionReason)
+
     override fun onIsPlayingChanged(isPlaying: Boolean) = delegate.onIsPlayingChanged(isPlaying)
+
     override fun onRepeatModeChanged(repeatMode: Int) = delegate.onRepeatModeChanged(repeatMode)
+
     override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) =
       delegate.onShuffleModeEnabledChanged(shuffleModeEnabled)
+
     override fun onPlayerError(error: PlaybackException) = delegate.onPlayerError(error)
-    override fun onPlayerErrorChanged(error: PlaybackException?) = delegate.onPlayerErrorChanged(error)
+
+    override fun onPlayerErrorChanged(error: PlaybackException?) =
+      delegate.onPlayerErrorChanged(error)
+
     override fun onPositionDiscontinuity(reason: Int) = delegate.onPositionDiscontinuity(reason)
+
     override fun onPositionDiscontinuity(
       oldPosition: Player.PositionInfo,
       newPosition: Player.PositionInfo,
@@ -234,30 +259,51 @@ class SessionArtworkPlayer(
         adGroupIndex,
         adIndexInAdGroup,
       )
+
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) =
       delegate.onPlaybackParametersChanged(playbackParameters)
+
     override fun onSeekBackIncrementChanged(seekBackIncrementMs: Long) =
       delegate.onSeekBackIncrementChanged(seekBackIncrementMs)
+
     override fun onSeekForwardIncrementChanged(seekForwardIncrementMs: Long) =
       delegate.onSeekForwardIncrementChanged(seekForwardIncrementMs)
+
     override fun onMaxSeekToPreviousPositionChanged(maxSeekToPreviousPositionMs: Long) =
       delegate.onMaxSeekToPreviousPositionChanged(maxSeekToPreviousPositionMs)
-    override fun onAudioSessionIdChanged(audioSessionId: Int) = delegate.onAudioSessionIdChanged(audioSessionId)
+
+    override fun onAudioSessionIdChanged(audioSessionId: Int) =
+      delegate.onAudioSessionIdChanged(audioSessionId)
+
     override fun onAudioAttributesChanged(audioAttributes: AudioAttributes) =
       delegate.onAudioAttributesChanged(audioAttributes)
+
     override fun onVolumeChanged(volume: Float) = delegate.onVolumeChanged(volume)
+
     override fun onSkipSilenceEnabledChanged(skipSilenceEnabled: Boolean) =
       delegate.onSkipSilenceEnabledChanged(skipSilenceEnabled)
-    override fun onDeviceInfoChanged(deviceInfo: DeviceInfo) = delegate.onDeviceInfoChanged(deviceInfo)
-    override fun onDeviceVolumeChanged(volume: Int, muted: Boolean) = delegate.onDeviceVolumeChanged(volume, muted)
+
+    override fun onDeviceInfoChanged(deviceInfo: DeviceInfo) =
+      delegate.onDeviceInfoChanged(deviceInfo)
+
+    override fun onDeviceVolumeChanged(volume: Int, muted: Boolean) =
+      delegate.onDeviceVolumeChanged(volume, muted)
+
     override fun onVideoSizeChanged(videoSize: VideoSize) = delegate.onVideoSizeChanged(videoSize)
-    override fun onSurfaceSizeChanged(width: Int, height: Int) = delegate.onSurfaceSizeChanged(width, height)
+
+    override fun onSurfaceSizeChanged(width: Int, height: Int) =
+      delegate.onSurfaceSizeChanged(width, height)
+
     override fun onRenderedFirstFrame() = delegate.onRenderedFirstFrame()
+
     override fun onCues(cues: List<Cue>) = delegate.onCues(cues)
+
     override fun onCues(cueGroup: CueGroup) = delegate.onCues(cueGroup)
+
     override fun onMetadata(metadata: Metadata) = delegate.onMetadata(metadata)
 
-    override fun equals(other: Any?): Boolean = other is MappingListener && other.delegate == delegate
+    override fun equals(other: Any?): Boolean =
+      other is MappingListener && other.delegate == delegate
 
     override fun hashCode(): Int = delegate.hashCode()
   }

@@ -44,14 +44,14 @@ fun HomeShortcutTile(
         .clip(RoundedCornerShape(8.dp))
         .background(
           if (isActive) MaterialTheme.colorScheme.secondaryContainer
-          else MaterialTheme.colorScheme.surfaceContainerHigh
-        )
+          else MaterialTheme.colorScheme.surfaceContainerHigh,
+        ),
   ) {
     AsyncImage(
       model = item.thumbnail?.resize(226, 226),
       contentDescription = null,
       contentScale = ContentScale.Crop,
-      modifier = Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceVariant)
+      modifier = Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceVariant),
     )
     Text(
       text = item.title,
@@ -62,11 +62,11 @@ fun HomeShortcutTile(
         else MaterialTheme.colorScheme.onSurface,
       maxLines = 2,
       overflow = TextOverflow.Ellipsis,
-      modifier = Modifier.weight(1f)
+      modifier = Modifier.weight(1f),
     )
     Box(
       modifier = Modifier.fillMaxHeight().padding(end = 8.dp),
-      contentAlignment = Alignment.Center
+      contentAlignment = Alignment.Center,
     ) {
       when {
         isActive && isPlaying ->
@@ -74,14 +74,14 @@ fun HomeShortcutTile(
             painter = painterResource(R.drawable.volume_up),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(16.dp),
           )
         isPinned ->
           Icon(
             painter = painterResource(R.drawable.ic_push_pin),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(14.dp)
+            modifier = Modifier.size(14.dp),
           )
       }
     }

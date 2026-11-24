@@ -10,5 +10,5 @@ data class SponsorBlockSegment(
   val actionType: String,
   val locked: Int,
   val votes: Int,
-  val description: String
+  val description: String,
 )

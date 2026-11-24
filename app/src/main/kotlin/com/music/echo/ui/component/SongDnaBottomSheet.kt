@@ -1,13 +1,6 @@
 package com.music.echo.ui.component
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -60,8 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
-import echo.music.iad1tya.R
 import com.music.innertube.YouTube
+import echo.music.iad1tya.R
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.utils.Wikipedia
 import kotlinx.coroutines.Dispatchers
@@ -98,19 +88,20 @@ fun SongDnaBottomSheet(
   val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
   val scope = rememberCoroutineScope()
 
-  var dnaState by remember(mediaMetadata.id) {
-    mutableStateOf(
-      SongDnaState(
-        isLoading = true,
-        trackTitle = mediaMetadata.title,
-        albumTitle = mediaMetadata.album?.title,
-        albumThumbnailUrl = mediaMetadata.thumbnailUrl,
-        performers = mediaMetadata.artists.map { it.name },
-        artistName = mediaMetadata.artists.firstOrNull()?.name,
-        artistId = mediaMetadata.artists.firstOrNull()?.id,
+  var dnaState by
+    remember(mediaMetadata.id) {
+      mutableStateOf(
+        SongDnaState(
+          isLoading = true,
+          trackTitle = mediaMetadata.title,
+          albumTitle = mediaMetadata.album?.title,
+          albumThumbnailUrl = mediaMetadata.thumbnailUrl,
+          performers = mediaMetadata.artists.map { it.name },
+          artistName = mediaMetadata.artists.firstOrNull()?.name,
+          artistId = mediaMetadata.artists.firstOrNull()?.id,
+        ),
       )
-    )
-  }
+    }
 
   LaunchedEffect(mediaMetadata.id) {
     withContext(Dispatchers.IO) {
@@ -138,7 +129,8 @@ fun SongDnaBottomSheet(
         val mediaInfoResult = YouTube.getMediaInfo(mediaMetadata.id).getOrNull()
         val desc = mediaInfoResult?.description
         parseCreditsFromDescription(desc)
-      }.getOrDefault(ParsedCredits())
+      }
+        .getOrDefault(ParsedCredits())
 
       // 3. Fallback to Wikipedia for artist biography if not found on YouTube
       if (artistBio.isNullOrBlank() && primaryArtistName.isNotBlank()) {
@@ -152,37 +144,41 @@ fun SongDnaBottomSheet(
       }
 
       // 4. Fetch Behind the Music / Song Story from Wikipedia
-      val wikiSong = Wikipedia.fetchSongStory(
-        songTitle = mediaMetadata.title,
-        artistName = primaryArtistName,
-        albumTitle = mediaMetadata.album?.title,
-      )
+      val wikiSong =
+        Wikipedia.fetchSongStory(
+          songTitle = mediaMetadata.title,
+          artistName = primaryArtistName,
+          albumTitle = mediaMetadata.album?.title,
+        )
 
-      val allPerformers = (mediaMetadata.artists.map { it.name } + parsedCredits.performers).distinct()
-      val allWriters = if (parsedCredits.songwriters.isNotEmpty()) {
-        parsedCredits.songwriters
-      } else {
-        mediaMetadata.artists.map { it.name }
-      }
+      val allPerformers =
+        (mediaMetadata.artists.map { it.name } + parsedCredits.performers).distinct()
+      val allWriters =
+        if (parsedCredits.songwriters.isNotEmpty()) {
+          parsedCredits.songwriters
+        } else {
+          mediaMetadata.artists.map { it.name }
+        }
 
-      dnaState = SongDnaState(
-        isLoading = false,
-        trackTitle = mediaMetadata.title,
-        albumTitle = mediaMetadata.album?.title,
-        albumThumbnailUrl = mediaMetadata.thumbnailUrl,
-        releaseDate = parsedCredits.releaseDate,
-        performers = allPerformers,
-        songwriters = allWriters,
-        producers = parsedCredits.producers,
-        recordLabel = parsedCredits.recordLabel,
-        artistName = primaryArtistName,
-        artistId = primaryArtistId,
-        artistAvatarUrl = artistAvatar,
-        artistBio = artistBio,
-        artistListenersOrSubs = artistListeners,
-        songStory = wikiSong?.extract,
-        songStoryTitle = wikiSong?.title ?: "About the Song",
-      )
+      dnaState =
+        SongDnaState(
+          isLoading = false,
+          trackTitle = mediaMetadata.title,
+          albumTitle = mediaMetadata.album?.title,
+          albumThumbnailUrl = mediaMetadata.thumbnailUrl,
+          releaseDate = parsedCredits.releaseDate,
+          performers = allPerformers,
+          songwriters = allWriters,
+          producers = parsedCredits.producers,
+          recordLabel = parsedCredits.recordLabel,
+          artistName = primaryArtistName,
+          artistId = primaryArtistId,
+          artistAvatarUrl = artistAvatar,
+          artistBio = artistBio,
+          artistListenersOrSubs = artistListeners,
+          songStory = wikiSong?.extract,
+          songStoryTitle = wikiSong?.title ?: "About the Song",
+        )
     }
   }
 
@@ -196,16 +192,11 @@ fun SongDnaBottomSheet(
     modifier = modifier,
   ) {
     Column(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 20.dp)
-        .navigationBarsPadding(),
+      modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).navigationBarsPadding(),
     ) {
       // Top Header
       Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(bottom = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
       ) {
@@ -219,19 +210,18 @@ fun SongDnaBottomSheet(
               androidx.compose.foundation.Image(
                 painter = painterResource(R.drawable.songdna),
                 contentDescription = null,
-                modifier = Modifier
-                  .size(20.dp)
-                  .clip(CircleShape),
+                modifier = Modifier.size(20.dp).clip(CircleShape),
               )
             }
           }
           Spacer(Modifier.width(10.dp))
           Text(
             text = "Song DNA",
-            style = MaterialTheme.typography.titleLarge.copy(
-              fontWeight = FontWeight.Bold,
-              letterSpacing = (-0.3).sp,
-            ),
+            style =
+              MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.3).sp,
+              ),
           )
         }
 
@@ -239,9 +229,7 @@ fun SongDnaBottomSheet(
           onClick = {
             scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
           },
-          modifier = Modifier
-            .size(36.dp)
-            .background(Color.White.copy(alpha = 0.08f), CircleShape),
+          modifier = Modifier.size(36.dp).background(Color.White.copy(alpha = 0.08f), CircleShape),
         ) {
           Icon(
             imageVector = Icons.Default.Close,
@@ -253,9 +241,7 @@ fun SongDnaBottomSheet(
       }
 
       LazyColumn(
-        modifier = Modifier
-          .fillMaxWidth()
-          .weight(1f, fill = false),
+        modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
         verticalArrangement = Arrangement.spacedBy(16.dp),
       ) {
         // 1. Spotify-Style Track Overview Card
@@ -274,15 +260,11 @@ fun SongDnaBottomSheet(
                 model = dnaState.albumThumbnailUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                  .size(64.dp)
-                  .clip(RoundedCornerShape(12.dp)),
+                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)),
               )
 
               Column(
-                modifier = Modifier
-                  .weight(1f)
-                  .padding(start = 14.dp),
+                modifier = Modifier.weight(1f).padding(start = 14.dp),
               ) {
                 Text(
                   text = dnaState.trackTitle,
@@ -292,7 +274,10 @@ fun SongDnaBottomSheet(
                 )
                 Spacer(Modifier.height(3.dp))
                 Text(
-                  text = dnaState.performers.joinToString(", ").ifEmpty { dnaState.artistName.orEmpty() },
+                  text =
+                    dnaState.performers.joinToString(", ").ifEmpty {
+                      dnaState.artistName.orEmpty()
+                    },
                   style = MaterialTheme.typography.bodyMedium,
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
                   maxLines = 1,
@@ -301,7 +286,8 @@ fun SongDnaBottomSheet(
                 if (!dnaState.albumTitle.isNullOrBlank() || !dnaState.releaseDate.isNullOrBlank()) {
                   Spacer(Modifier.height(3.dp))
                   Text(
-                    text = listOfNotNull(dnaState.albumTitle, dnaState.releaseDate).joinToString(" • "),
+                    text =
+                      listOfNotNull(dnaState.albumTitle, dnaState.releaseDate).joinToString(" • "),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                     maxLines = 1,
@@ -324,10 +310,11 @@ fun SongDnaBottomSheet(
             Column(modifier = Modifier.padding(16.dp)) {
               Text(
                 text = "ABOUT THE ARTIST",
-                style = MaterialTheme.typography.labelSmall.copy(
-                  fontWeight = FontWeight.Bold,
-                  letterSpacing = 1.sp,
-                ),
+                style =
+                  MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp,
+                  ),
                 color = MaterialTheme.colorScheme.primary,
               )
               Spacer(Modifier.height(12.dp))
@@ -340,15 +327,11 @@ fun SongDnaBottomSheet(
                   model = dnaState.artistAvatarUrl,
                   contentDescription = null,
                   contentScale = ContentScale.Crop,
-                  modifier = Modifier
-                    .size(52.dp)
-                    .clip(CircleShape),
+                  modifier = Modifier.size(52.dp).clip(CircleShape),
                 )
 
                 Column(
-                  modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 12.dp),
+                  modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
                 ) {
                   Text(
                     text = dnaState.artistName ?: "Artist",
@@ -370,13 +353,17 @@ fun SongDnaBottomSheet(
                   Surface(
                     shape = CircleShape,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
-                    modifier = Modifier.clickable {
-                      scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        onDismiss()
-                        navController.navigate("artist/${dnaState.artistId}")
-                      }
-                    },
+                    border =
+                      BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
+                    modifier =
+                      Modifier.clickable {
+                        scope
+                          .launch { sheetState.hide() }
+                          .invokeOnCompletion {
+                            onDismiss()
+                            navController.navigate("artist/${dnaState.artistId}")
+                          }
+                      },
                   ) {
                     Row(
                       verticalAlignment = Alignment.CenterVertically,
@@ -384,7 +371,10 @@ fun SongDnaBottomSheet(
                     ) {
                       Text(
                         text = "View Artist",
-                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        style =
+                          MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.SemiBold,
+                          ),
                         color = MaterialTheme.colorScheme.primary,
                       )
                       Spacer(Modifier.width(3.dp))
@@ -449,10 +439,11 @@ fun SongDnaBottomSheet(
             Column(modifier = Modifier.padding(16.dp)) {
               Text(
                 text = "CREDITS",
-                style = MaterialTheme.typography.labelSmall.copy(
-                  fontWeight = FontWeight.Bold,
-                  letterSpacing = 1.sp,
-                ),
+                style =
+                  MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp,
+                  ),
                 color = MaterialTheme.colorScheme.primary,
               )
               Spacer(Modifier.height(12.dp))
@@ -509,10 +500,11 @@ fun SongDnaBottomSheet(
               Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                   text = "BEHIND THE MUSIC",
-                  style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp,
-                  ),
+                  style =
+                    MaterialTheme.typography.labelSmall.copy(
+                      fontWeight = FontWeight.Bold,
+                      letterSpacing = 1.sp,
+                    ),
                   color = MaterialTheme.colorScheme.secondary,
                 )
                 if (!dnaState.songStoryTitle.isNullOrBlank()) {
@@ -614,7 +606,13 @@ private fun parseCreditsFromDescription(description: String?): ParsedCredits {
         trimmed.startsWith("Author:", ignoreCase = true) ||
         trimmed.startsWith("Songwriter:", ignoreCase = true) ||
         trimmed.startsWith("Music Director:", ignoreCase = true) -> {
-        val names = trimmed.substringAfter(":").trim().split("·", ",", "/", ";").map { it.trim() }.filter { it.isNotBlank() }
+        val names =
+          trimmed
+            .substringAfter(":")
+            .trim()
+            .split("·", ",", "/", ";")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
         songwriters.addAll(names)
         if (trimmed.startsWith("Composer, Producer:", ignoreCase = true)) {
           producers.addAll(names)
@@ -623,12 +621,24 @@ private fun parseCreditsFromDescription(description: String?): ParsedCredits {
       trimmed.startsWith("Producer:", ignoreCase = true) ||
         trimmed.startsWith("Produced by:", ignoreCase = true) ||
         trimmed.startsWith("Arranger:", ignoreCase = true) -> {
-        val names = trimmed.substringAfter(":").trim().split("·", ",", "/", ";").map { it.trim() }.filter { it.isNotBlank() }
+        val names =
+          trimmed
+            .substringAfter(":")
+            .trim()
+            .split("·", ",", "/", ";")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
         producers.addAll(names)
       }
       trimmed.startsWith("Associated Performer:", ignoreCase = true) ||
         trimmed.startsWith("Vocals:", ignoreCase = true) -> {
-        val names = trimmed.substringAfter(":").trim().split("·", ",", "/", ";").map { it.trim() }.filter { it.isNotBlank() }
+        val names =
+          trimmed
+            .substringAfter(":")
+            .trim()
+            .split("·", ",", "/", ";")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
         performers.addAll(names)
       }
       trimmed.startsWith("℗") -> {

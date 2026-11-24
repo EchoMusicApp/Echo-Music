@@ -59,7 +59,7 @@ class AudioExportService : Service() {
           CHANNEL_ID,
           getString(R.string.export_channel_name),
           NotificationManager.IMPORTANCE_LOW,
-        )
+        ),
       )
   }
 
@@ -263,7 +263,7 @@ class AudioExportService : Service() {
             continuation.resume(Unit)
           } else {
             continuation.resumeWithException(
-              IllegalStateException("FFmpeg export failed: ${completed.output}")
+              IllegalStateException("FFmpeg export failed: ${completed.output}"),
             )
           }
         }
@@ -443,7 +443,7 @@ class AudioExportService : Service() {
 
     fun cancelAll(context: Context) {
       context.startService(
-        Intent(context, AudioExportService::class.java).setAction(ACTION_CANCEL_ALL)
+        Intent(context, AudioExportService::class.java).setAction(ACTION_CANCEL_ALL),
       )
     }
 
@@ -496,7 +496,7 @@ class AudioExportService : Service() {
             "mjpeg",
             "-disposition:v",
             "attached_pic",
-          )
+          ),
         )
       }
       args.addAll(listOf("-c:a", "libmp3lame", "-b:a", "320k", "-id3v2_version", "3"))
@@ -508,14 +508,14 @@ class AudioExportService : Service() {
           "artist=$artist",
           "-metadata",
           "album=$album",
-        )
+        ),
       )
       if (year != null) {
         args.addAll(listOf("-metadata", "date=$year", "-metadata", "year=$year"))
       }
       if (coverPath != null) {
         args.addAll(
-          listOf("-metadata:s:v", "title=Album cover", "-metadata:s:v", "comment=Cover (front)")
+          listOf("-metadata:s:v", "title=Album cover", "-metadata:s:v", "comment=Cover (front)"),
         )
       }
       args.add(outputPath)

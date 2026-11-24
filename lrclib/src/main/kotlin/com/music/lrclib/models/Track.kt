@@ -33,10 +33,11 @@ internal fun List<Track>.bestMatchingForRelaxed(duration: Int): Track? {
   }
 
   // First try to find synced lyrics within tolerance
-  val syncedMatch =
-    filter { it.syncedLyrics != null }
-      .minByOrNull { abs(it.duration.toInt() - duration) }
-      ?.takeIf { abs(it.duration.toInt() - duration) <= 5 }
+  val syncedMatch = filter {
+    it.syncedLyrics != null
+  }
+    .minByOrNull { abs(it.duration.toInt() - duration) }
+    ?.takeIf { abs(it.duration.toInt() - duration) <= 5 }
 
   if (syncedMatch != null) return syncedMatch
 
@@ -48,7 +49,7 @@ internal fun List<Track>.bestMatchingForRelaxed(duration: Int): Track? {
 internal fun List<Track>.bestMatchingFor(
   duration: Int,
   trackName: String? = null,
-  artistName: String? = null
+  artistName: String? = null,
 ): Track? {
   if (isEmpty()) return null
 
@@ -68,20 +69,20 @@ private fun List<Track>.findBestMatch(trackName: String, artistName: String): Tr
   val normalizedArtistName = artistName.trim().lowercase()
 
   return maxByOrNull { track ->
-      var score = 0.0
+    var score = 0.0
 
-      val trackNameSimilarity =
-        calculateSimilarity(normalizedTrackName, track.trackName.trim().lowercase())
+    val trackNameSimilarity =
+      calculateSimilarity(normalizedTrackName, track.trackName.trim().lowercase())
 
-      val artistNameSimilarity =
-        calculateSimilarity(normalizedArtistName, track.artistName.trim().lowercase())
+    val artistNameSimilarity =
+      calculateSimilarity(normalizedArtistName, track.artistName.trim().lowercase())
 
-      score = (trackNameSimilarity + artistNameSimilarity) / 2.0
+    score = (trackNameSimilarity + artistNameSimilarity) / 2.0
 
-      if (track.syncedLyrics != null) score += 0.1
+    if (track.syncedLyrics != null) score += 0.1
 
-      score
-    }
+    score
+  }
     ?.takeIf { track ->
       val trackNameSimilarity =
         calculateSimilarity(normalizedTrackName, track.trackName.trim().lowercase())
@@ -124,7 +125,7 @@ private fun levenshteinDistance(str1: String, str2: String): Int {
         minOf(
           matrix[i - 1][j] + 1, // deletion
           matrix[i][j - 1] + 1, // insertion
-          matrix[i - 1][j - 1] + cost // substitution
+          matrix[i - 1][j - 1] + cost, // substitution
         )
     }
   }

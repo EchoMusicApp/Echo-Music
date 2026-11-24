@@ -194,7 +194,7 @@ fun LyricsMenu(
               titleField.text,
               artistField.text,
               searchMediaMetadata.duration,
-              searchMediaMetadata.album?.title
+              searchMediaMetadata.album?.title,
             )
             showSearchResultDialog = true
 
@@ -202,7 +202,7 @@ fun LyricsMenu(
               Toast.makeText(
                   context,
                   context.getString(R.string.error_no_internet),
-                  Toast.LENGTH_SHORT
+                  Toast.LENGTH_SHORT,
                 )
                 .show()
             }
@@ -273,11 +273,11 @@ fun LyricsMenu(
             Surface(
               color = MaterialTheme.colorScheme.secondaryContainer,
               shape = RoundedCornerShape(6.dp),
-              modifier = Modifier.padding(top = 4.dp)
+              modifier = Modifier.padding(top = 4.dp),
             ) {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
               ) {
                 Text(
                   text = result.providerName,
@@ -303,7 +303,8 @@ fun LyricsMenu(
             Icon(
               painter =
                 painterResource(
-                  if (index == expandedItemIndex) R.drawable.expand_less else R.drawable.expand_more
+                  if (index == expandedItemIndex) R.drawable.expand_less
+                  else R.drawable.expand_more,
                 ),
               contentDescription = null,
             )
@@ -367,11 +368,11 @@ fun LyricsMenu(
                   painter = painterResource(R.drawable.edit),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.edit),
-              onClick = { showEditDialog = true }
+              onClick = { showEditDialog = true },
             ),
             NewAction(
               icon = {
@@ -379,14 +380,14 @@ fun LyricsMenu(
                   painter = painterResource(R.drawable.cached),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.refetch),
               onClick = {
                 onDismiss()
                 viewModel.refetchLyrics(mediaMetadataProvider(), lyricsProvider())
-              }
+              },
             ),
             NewAction(
               icon = {
@@ -394,14 +395,14 @@ fun LyricsMenu(
                   painter = painterResource(R.drawable.search),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.search),
-              onClick = { showSearchDialog = true }
-            )
+              onClick = { showSearchDialog = true },
+            ),
           ),
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
       )
     }
 
@@ -444,7 +445,7 @@ fun LyricsMenu(
                       },
                     )
                   },
-                )
+                ),
               )
             }
 
@@ -465,10 +466,10 @@ fun LyricsMenu(
                   Text(
                     text = "${if (lyricsOffset >= 0) "+" else ""}${lyricsOffset}ms",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
-                }
-              )
+                },
+              ),
             )
 
             add(
@@ -494,12 +495,12 @@ fun LyricsMenu(
                       songProvider()?.let { song ->
                         database.query { upsert(song.copy(romanizeLyrics = newCheckedState)) }
                       }
-                    }
+                    },
                   )
-                }
-              )
+                },
+              ),
             )
-          }
+          },
       )
     }
   }

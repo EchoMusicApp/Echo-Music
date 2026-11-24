@@ -9,6 +9,6 @@ data class ChartsPage(val sections: List<ChartSection>, val continuation: String
     TRENDING,
     TOP,
     GENRE,
-    NEW_RELEASES
+    NEW_RELEASES,
   }
 }

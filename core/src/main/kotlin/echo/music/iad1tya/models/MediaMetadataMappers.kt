@@ -19,7 +19,7 @@ fun MediaMetadata.toSongEntity() =
     inLibrary = inLibrary,
     libraryAddToken = libraryAddToken,
     libraryRemoveToken = libraryRemoveToken,
-    isVideo = isVideoSong
+    isVideo = isVideoSong,
   )
 
 fun Song.toMediaMetadata() =
@@ -54,5 +54,5 @@ fun SongItem.toMediaMetadata() =
     libraryAddToken = libraryAddToken,
     libraryRemoveToken = libraryRemoveToken,
     suggestedBy = null,
-    source = QueueItemSource.USER
+    source = QueueItemSource.USER,
   )

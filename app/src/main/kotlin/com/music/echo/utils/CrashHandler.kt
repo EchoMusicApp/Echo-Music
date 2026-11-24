@@ -33,7 +33,7 @@ class CrashHandler private constructor(private val applicationContext: Context) 
             ) {
               Timber.e(
                 e,
-                "Suppressed another ForegroundServiceStartNotAllowedException in CrashHandler"
+                "Suppressed another ForegroundServiceStartNotAllowedException in CrashHandler",
               )
             } else {
               uncaughtException(thread, e)

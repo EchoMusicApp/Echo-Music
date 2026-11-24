@@ -43,7 +43,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import echo.music.iad1tya.generate.trackKeyOf
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -78,6 +77,7 @@ import echo.music.iad1tya.db.entities.PlaylistSong
 import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.db.entities.SpeedDialItem
 import echo.music.iad1tya.extensions.toMediaItem
+import echo.music.iad1tya.generate.trackKeyOf
 import echo.music.iad1tya.models.toMediaMetadata
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.playback.queues.YouTubeQueue
@@ -132,12 +132,14 @@ fun SongMenu(
   val isExported =
     remember(exportedSongIds, song.id) { exportedSongIds.split(",").contains(song.id) }
 
-  val isExcludedFromRecommendations by produceState(initialValue = false, song.id) {
-    val trackKey = trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name })
-    value = withContext(Dispatchers.IO) {
-      database.recommendationExclusionDao.isExcluded(trackKey)
+  val isExcludedFromRecommendations by
+    produceState(initialValue = false, song.id) {
+      val trackKey = trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name })
+      value =
+        withContext(Dispatchers.IO) {
+          database.recommendationExclusionDao.isExcluded(trackKey)
+        }
     }
-  }
 
   var showReExportDialog by
     androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -154,7 +156,7 @@ fun SongMenu(
               android.widget.Toast.makeText(
                   context,
                   context.getString(R.string.export_directory_not_set),
-                  android.widget.Toast.LENGTH_SHORT
+                  android.widget.Toast.LENGTH_SHORT,
                 )
                 .show()
               onDismiss()
@@ -167,10 +169,10 @@ fun SongMenu(
                 songArtist = song.artists.joinToString(", ") { it.name },
                 songAlbum = song.song.albumName ?: "",
                 artworkUrl = song.thumbnailUrl ?: "",
-                targetDirectoryUri = exportDirectoryUri
+                targetDirectoryUri = exportDirectoryUri,
               )
             }
-          }
+          },
         ) {
           androidx.compose.material3.Text("Yes")
         }
@@ -179,7 +181,7 @@ fun SongMenu(
         androidx.compose.material3.OutlinedButton(onClick = { showReExportDialog = false }) {
           androidx.compose.material3.Text("No")
         }
-      }
+      },
     )
   }
   val exportProgress =
@@ -208,8 +210,9 @@ fun SongMenu(
     produceState(initialValue = emptyList<ArtistEntity>(), song) {
       withContext(Dispatchers.IO) {
         val artistMaps = database.songArtistMap(song.id).sortedBy { it.position }
-        val sorted =
-          artistMaps.mapNotNull { map -> song.artists.firstOrNull { it.id == map.artistId } }
+        val sorted = artistMaps.mapNotNull { map ->
+          song.artists.firstOrNull { it.id == map.artistId }
+        }
         value = sorted
       }
     }
@@ -236,7 +239,7 @@ fun SongMenu(
       textFields =
         listOf(
           stringResource(R.string.song_title) to titleField,
-          stringResource(R.string.artist_name) to artistField
+          stringResource(R.string.artist_name) to artistField,
         ),
       onTextFieldsChange = { index, newValue ->
         if (index == 0) titleField = newValue else artistField = newValue
@@ -258,7 +261,7 @@ fun SongMenu(
           onDismiss()
         }
       },
-      onDismiss = { showEditDialog = false }
+      onDismiss = { showEditDialog = false },
     )
   }
 
@@ -396,14 +399,14 @@ fun SongMenu(
                     painter = painterResource(R.drawable.radio),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.start_radio),
                 onClick = {
                   onDismiss()
                   playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
-                }
+                },
               )
             } else null,
             NewAction(
@@ -412,11 +415,11 @@ fun SongMenu(
                   painter = painterResource(R.drawable.playlist_add),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.add_to_an_playlist),
-              onClick = { showChoosePlaylistDialog = true }
+              onClick = { showChoosePlaylistDialog = true },
             ),
             NewAction(
               icon = {
@@ -424,7 +427,7 @@ fun SongMenu(
                   painter = painterResource(R.drawable.share),
                   contentDescription = null,
                   modifier = Modifier.size(22.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.share),
@@ -441,11 +444,11 @@ fun SongMenu(
                     }
                   context.startActivity(Intent.createChooser(intent, null))
                 }
-              }
-            )
+              },
+            ),
           ),
         columns = 3,
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp)
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
       )
     }
     item {
@@ -471,11 +474,11 @@ fun SongMenu(
                       artist = orderedArtists.joinToString(", ") { it.name },
                       album = song.song.albumName,
                       duration = durationMs,
-                      thumbnail = song.thumbnailUrl
+                      thumbnail = song.thumbnailUrl,
                     )
                   listenTogetherManager.suggestTrack(trackInfo)
                   onDismiss()
-                }
+                },
               )
             } else null,
             Material3MenuItemData(
@@ -487,7 +490,7 @@ fun SongMenu(
                   contentDescription = null,
                 )
               },
-              onClick = { showEditDialog = true }
+              onClick = { showEditDialog = true },
             ),
             if (!isGuest) {
               Material3MenuItemData(
@@ -502,7 +505,7 @@ fun SongMenu(
                 onClick = {
                   onDismiss()
                   playerConnection.playNext(song.toMediaItem())
-                }
+                },
               )
             } else null,
             if (!isGuest) {
@@ -518,10 +521,10 @@ fun SongMenu(
                 onClick = {
                   onDismiss()
                   playerConnection.addToQueue(song.toMediaItem())
-                }
+                },
               )
-            } else null
-          )
+            } else null,
+          ),
       )
     }
 
@@ -554,14 +557,14 @@ fun SongMenu(
                           subtitle = song.artists.joinToString(", ") { it.name },
                           thumbnailUrl = song.thumbnailUrl,
                           type = "SONG",
-                          explicit = song.song.explicit
-                        )
+                          explicit = song.song.explicit,
+                        ),
                       )
                     }
                   }
                   onDismiss()
-                }
-              )
+                },
+              ),
             )
 
             add(
@@ -571,8 +574,8 @@ fun SongMenu(
                     text =
                       stringResource(
                         if (song.song.inLibrary == null) R.string.add_to_library
-                        else R.string.remove_from_library
-                      )
+                        else R.string.remove_from_library,
+                      ),
                   )
                 },
                 description = { Text(text = stringResource(R.string.add_to_library_desc)) },
@@ -581,7 +584,7 @@ fun SongMenu(
                     painter =
                       painterResource(
                         if (song.song.inLibrary == null) R.drawable.library_add
-                        else R.drawable.library_add_check
+                        else R.drawable.library_add_check,
                       ),
                     contentDescription = null,
                   )
@@ -595,8 +598,8 @@ fun SongMenu(
                   token?.let { coroutineScope.launch { YouTube.feedback(listOf(it)) } }
 
                   database.query { update(song.song.toggleLibrary()) }
-                }
-              )
+                },
+              ),
             )
 
             add(
@@ -606,8 +609,8 @@ fun SongMenu(
                     text =
                       stringResource(
                         if (song.song.hideFromQuickPicks) R.string.unhide_from_home
-                        else R.string.hide_from_home
-                      )
+                        else R.string.hide_from_home,
+                      ),
                   )
                 },
                 description = { Text(text = stringResource(R.string.hide_from_home_desc)) },
@@ -616,7 +619,7 @@ fun SongMenu(
                     painter =
                       painterResource(
                         if (song.song.hideFromQuickPicks) R.drawable.visibility
-                        else R.drawable.visibility_off
+                        else R.drawable.visibility_off,
                       ),
                     contentDescription = null,
                   )
@@ -624,8 +627,8 @@ fun SongMenu(
                 onClick = {
                   database.query { update(song.song.toggleHideFromQuickPicks()) }
                   onDismiss()
-                }
-              )
+                },
+              ),
             )
 
             val trackKey = trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name })
@@ -633,17 +636,25 @@ fun SongMenu(
               Material3MenuItemData(
                 title = {
                   Text(
-                    text = if (isExcludedFromRecommendations) "Allow in recommendations" else "Never recommend again"
+                    text =
+                      if (isExcludedFromRecommendations) "Allow in recommendations"
+                      else "Never recommend again",
                   )
                 },
                 description = {
                   Text(
-                    text = if (isExcludedFromRecommendations) "Remove exclusion from taste recommendations" else "Exclude track from local taste recommendations"
+                    text =
+                      if (isExcludedFromRecommendations)
+                        "Remove exclusion from taste recommendations"
+                      else "Exclude track from local taste recommendations",
                   )
                 },
                 icon = {
                   Icon(
-                    painter = painterResource(if (isExcludedFromRecommendations) R.drawable.remove else R.drawable.close),
+                    painter =
+                      painterResource(
+                        if (isExcludedFromRecommendations) R.drawable.remove else R.drawable.close,
+                      ),
                     contentDescription = null,
                   )
                 },
@@ -658,18 +669,20 @@ fun SongMenu(
                           excludedAtMillis = System.currentTimeMillis(),
                           trackName = song.song.title,
                           artistName = song.artists.joinToString(", ") { it.name },
-                        )
+                        ),
                       )
                     }
                   }
                   android.widget.Toast.makeText(
-                    context,
-                    if (isExcludedFromRecommendations) "Track re-allowed in recommendations" else "Track excluded from recommendations",
-                    android.widget.Toast.LENGTH_SHORT
-                  ).show()
+                      context,
+                      if (isExcludedFromRecommendations) "Track re-allowed in recommendations"
+                      else "Track excluded from recommendations",
+                      android.widget.Toast.LENGTH_SHORT,
+                    )
+                    .show()
                   onDismiss()
-                }
-              )
+                },
+              ),
             )
 
             if (event != null) {
@@ -685,8 +698,8 @@ fun SongMenu(
                   onClick = {
                     onDismiss()
                     database.query { delete(event) }
-                  }
-                )
+                  },
+                ),
               )
             }
             if (playlistSong != null) {
@@ -707,7 +720,7 @@ fun SongMenu(
                             YouTube.removeFromPlaylist(
                               playlistId,
                               playlistSong.map.songId,
-                              playlistSong.map.setVideoId!!
+                              playlistSong.map.setVideoId!!,
                             )
                           }
                         }
@@ -716,8 +729,8 @@ fun SongMenu(
                       delete(playlistSong.map.copy(position = Int.MAX_VALUE))
                     }
                     onDismiss()
-                  }
-                )
+                  },
+                ),
               )
             }
             if (isFromCache) {
@@ -733,11 +746,11 @@ fun SongMenu(
                   onClick = {
                     onDismiss()
                     cacheViewModel.removeSongFromCache(song.id)
-                  }
-                )
+                  },
+                ),
               )
             }
-          }
+          },
       )
     }
 
@@ -762,7 +775,7 @@ fun SongMenu(
                         song.id,
                         false,
                       )
-                    }
+                    },
                   )
                 }
                 Download.STATE_QUEUED,
@@ -779,7 +792,7 @@ fun SongMenu(
                         song.id,
                         false,
                       )
-                    }
+                    },
                   )
                 }
                 else -> {
@@ -804,11 +817,11 @@ fun SongMenu(
                         downloadRequest,
                         false,
                       )
-                    }
+                    },
                   )
                 }
-              }
-            )
+              },
+            ),
         )
       }
     }
@@ -830,10 +843,10 @@ fun SongMenu(
                       CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         strokeWidth = 2.dp,
-                        progress = { if (exportProgress != null) exportProgress / 100f else 0f }
+                        progress = { if (exportProgress != null) exportProgress / 100f else 0f },
                       )
                     },
-                    onClick = {}
+                    onClick = {},
                   )
                 isExported ->
                   Material3MenuItemData(
@@ -841,10 +854,10 @@ fun SongMenu(
                     icon = {
                       Icon(
                         painter = painterResource(R.drawable.folder_managed),
-                        contentDescription = null
+                        contentDescription = null,
                       )
                     },
-                    onClick = { showReExportDialog = true }
+                    onClick = { showReExportDialog = true },
                   )
                 else ->
                   Material3MenuItemData(
@@ -861,7 +874,7 @@ fun SongMenu(
                         android.widget.Toast.makeText(
                             context,
                             context.getString(R.string.export_directory_not_set),
-                            android.widget.Toast.LENGTH_SHORT
+                            android.widget.Toast.LENGTH_SHORT,
                           )
                           .show()
                         onDismiss()
@@ -874,13 +887,13 @@ fun SongMenu(
                           songArtist = song.artists.joinToString(", ") { it.name },
                           songAlbum = song.song.albumName ?: "",
                           artworkUrl = song.thumbnailUrl ?: "",
-                          targetDirectoryUri = exportDirectoryUri
+                          targetDirectoryUri = exportDirectoryUri,
                         )
                       }
-                    }
+                    },
                   )
-              }
-            )
+              },
+            ),
         )
       }
     }
@@ -897,7 +910,7 @@ fun SongMenu(
                 Icon(
                   painter = painterResource(R.drawable.notification),
                   contentDescription = null,
-                  modifier = Modifier.size(24.dp)
+                  modifier = Modifier.size(24.dp),
                 )
               },
               onClick = {
@@ -906,15 +919,15 @@ fun SongMenu(
                     song.id,
                     song.song.title,
                     song.artists.joinToString { it.name },
-                    song.song.duration
+                    song.song.duration,
                   )
                 } else {
                   ringtoneViewModel.requestSettingsPermission(context)
                 }
                 onDismiss()
-              }
-            )
-          )
+              },
+            ),
+          ),
       )
     }
 
@@ -941,8 +954,8 @@ fun SongMenu(
                   } else {
                     showSelectArtistDialog = true
                   }
-                }
-              )
+                },
+              ),
             )
             if (song.song.albumId != null) {
               add(
@@ -958,8 +971,8 @@ fun SongMenu(
                   onClick = {
                     onDismiss()
                     navController.navigate("album/${song.song.albumId}")
-                  }
-                )
+                  },
+                ),
               )
             }
             if (!song.song.isLocal) {
@@ -981,7 +994,7 @@ fun SongMenu(
                       context,
                       echo.music.iad1tya.playback.ExoDownloadService::class.java,
                       song.id,
-                      false
+                      false,
                     )
                     val intent =
                       android.content
@@ -1000,8 +1013,8 @@ fun SongMenu(
                         }
                       }
                     }
-                  }
-                )
+                  },
+                ),
               )
             }
             add(
@@ -1017,10 +1030,10 @@ fun SongMenu(
                 onClick = {
                   onDismiss()
                   bottomSheetPageState.show { ShowMediaInfo(song.id) }
-                }
-              )
+                },
+              ),
             )
-          }
+          },
       )
     }
   }

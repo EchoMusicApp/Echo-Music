@@ -96,7 +96,7 @@ fun ArtistMenu(
                         painter = painterResource(R.drawable.play),
                         contentDescription = null,
                         modifier = Modifier.size(28.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                     },
                     text = stringResource(R.string.play),
@@ -117,8 +117,8 @@ fun ArtistMenu(
                         )
                       }
                       onDismiss()
-                    }
-                  )
+                    },
+                  ),
                 )
 
                 add(
@@ -128,7 +128,7 @@ fun ArtistMenu(
                         painter = painterResource(R.drawable.shuffle),
                         contentDescription = null,
                         modifier = Modifier.size(28.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                       )
                     },
                     text = stringResource(R.string.shuffle),
@@ -150,8 +150,8 @@ fun ArtistMenu(
                         )
                       }
                       onDismiss()
-                    }
-                  )
+                    },
+                  ),
                 )
               }
             }
@@ -163,7 +163,7 @@ fun ArtistMenu(
                     painter = painterResource(if (isPinned) R.drawable.remove else R.drawable.add),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = if (isPinned) "Unpin" else "Pin",
@@ -178,14 +178,14 @@ fun ArtistMenu(
                           title = artist.artist.name,
                           subtitle = null,
                           thumbnailUrl = artist.artist.thumbnailUrl,
-                          type = "ARTIST"
-                        )
+                          type = "ARTIST",
+                        ),
                       )
                     }
                   }
                   onDismiss()
-                }
-              )
+                },
+              ),
             )
 
             if (artist.artist.isYouTubeArtist) {
@@ -196,7 +196,7 @@ fun ArtistMenu(
                       painter = painterResource(R.drawable.share),
                       contentDescription = null,
                       modifier = Modifier.size(28.dp),
-                      tint = MaterialTheme.colorScheme.onSurfaceVariant
+                      tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                   },
                   text = stringResource(R.string.share),
@@ -208,17 +208,17 @@ fun ArtistMenu(
                         type = "text/plain"
                         putExtra(
                           Intent.EXTRA_TEXT,
-                          "https://share.echomusic.fun/channel/${artist.id}"
+                          "https://share.echomusic.fun/channel/${artist.id}",
                         )
                       }
                     context.startActivity(Intent.createChooser(intent, null))
-                  }
-                )
+                  },
+                ),
               )
             }
           },
         modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
-        columns = if (isGuest) 1 else 3
+        columns = if (isGuest) 1 else 3,
       )
     }
 
@@ -231,7 +231,7 @@ fun ArtistMenu(
                 Text(
                   text =
                     if (artist.artist.bookmarkedAt != null) stringResource(R.string.subscribed)
-                    else stringResource(R.string.subscribe)
+                    else stringResource(R.string.subscribe),
                 )
               },
               icon = {
@@ -239,14 +239,14 @@ fun ArtistMenu(
                   painter =
                     painterResource(
                       if (artist.artist.bookmarkedAt != null) R.drawable.subscribed
-                      else R.drawable.subscribe
+                      else R.drawable.subscribe,
                     ),
                   contentDescription = null,
                 )
               },
-              onClick = { database.transaction { update(artist.artist.toggleLike()) } }
-            )
-          )
+              onClick = { database.transaction { update(artist.artist.toggleLike()) } },
+            ),
+          ),
       )
     }
   }

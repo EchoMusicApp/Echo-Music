@@ -20,7 +20,7 @@ fun DiscordTokenWebView(onTokenExtracted: (String) -> Unit) {
         layoutParams =
           android.view.ViewGroup.LayoutParams(
             android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
           )
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
@@ -41,7 +41,7 @@ fun DiscordTokenWebView(onTokenExtracted: (String) -> Unit) {
               }
             }
           },
-          "DiscordInterface"
+          "DiscordInterface",
         )
 
         webChromeClient = WebChromeClient()
@@ -52,24 +52,24 @@ fun DiscordTokenWebView(onTokenExtracted: (String) -> Unit) {
               if (url.contains("discord.com/channels") || url.contains("discord.com/app")) {
                 view.evaluateJavascript(
                   """
-                                (function() {
-                                    try {
-                                        var iframe = document.createElement('iframe');
-                                        document.head.append(iframe);
-                                        var pd = Object.getOwnPropertyDescriptor(iframe.contentWindow, 'localStorage');
-                                        iframe.remove();
-                                        Object.defineProperty(window, 'localStorage', pd);
-                                        var t = window.localStorage.getItem('token');
-                                        if (t) {
-                                            DiscordInterface.onToken(t);
-                                        }
-                                    } catch(e) {
-                                        DiscordInterface.onToken(null);
-                                    }
-                                })();
-                                """
+                  (function() {
+                      try {
+                          var iframe = document.createElement('iframe');
+                          document.head.append(iframe);
+                          var pd = Object.getOwnPropertyDescriptor(iframe.contentWindow, 'localStorage');
+                          iframe.remove();
+                          Object.defineProperty(window, 'localStorage', pd);
+                          var t = window.localStorage.getItem('token');
+                          if (t) {
+                              DiscordInterface.onToken(t);
+                          }
+                      } catch(e) {
+                          DiscordInterface.onToken(null);
+                      }
+                  })();
+                  """
                     .trimIndent(),
-                  null
+                  null,
                 )
               }
             }
@@ -79,6 +79,6 @@ fun DiscordTokenWebView(onTokenExtracted: (String) -> Unit) {
     },
     update = { webView ->
       // Update block if needed
-    }
+    },
   )
 }

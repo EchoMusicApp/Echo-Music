@@ -40,7 +40,7 @@ class LocalMixQueue(
           ?: return@withContext Queue.Status(
             title = "Mix from Playlist",
             items = emptyList(),
-            mediaItemIndex = 0
+            mediaItemIndex = 0,
           )
 
       val nextResult = YouTube.next(WatchEndpoint(videoId = seedSongId)).getOrNull()

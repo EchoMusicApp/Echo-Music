@@ -64,7 +64,7 @@ fun DislikedSongsScreen(navController: NavController) {
           }
         },
       )
-    }
+    },
   ) { padding ->
     if (dislikedSongs.isEmpty()) {
       Box(
@@ -119,7 +119,7 @@ fun DislikedSongsScreen(navController: NavController) {
             ListItem(
               colors =
                 ListItemDefaults.colors(
-                  containerColor = androidx.compose.ui.graphics.Color.Transparent
+                  containerColor = androidx.compose.ui.graphics.Color.Transparent,
                 ),
               leadingContent = {
                 if (!thumbnailUrl.isNullOrBlank()) {
@@ -170,7 +170,7 @@ fun DislikedSongsScreen(navController: NavController) {
                         }
                       }
                     }
-                  }
+                  },
                 ) {
                   Text("Remove")
                 }

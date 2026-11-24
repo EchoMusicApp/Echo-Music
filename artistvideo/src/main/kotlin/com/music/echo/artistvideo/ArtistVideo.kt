@@ -106,7 +106,7 @@ fun ArtistVideo(
     animateFloatAsState(
       targetValue = if (isVideoReady) 1f else 0f,
       animationSpec = tween(durationMillis = 400),
-      label = "videoAlpha"
+      label = "videoAlpha",
     )
 
   Box(

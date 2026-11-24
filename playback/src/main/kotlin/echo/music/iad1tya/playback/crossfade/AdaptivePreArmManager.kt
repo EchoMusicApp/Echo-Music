@@ -4,14 +4,14 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Dynamically tracks network and media preparation duration to expand or contract
- * the pre-arm lead time window. Ensures the standby player is fully buffered and in
- * STATE_READY before the crossfade trigger instant arrives.
+ * Dynamically tracks network and media preparation duration to expand or contract the pre-arm lead
+ * time window. Ensures the standby player is fully buffered and in STATE_READY before the crossfade
+ * trigger instant arrives.
  */
 class AdaptivePreArmManager(
   val baseLeadTimeMs: Long = 20_000L,
   val maxLeadTimeMs: Long = 35_000L,
-  private val slowPrepThresholdMs: Long = 8_000L
+  private val slowPrepThresholdMs: Long = 8_000L,
 ) {
   init {
     require(baseLeadTimeMs > 0) { "baseLeadTimeMs must be positive" }

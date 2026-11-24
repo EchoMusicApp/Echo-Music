@@ -12,10 +12,14 @@ class QuickPickSongsTest {
 
   @Test
   fun fallbackSongsCannotRestoreHiddenSongs() {
-    val result = filterQuickPickSongs(
-      listOf(song("hidden", true), song("stale"), song("visible"), song("visible")),
-      setOf("stale"), emptySet(), false, false,
-    )
+    val result =
+      filterQuickPickSongs(
+        listOf(song("hidden", true), song("stale"), song("visible"), song("visible")),
+        setOf("stale"),
+        emptySet(),
+        false,
+        false,
+      )
 
     assertEquals(listOf("visible"), result.map { it.id })
   }
@@ -32,13 +36,19 @@ class QuickPickSongsTest {
 
   @Test
   fun blockedArtistsAreExcludedFromLocalRecommendations() {
-    val blocked = Song(
-      SongEntity(id = "blocked", title = "Blocked"),
-      listOf(ArtistEntity(id = "artist-id", name = "Blocked Artist")),
-    )
-    val result = filterQuickPickSongs(
-      listOf(blocked, song("visible")), emptySet(), setOf("artist-id||Blocked Artist"), false, false,
-    )
+    val blocked =
+      Song(
+        SongEntity(id = "blocked", title = "Blocked"),
+        listOf(ArtistEntity(id = "artist-id", name = "Blocked Artist")),
+      )
+    val result =
+      filterQuickPickSongs(
+        listOf(blocked, song("visible")),
+        emptySet(),
+        setOf("artist-id||Blocked Artist"),
+        false,
+        false,
+      )
 
     assertEquals(listOf("visible"), result.map { it.id })
   }

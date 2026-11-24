@@ -74,7 +74,7 @@ fun LazyListScope.continueListening(episodes: List<EpisodeProgress>, keyPrefix: 
               title = episode.show,
               items = listOf(song.toMediaMetadata().toMediaItem()),
               position = episode.positionMs,
-            )
+            ),
           )
         },
     )

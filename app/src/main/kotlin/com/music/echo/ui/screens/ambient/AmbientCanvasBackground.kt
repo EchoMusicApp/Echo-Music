@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.music.innertube.models.PODCAST_BROWSE_PREFIX
+import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
 import echo.music.iad1tya.canvas.CanvasArtwork
@@ -21,8 +23,6 @@ import echo.music.iad1tya.ui.player.normalizeCanvasArtistName
 import echo.music.iad1tya.ui.player.normalizeCanvasSongTitle
 import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.rememberPreference
-import com.music.innertube.models.PODCAST_BROWSE_PREFIX
-import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -45,14 +45,13 @@ fun AmbientCanvasBackground(modifier: Modifier = Modifier) {
     if (country.length == 2) country.lowercase(Locale.ROOT) else "us"
   }
 
-  val isEpisode =
-    metadata.let { meta ->
-      val durationMs = meta.duration * 1000L
-      PodcastProgress.get(meta.id) != null ||
-        PodcastProgress.isEpisode(meta, durationMs) ||
-        meta.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE ||
-        meta.artists.any { it.id?.startsWith(PODCAST_BROWSE_PREFIX) == true }
-    }
+  val isEpisode = metadata.let { meta ->
+    val durationMs = meta.duration * 1000L
+    PodcastProgress.get(meta.id) != null ||
+      PodcastProgress.isEpisode(meta, durationMs) ||
+      meta.musicVideoType == MUSIC_VIDEO_TYPE_PODCAST_EPISODE ||
+      meta.artists.any { it.id?.startsWith(PODCAST_BROWSE_PREFIX) == true }
+  }
 
   LaunchedEffect(metadata.id, enableCanvas, isEpisode) {
     if (isEpisode || !enableCanvas) {

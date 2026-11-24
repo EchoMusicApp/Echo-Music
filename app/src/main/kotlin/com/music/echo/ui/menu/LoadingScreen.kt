@@ -20,7 +20,7 @@ fun LoadingScreen(
     Dialog(onDismissRequest = {}) {
       Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
       ) {
         Text(
           text = stringResource(R.string.progress_percent, value.toString()),
