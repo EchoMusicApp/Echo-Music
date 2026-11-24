@@ -106,6 +106,8 @@ fun OnlineSearchScreen(
 
   val lazyListState = rememberLazyListState()
 
+  LaunchedEffect(Unit) { viewModel.warmUp() }
+
   LaunchedEffect(Unit) {
     snapshotFlow { lazyListState.firstVisibleItemScrollOffset }
       .drop(1)
