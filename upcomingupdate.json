@@ -26,7 +26,11 @@
     "Settings: remove stale search results for lyrics options that no longer exist (provider toggles, per-language romanization, glow effect), so searching settings no longer points to missing options (#700)",
     "Home: show YouTube Music shelves made of list rows (Quick picks) and podcast episode cards, which were dropped",
     "Home: hide the live 'Listen together' stations in every language, and respect the Show speed dial setting",
-    "Spotify: resolve login failures and session expiration using Vivi Music's mobile user-agent WebView flow, resilient nuance caching with GitHub Gist API fallback, server-time offset fallback, and automatic anonymous token recovery (#854, #884)"
+    "Spotify: resolve login failures and session expiration using Vivi Music's mobile user-agent WebView flow, resilient nuance caching with GitHub Gist API fallback, server-time offset fallback, and automatic anonymous token recovery (#854, #884)",
+    "Playback: a failing lossless addon stream plays from YouTube without a player error or a closed Android Auto player; songs no longer drift to Opus after a 429 or on a slow measure, beat analysis no longer pulls FLACs from the addon host, and a song still loading after 8 s plays from YouTube",
+    "Playback: addon lookups drop credits and video labels, try the title alone, and no longer serve live, acoustic or remixed takes for the studio song; the FLAC quality label always shows the sample rate",
+    "Video mode: play only an official video of the song, never another song's video, a trailer or a fan upload",
+    "Search: show podcasts, episodes, playlists and YouTube Music mixes among the suggestions, as YouTube Music does"
   ],
   "contributors": [
     "PurveshShinde"

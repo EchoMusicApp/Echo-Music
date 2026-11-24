@@ -336,7 +336,11 @@ fun PodcastVideoScreen(navController: NavController) {
             mediaMetadata?.musicVideoType == MUSIC_VIDEO_TYPE_ATV ||
             mediaMetadata?.isVideoSong != true)
       ) {
-        PodcastVideoProvider.findOfficialMusicVideoId(title, author) ?: videoId
+        PodcastVideoProvider.findOfficialMusicVideoId(
+          title,
+          author,
+          durationSec = mediaMetadata?.duration?.takeIf { it > 0 },
+        ) ?: videoId
       } else {
         videoId
       }
