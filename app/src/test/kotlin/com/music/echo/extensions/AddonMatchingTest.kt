@@ -135,4 +135,28 @@ class AddonMatchingTest {
       )
     assertEquals("Night Drive", match?.title)
   }
+
+  @Test
+  fun guests_tellVersionsOfATitleApart() {
+    val tracks =
+      listOf(
+        track("Immortale (feat. Sfera Ebbasta)", "Guè, Sfera Ebbasta"),
+        track("Immortale (feat. Nex Cassel)", "Guè, Nex Cassel"),
+      )
+    val match =
+      manager.selectBestMatch(tracks, "Immortale (feat. Nex Cassel)", "Guè", durationMs = null)
+    assertEquals("Immortale (feat. Nex Cassel)", match?.title)
+  }
+
+  @Test
+  fun anotherGuest_isAnotherSong() {
+    val match =
+      manager.selectBestMatch(
+        listOf(track("Immortale (feat. Sfera Ebbasta)", "Guè, Sfera Ebbasta")),
+        title = "Immortale",
+        artist = "Guè, Nex Cassel",
+        durationMs = null,
+      )
+    assertNull(match)
+  }
 }

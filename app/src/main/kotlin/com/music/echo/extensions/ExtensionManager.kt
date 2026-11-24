@@ -237,6 +237,7 @@ class ExtensionManager @Inject constructor(
         if (wantTokens.isEmpty()) return null
         val wantQualifiers = wantTokens.filter { it in QUALIFIER_TOKENS }.toSet()
         val artistTokens = tokenize(artist)
+        val wantGuests = guestTokens(title, artist)
         // The words that name the song: a video title often carries the artist and labels
         // ("GUE' PEQUENO CONTA SU DI ME OFFICIAL VIDEO"), which no catalogue title has.
         val wantBase =
@@ -286,6 +287,11 @@ class ExtensionManager @Inject constructor(
             val artistMatched = artistMatches(artistTokens, tokenize(track.artist))
             // Never substitute a different artist when both sides name one.
             if (artistTokens.isNotEmpty() && !artistMatched) continue
+            // Guests tell versions of a title apart ("Immortale" with one guest or another):
+            // when both sides name guests, they must share one.
+            val gotGuests = guestTokens(track.title, track.artist)
+            val guestsShared = wantGuests.any { want -> gotGuests.any { tokensMatch(it, want) } }
+            if (wantGuests.isNotEmpty() && gotGuests.isNotEmpty() && !guestsShared) continue
 
             // Exact base agreement is the strongest signal; partial coverage is
             // tolerated for catalogue variants but ranks below it.
@@ -294,6 +300,7 @@ class ExtensionManager @Inject constructor(
                 else (gotBase.count { got -> wantBase.any { tokensMatch(got, it) } }
                     .toFloat() / maxOf(gotBase.size, wantBase.size) * 60).toInt()
             if (artistMatched) score += 60
+            if (guestsShared) score += 15
             if (gotQualifiers == wantQualifiers) score += 20
             else if (wantQualifiers.isEmpty()) score -= gotQualifiers.size * 5
             if (durationMs != null && durationMs > 0 && track.duration != null && track.duration > 0) {
@@ -315,6 +322,26 @@ class ExtensionManager @Inject constructor(
             // Up to a dash or a bracket only: what follows ("- Live") is a rendition of the song.
             .replace(Regex("(?i)\\s+(feat\\.?|ft\\.?|featuring)\\s+[^-–—(\\[]*"), " ")
             .trim()
+
+    /**
+     * The guests of a song: names credited in its title ("feat. X", "(con X)") and every artist
+     * after the first, without the first artist and generic words.
+     */
+    private fun guestTokens(title: String, artist: String): Set<String> {
+        val credited =
+            Regex("(?i)[(\\[](?:feat\\.?|ft\\.?|featuring|with|con)\\s+([^)\\]]*)[)\\]]")
+                .findAll(title)
+                .map { it.groupValues[1] } +
+                Regex("(?i)\\s(?:feat\\.?|ft\\.?|featuring)\\s+([^-–—(\\[]*)")
+                    .findAll(title)
+                    .map { it.groupValues[1] }
+        val artists = artist.split(",", "&", "•", ";", "/", " x ", " X ").map { it.trim() }
+        val main = artists.firstOrNull()?.let(::tokenize).orEmpty()
+        return (credited + artists.drop(1).asSequence())
+            .flatMap { tokenize(it).asSequence() }
+            .filter { it.length >= 2 && it !in ARTIST_STOP_TOKENS && it != "e" && it !in main }
+            .toSet()
+    }
 
     /** Normalizes then splits a value into matchable word tokens. */
     private fun tokenize(value: String): List<String> =
