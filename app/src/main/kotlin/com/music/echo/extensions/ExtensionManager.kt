@@ -237,7 +237,8 @@ class ExtensionManager @Inject constructor(
         if (wantTokens.isEmpty()) return null
         val wantQualifiers = wantTokens.filter { it in QUALIFIER_TOKENS }.toSet()
         val artistTokens = tokenize(artist)
-        val wantGuests = guestTokens(title, artist)
+        val wantGuests = creditedNames(title, artist, withMainArtist = false)
+        val wantNames = creditedNames(title, artist, withMainArtist = true)
         // The words that name the song: a video title often carries the artist and labels
         // ("GUE' PEQUENO CONTA SU DI ME OFFICIAL VIDEO"), which no catalogue title has.
         val wantBase =
@@ -287,11 +288,17 @@ class ExtensionManager @Inject constructor(
             val artistMatched = artistMatches(artistTokens, tokenize(track.artist))
             // Never substitute a different artist when both sides name one.
             if (artistTokens.isNotEmpty() && !artistMatched) continue
-            // Guests tell versions of a title apart ("Immortale" with one guest or another):
-            // when both sides name guests, they must share one.
-            val gotGuests = guestTokens(track.title, track.artist)
-            val guestsShared = wantGuests.any { want -> gotGuests.any { tokensMatch(it, want) } }
-            if (wantGuests.isNotEmpty() && gotGuests.isNotEmpty() && !guestsShared) continue
+            // Guests tell versions of a title apart ("Immortale" with one guest or another): a
+            // candidate naming someone the request does not is another version, when the request
+            // also names someone the candidate lacks. Read from all the names on each side, as
+            // YouTube may list the guest first and the main artist after it.
+            val gotGuests = creditedNames(track.title, track.artist, withMainArtist = false)
+            val gotNames = creditedNames(track.title, track.artist, withMainArtist = true)
+            fun Set<String>.has(token: String) = any { tokensMatch(it, token) }
+            val foreignGuest = gotGuests.any { !wantNames.has(it) }
+            val missingName = wantNames.any { !gotNames.has(it) }
+            if (foreignGuest && missingName) continue
+            val guestsShared = wantGuests.any { gotNames.has(it) } || gotGuests.any { wantNames.has(it) }
 
             // Exact base agreement is the strongest signal; partial coverage is
             // tolerated for catalogue variants but ranks below it.
@@ -324,10 +331,10 @@ class ExtensionManager @Inject constructor(
             .trim()
 
     /**
-     * The guests of a song: names credited in its title ("feat. X", "(con X)") and every artist
-     * after the first, without the first artist and generic words.
+     * The names credited on a song: in its title ("feat. X", "(con X)") and its artists, without
+     * generic words. Without [withMainArtist], the guests only: the first artist is left out.
      */
-    private fun guestTokens(title: String, artist: String): Set<String> {
+    private fun creditedNames(title: String, artist: String, withMainArtist: Boolean): Set<String> {
         val credited =
             Regex("(?i)[(\\[](?:feat\\.?|ft\\.?|featuring|with|con)\\s+([^)\\]]*)[)\\]]")
                 .findAll(title)
@@ -336,8 +343,9 @@ class ExtensionManager @Inject constructor(
                     .findAll(title)
                     .map { it.groupValues[1] }
         val artists = artist.split(",", "&", "•", ";", "/", " x ", " X ").map { it.trim() }
-        val main = artists.firstOrNull()?.let(::tokenize).orEmpty()
-        return (credited + artists.drop(1).asSequence())
+        val main = if (withMainArtist) emptyList() else artists.firstOrNull()?.let(::tokenize).orEmpty()
+        val listed = if (withMainArtist) artists else artists.drop(1)
+        return (credited + listed.asSequence())
             .flatMap { tokenize(it).asSequence() }
             .filter { it.length >= 2 && it !in ARTIST_STOP_TOKENS && it != "e" && it !in main }
             .toSet()

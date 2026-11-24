@@ -605,6 +605,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   /** When the last stall was counted: one buffering episode counts once. */
   @Volatile private var lastStallCountedAtMs = 0L
 
+  /** When each song's addon stream was resolved: its load timeout starts there. */
+  private val addonStreamOpenedAt = java.util.concurrent.ConcurrentHashMap<String, Long>()
+
   /** Songs whose addon lookup is still running: the load timeout covers it too. */
   private val pendingAddonLookups = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
@@ -5390,6 +5393,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           )
         }
         resolvedFromAddon[mediaId] = isAddonStream
+        if (isAddonStream) addonStreamOpenedAt[mediaId] = System.currentTimeMillis()
         if (targetCacheKey == mediaId && !isFullyDownloaded) {
           claimPlayerCache(mediaId, isAddonStream, dbFormat?.codecs, stream.url)
         }
@@ -6008,11 +6012,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           if (mediaId != watchedId) {
             watchedId = mediaId
             since = now
-          } else if (
-            now - since >= ADDON_LOAD_TIMEOUT_MS &&
-              hasYouTubeFallback(mediaId) &&
-              (isPlayingFromAddon(mediaId) || mediaId in pendingAddonLookups)
-          ) {
+          } else if (hasYouTubeFallback(mediaId) && addonLoadTimedOut(mediaId, since, now)) {
             // A stall already counted when this wait began is not counted again.
             if (lastStallCountedAtMs < since) recordAddonStall(now)
             fallBackToYouTube(mediaId, paced = false, "still loading after ${(now - since) / 1000} s")
@@ -6021,6 +6021,17 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           delay(500L)
         }
       }
+  }
+
+  /**
+   * The lookup and the stream have their own time: the addon search (up to three queries and a
+   * link request) took most of a shared 8 seconds, so FLACs found in time went to YouTube.
+   */
+  private fun addonLoadTimedOut(mediaId: String, since: Long, now: Long): Boolean {
+    if (mediaId in pendingAddonLookups) return now - since >= ADDON_LOOKUP_TIMEOUT_MS
+    if (!isPlayingFromAddon(mediaId)) return false
+    val streamSince = maxOf(since, addonStreamOpenedAt[mediaId] ?: since)
+    return now - streamSince >= ADDON_LOAD_TIMEOUT_MS
   }
 
   private fun currentAutomixPair(): AutomixPair? {
@@ -6863,6 +6874,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     private const val ADDON_PREFETCH_MAX_BYTES = 8L * 1024L * 1024L
     /** How long a song from the addon may keep loading before it plays from YouTube. */
     private const val ADDON_LOAD_TIMEOUT_MS = 8_000L
+    /** How long a song may wait for the addon's lookup before it plays from YouTube. */
+    private const val ADDON_LOOKUP_TIMEOUT_MS = 15_000L
     /** Waiting for data this soon after a seek or a track change is not a stall. */
     private const val STALL_GRACE_MS = 3_000L
     private const val CACHE_SOURCE_KEY = "echo-source"

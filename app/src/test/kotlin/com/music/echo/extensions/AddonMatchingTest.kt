@@ -159,4 +159,16 @@ class AddonMatchingTest {
       )
     assertNull(match)
   }
+
+  @Test
+  fun guestListedFirst_isStillTheSameSong() {
+    val tracks =
+      listOf(
+        track("Immortale (feat. Nex Cassel)", "Guè, Nex Cassel"),
+        track("Immortale (feat. Sfera Ebbasta)", "Guè, Sfera Ebbasta"),
+      )
+    val match =
+      manager.selectBestMatch(tracks, "Immortale", "Sfera Ebbasta, Guè", durationMs = null)
+    assertEquals("Immortale (feat. Sfera Ebbasta)", match?.title)
+  }
 }
