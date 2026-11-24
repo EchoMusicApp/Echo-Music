@@ -106,8 +106,6 @@ fun OnlineSearchScreen(
 
   val lazyListState = rememberLazyListState()
 
-  LaunchedEffect(Unit) { viewModel.warmUp() }
-
   LaunchedEffect(Unit) {
     snapshotFlow { lazyListState.firstVisibleItemScrollOffset }
       .drop(1)
@@ -118,7 +116,7 @@ fun OnlineSearchScreen(
     if (YouTubeUrlParser.isYouTubeUrl(query)) {
       viewModel.query.value = query
     } else {
-      kotlinx.coroutines.delay(300L)
+      kotlinx.coroutines.delay(150L)
       viewModel.query.value = query
     }
   }

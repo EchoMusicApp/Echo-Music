@@ -18,7 +18,6 @@ import echo.music.iad1tya.db.entities.SearchHistory
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,14 +38,6 @@ constructor(
   val query = MutableStateFlow("")
   private val _viewState = MutableStateFlow(SearchSuggestionViewState())
   val viewState = _viewState.asStateFlow()
-
-  /**
-   * Opens the connection to the suggestions service while the search opens: on a slow network the
-   * first suggestions waited for it, and the next ones came at once.
-   */
-  fun warmUp() {
-    viewModelScope.launch(Dispatchers.IO) { YouTube.searchSuggestions("a") }
-  }
 
   init {
     viewModelScope.launch {
