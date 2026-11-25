@@ -137,8 +137,15 @@ fun ArtistVideo(
               layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             }
           addView(textureView)
-          exoPlayer.setVideoTextureView(textureView)
           setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+      },
+      // On every new player, not only the first: when the video changed, the new player drew
+      // nowhere and the video never showed.
+      update = { layout ->
+        if (layout.tag !== exoPlayer) {
+          layout.tag = exoPlayer
+          exoPlayer.setVideoTextureView(layout.getChildAt(0) as TextureView)
         }
       },
       modifier = Modifier.matchParentSize().alpha(videoAlpha),
