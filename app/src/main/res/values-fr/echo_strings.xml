@@ -391,7 +391,7 @@
     <string name="username">Nom d\'utilisateur</string>
     <string name="password">Mot de passe</string>
 
-	    <!-- Last.fm -->
+	<!-- Last.fm -->
     <string name="lastfm_integration">Intégration Last.fm</string>
     <string name="enable_scrobbling">Activer le scrobbling</string>
     <string name="lastfm_now_playing">Envoyer la lecture en cours</string>
@@ -502,7 +502,7 @@
     <string name="wrapped_create_playlist">Créer la playlist</string>
     <string name="wrapped_playlist_saved">Playlist enregistrée</string>
 
-	    <!-- Equalizer UI -->
+	<!-- Equalizer UI -->
     <plurals name="profiles_count">
         <item quantity="one">%d profil</item>
         <item quantity="other">%d profils</item>
@@ -631,7 +631,7 @@
     <string name="widget_cast">Diffuser</string>
     <string name="widget_options">Plus d\'options</string>
 
-	    <!-- Player Client Settings -->
+	<!-- Player Client Settings -->
     <string name="player_client">Client du lecteur</string>
     <string name="player_client_android_vr">Android VR</string>
     <string name="player_client_android_vr_desc">Option la plus rapide. URL de flux directes sans déchiffrement de signature. Recommandé pour la plupart des utilisateurs.</string>
@@ -846,7 +846,7 @@
     <string name="enable_high_refresh_rate">Activer le taux de rafraîchissement élevé</string>
     <string name="enable_high_refresh_rate_desc">Forcer l\'affichage à fonctionner au taux de rafraîchissement maximal pris en charge (par exemple 120 Hz)</string>
 
-	    <!-- Music Recognition -->
+	<!-- Music Recognition -->
     <string name="recognition">Reconnaissance</string>
     <string name="recognize_music">Reconnaître la musique</string>
     <string name="tap_to_recognize">Touchez pour reconnaître</string>
@@ -1014,7 +1014,7 @@
     <string name="manual_delete_hint_title">Nettoyage manuel</string>
     <string name="manual_delete_hint_desc">Vous pouvez également supprimer manuellement. La suppression des anciens fichiers APK aidera le programme de mise à jour à fonctionner correctement.</string>
 
-	    <!-- Playback Log -->
+	<!-- Playback Log -->
     <string name="logs_heading">Journaux</string>
     <string name="playback_logs">Journaux de lecture</string>
     <string name="playback_logs_desc">Afficher la résolution des flux en temps réel et les événements d\'atténuation des robots</string>
@@ -1087,4 +1087,12 @@
     <string name="legacy_icon">Icône classique</string>
     <string name="legacy_icon_desc">Rétablir l\'icône d\'origine de l\'application</string>
     <string name="clear_queue_confirm">Voulez-vous vraiment effacer les titres à venir de la file d\'attente ?</string>
+	<string name="home_made_for_you">Conçu pour vous</string>
+    <string name="home_surprise_me">Surprenez-moi</string>
+    <string name="home_shortcuts">Raccourcis</string>
+    <string name="home_shortcuts_desc">Afficher vos éléments épinglés et les plus écoutés en haut de l\'accueil</string>
+    <string name="home_featured_carousel">Carrousel à la une</string>
+    <string name="home_featured_carousel_desc">Afficher le grand carrousel à défilement automatique sur l\'accueil</string>
+    <string name="home_community_desc">Afficher les playlists communautaires sur l\'accueil</string>
+    <string name="home_mood_and_genres_desc">Afficher les raccourcis d\'ambiances et de genres sur l\'accueil</string>
 </resources>
