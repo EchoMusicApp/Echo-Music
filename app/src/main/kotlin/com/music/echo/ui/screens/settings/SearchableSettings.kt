@@ -2590,8 +2590,8 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
           "settings/player",
         ),
         SearchableSetting(
-          stringResource(R.string.origin_island),
-          stringResource(R.string.origin_island_desc),
+          stringResource(R.string.dynamic_island),
+          stringResource(R.string.dynamic_island_desc),
           "Player and audio",
           "settings/player",
         ),

@@ -52,7 +52,13 @@ import echo.music.iad1tya.constants.DownloadWithMetadataKey
 import echo.music.iad1tya.constants.EnableBitPerfectUsbDacKey
 import echo.music.iad1tya.constants.EnableExportAsMp3Key
 import echo.music.iad1tya.constants.EnableGoogleCastKey
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import android.widget.Toast
+import echo.music.iad1tya.constants.EnableDynamicIslandKey
 import echo.music.iad1tya.constants.EnableOriginIslandKey
+import echo.music.iad1tya.playback.DynamicIslandAccessibilityService
 import echo.music.iad1tya.playback.VivoOriginIsland
 import echo.music.iad1tya.constants.UsbDacVolumeModeKey
 import echo.music.iad1tya.constants.HistoryDuration
@@ -201,6 +207,8 @@ fun PlayerSettings(
   val isVivo = remember { VivoOriginIsland.isVivoDevice() }
   val (enableOriginIsland, onEnableOriginIslandChange) =
     rememberPreference(EnableOriginIslandKey, defaultValue = isVivo)
+  val (enableDynamicIsland, onEnableDynamicIslandChange) =
+    rememberPreference(EnableDynamicIslandKey, defaultValue = false)
   val (historyDuration, onHistoryDurationChange) =
     rememberPreference(HistoryDuration, defaultValue = 1f)
 
@@ -1080,7 +1088,7 @@ fun PlayerSettings(
       scrollState = scrollState,
       title = stringResource(R.string.queue),
       items =
-        listOf(
+        listOfNotNull(
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.persistent_queue)),
             icon = painterResource(R.drawable.queue_music),
@@ -1300,7 +1308,7 @@ fun PlayerSettings(
       scrollState = scrollState,
       title = stringResource(R.string.misc),
       items =
-        listOf(
+        listOfNotNull(
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.stop_music_on_task_clear)),
             icon = painterResource(R.drawable.clear_all),
@@ -1419,21 +1427,48 @@ fun PlayerSettings(
             onClick = { onKeepScreenOnChange(!keepScreenOn) }
           ),
           Material3SettingsItem(
-            isHighlighted = (highlightKey == stringResource(R.string.origin_island)),
+            isHighlighted = (highlightKey == stringResource(R.string.dynamic_island)),
             icon = painterResource(R.drawable.notification),
-            title = { Text(stringResource(R.string.origin_island)) },
+            title = { Text(stringResource(R.string.dynamic_island)) },
             description = {
-              Text(stringResource(R.string.origin_island_desc))
+              Text(
+                if (enableDynamicIsland && !Settings.canDrawOverlays(context))
+                  stringResource(R.string.dynamic_island_permission_required)
+                else
+                  stringResource(R.string.dynamic_island_desc)
+              )
             },
             trailingContent = {
               Switch(
-                checked = enableOriginIsland,
-                onCheckedChange = onEnableOriginIslandChange,
+                checked = enableDynamicIsland && Settings.canDrawOverlays(context),
+                onCheckedChange = { checked ->
+                  onEnableDynamicIslandChange(checked)
+                  onEnableOriginIslandChange(checked)
+                  if (checked && !Settings.canDrawOverlays(context)) {
+                    Toast.makeText(
+                      context,
+                      context.getString(R.string.dynamic_island_permission_required),
+                      Toast.LENGTH_LONG
+                    ).show()
+                    val intent =
+                      Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:${context.packageName}")
+                      ).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                      }
+                    context.startActivity(intent)
+                  }
+                },
                 thumbContent = {
                   Icon(
                     painter =
                       painterResource(
-                        id = if (enableOriginIsland) R.drawable.check else R.drawable.close
+                        id =
+                          if (enableDynamicIsland && Settings.canDrawOverlays(context))
+                            R.drawable.check
+                          else
+                            R.drawable.close
                       ),
                     contentDescription = null,
                     modifier = Modifier.size(SwitchDefaults.IconSize)
@@ -1441,8 +1476,51 @@ fun PlayerSettings(
                 }
               )
             },
-            onClick = { onEnableOriginIslandChange(!enableOriginIsland) }
+            onClick = {
+              val currentActive = enableDynamicIsland && Settings.canDrawOverlays(context)
+              val targetState = !currentActive
+              onEnableDynamicIslandChange(targetState)
+              onEnableOriginIslandChange(targetState)
+              if (targetState && !Settings.canDrawOverlays(context)) {
+                Toast.makeText(
+                  context,
+                  context.getString(R.string.dynamic_island_permission_required),
+                  Toast.LENGTH_LONG
+                ).show()
+                val intent =
+                  Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${context.packageName}")
+                  ).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                  }
+                context.startActivity(intent)
+              }
+            }
           ),
+          if (enableDynamicIsland) {
+            val isAccessibilityActive = DynamicIslandAccessibilityService.isServiceEnabled(context)
+            Material3SettingsItem(
+              icon = painterResource(R.drawable.settings),
+              title = { Text(stringResource(R.string.dynamic_island_accessibility_title)) },
+              description = {
+                Text(
+                  if (isAccessibilityActive)
+                    stringResource(R.string.dynamic_island_accessibility_active)
+                  else
+                    stringResource(R.string.dynamic_island_accessibility_inactive)
+                )
+              },
+              onClick = {
+                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                  flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+              }
+            )
+          } else {
+            null
+          },
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.export_desc)),
             icon = painterResource(R.drawable.file_export),

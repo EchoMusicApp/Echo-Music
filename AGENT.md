@@ -97,7 +97,7 @@ If a new feature needs a UI pattern not covered in `DESIGN.md`, create a minimal
 - Room schema changes require a migration in `db/` and the schema JSON is
   version-controlled under `app/schemas/` — don't skip migrations.
 - **Networking:** Use Ktor for all new network requests. Retrofit is maintained for legacy endpoints but should not be used for new features.
-- **OEM Dynamic Notifications / Origin Island:** vivo and iQOO OriginOS dynamic playback status capsule (Atomic Island) is handled via `VivoOriginIsland.kt` (`echo.music.iad1tya.playback.VivoOriginIsland`) attaching `notification.superx.*` extras safely into the media notification in `EchoNotificationProvider.kt`, configurable via `EnableOriginIslandKey` under Settings → Player and audio.
+- **Dynamic Island / Floating Playback Capsule:** Universal floating playback capsule for all Android devices is implemented via `DynamicIslandManager.kt` (`echo.music.iad1tya.playback.DynamicIslandManager`). Strictly follows **Nothing OS 5.0** design (jet black pill, subtle border, circular album art, animated Nothing Red `#D71921` 3-bar equalizer visualizer, and expandable interactive mini-player card with progress bar and controls). Controlled by `MusicService` and configurable via `EnableDynamicIslandKey` under Settings → Player and audio with `SYSTEM_ALERT_WINDOW` overlay permission handling. Also retains `VivoOriginIsland.kt` notification extras for compatible OriginOS devices.
 
 ### Things to double check before assuming
 

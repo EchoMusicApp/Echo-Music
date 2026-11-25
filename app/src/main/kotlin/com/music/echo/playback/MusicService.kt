@@ -93,6 +93,7 @@ import echo.music.iad1tya.constants.EnableBitPerfectUsbDacKey
 import echo.music.iad1tya.constants.EnableDiscordRPCKey
 import echo.music.iad1tya.constants.EnableLastFMScrobblingKey
 import echo.music.iad1tya.constants.EnableOriginIslandKey
+import echo.music.iad1tya.constants.EnableDynamicIslandKey
 import echo.music.iad1tya.constants.ForceOpusKey
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
@@ -272,6 +273,42 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   /** Resolves and embeds the current cover; cancelled when the track changes. */
   private val sessionBitmapLoader by lazy { CoilBitmapLoader(this, scope) }
+
+  /** Floating Dynamic Island playback capsule manager for all Android devices */
+  private val dynamicIslandManager by lazy {
+    DynamicIslandManager(this).apply {
+      listener =
+        object : DynamicIslandManager.Listener {
+          override fun onPlayPause() {
+            if (::player.isInitialized) {
+              if (player.isPlaying) player.pause() else player.play()
+            }
+          }
+
+          override fun onNext() {
+            if (::player.isInitialized) {
+              player.seekToNext()
+            }
+          }
+
+          override fun onPrevious() {
+            if (::player.isInitialized) {
+              player.seekToPrevious()
+            }
+          }
+
+          override fun onOpenApp() {
+            try {
+              val intent =
+                Intent(this@MusicService, MainActivity::class.java).apply {
+                  flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+              startActivity(intent)
+            } catch (e: Exception) {}
+          }
+        }
+    }
+  }
 
   private lateinit var audioManager: AudioManager
   // Wi-Fi Lock: Prevents modern Wi-Fi 6/7 routers from putting the Wi-Fi chip into
@@ -1219,6 +1256,24 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         VivoOriginIsland.isEnabled = enabled
         if (::mediaSession.isInitialized) {
           updateNotification()
+        }
+      }
+
+    dataStore.data
+      .map {
+        (try {
+          it[EnableDynamicIslandKey] ?: it[EnableOriginIslandKey]
+        } catch (e: Exception) {
+          null
+        }) ?: false
+      }
+      .distinctUntilChanged()
+      .collectLatest(scope) { enabled ->
+        dynamicIslandManager.isEnabled = enabled
+        if (!enabled) {
+          dynamicIslandManager.hide()
+        } else if (::player.isInitialized) {
+          updateWidgetUI(player.isPlaying)
         }
       }
 
@@ -5162,6 +5217,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
 
   override fun onDestroy() {
     isRunning = false
+    dynamicIslandManager.destroy()
     savePodcastPosition()
     crossfadeTriggerJob?.cancel()
     crossfadeJob?.cancel()
@@ -5350,6 +5406,15 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           repeatMode = if (::player.isInitialized) player.repeatMode else Player.REPEAT_MODE_OFF,
           isMuted = isMuted.value,
           queueItems = queueItems
+        )
+
+        dynamicIslandManager.updatePlayback(
+          title = songTitle,
+          artist = artistName,
+          artworkUri = song?.thumbnailUrl,
+          isPlaying = isPlaying,
+          duration = if (player.duration != C.TIME_UNSET) player.duration else 0,
+          currentPosition = player.currentPosition
         )
       } catch (e: Exception) {}
     }

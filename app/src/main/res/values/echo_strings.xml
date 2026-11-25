@@ -320,6 +320,13 @@
     <string name="keep_screen_on_when_player_is_expanded">Keep screen on when player is expanded</string>
     <string name="origin_island">Origin Island</string>
     <string name="origin_island_desc">Display playback status and controls on vivo OriginOS Origin Island</string>
+    <string name="dynamic_island">Origin Island / Dynamic Island</string>
+    <string name="dynamic_island_desc">Floating playback capsule and controls for all Android devices</string>
+    <string name="dynamic_island_permission_required">Please enable \'Display over other apps\' for Origin / Dynamic Island</string>
+    <string name="dynamic_island_accessibility_title">Status Bar Touch Support (Accessibility)</string>
+    <string name="dynamic_island_accessibility_desc">Allows Origin / Dynamic Island to stay on top of the status bar and respond to taps everywhere on the capsule</string>
+    <string name="dynamic_island_accessibility_active">Active — full status bar touch enabled</string>
+    <string name="dynamic_island_accessibility_inactive">Tap to enable Echo Music in Accessibility for notch taps</string>
 
     <string name="crossfade">Crossfade</string>
     <string name="crossfading">Crossfading</string>

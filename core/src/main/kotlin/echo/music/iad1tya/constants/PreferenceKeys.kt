@@ -86,6 +86,7 @@ val ResumeOnBluetoothConnectKey = booleanPreferencesKey("resumeOnBluetoothConnec
 val AutoplayOnAutomotiveConnectKey = booleanPreferencesKey("autoplayOnAutomotiveConnect")
 val KeepScreenOn = booleanPreferencesKey("keepScreenOn")
 val EnableOriginIslandKey = booleanPreferencesKey("enableOriginIsland")
+val EnableDynamicIslandKey = booleanPreferencesKey("enableDynamicIsland")
 val DeveloperModeKey = booleanPreferencesKey("developerMode")
 
 enum class SliderStyle {
