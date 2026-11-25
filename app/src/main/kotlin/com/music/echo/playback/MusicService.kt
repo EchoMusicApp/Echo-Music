@@ -3086,13 +3086,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    * Queues a frequently played song while the automatic-download collection is below its cap.
    * Manual downloads are neither counted nor removed; an already-downloaded song is left alone.
    */
-  private suspend fun enqueueAutomaticDownload(songId: String, title: String) {
+  private suspend fun enqueueAutomaticDownload(songId: String, title: String): Boolean {
     if (!YOUTUBE_VIDEO_ID.matches(songId)) {
       Timber.tag(TAG).d("Skipping automatic download for non-YouTube media ID: $songId")
-      return
+      return false
     }
 
-    autoDownloadMutex.withLock {
+    return autoDownloadMutex.withLock {
       val currentDownloads = downloadUtil.downloads.value
       val existingDownload = currentDownloads[songId]
       if (
@@ -3100,7 +3100,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           existingDownload.state != androidx.media3.exoplayer.offline.Download.STATE_FAILED) ||
           songId in pendingAutoDownloads
       ) {
-        return@withLock
+        return@withLock false
       }
 
       val limit = dataStore.get(AutoDownloadLimitKey, 25).coerceAtLeast(0)
@@ -3116,7 +3116,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         DownloadUtil.automaticDownloadCount(currentDownloads) + pendingNotYetCounted
       if (limit != 0 && currentAutoDownloads >= limit) {
         Timber.tag(TAG).d("Auto-download limit reached ($limit); skipping $songId")
-        return@withLock
+        return@withLock false
       }
 
       pendingAutoDownloads.add(songId)
@@ -3135,7 +3135,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       } catch (error: Exception) {
         pendingAutoDownloads.remove(songId)
         Timber.tag(TAG).w(error, "Could not queue auto-download for $songId")
-        return@withLock
+        return@withLock false
       }
 
       // Release the reservation as soon as ExoPlayer's DownloadManager reports the request.
@@ -3155,11 +3155,25 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         }
         if (acknowledged == null) {
           Timber.tag(TAG).w("Auto-download acknowledgement timed out; retaining reservation for $songId")
-          // Continue reconciling after the warning so a late acknowledgement clears the reservation.
-          downloadUtil.downloads.first { isAcknowledged(it) }
+          // Keep the reservation until a late acknowledgement or a removal/absence is observed.
+          // The add request was sent successfully; absence now means the manager did not retain it.
+          var requestWasObserved = true
+          downloadUtil.downloads.first { downloads ->
+            val current = downloads[songId]
+            when {
+              isAcknowledged(downloads) -> true
+              current?.state == androidx.media3.exoplayer.offline.Download.STATE_REMOVING -> true
+              current != null -> {
+                if (current !== existingDownload) requestWasObserved = true
+                false
+              }
+              else -> requestWasObserved
+            }
+          }
         }
         autoDownloadMutex.withLock { pendingAutoDownloads.remove(songId) }
       }
+      true
     }
   }
 
@@ -3171,16 +3185,24 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
    */
   private fun observeFailedLikedAutoDownloads() {
     scope.launch {
-      downloadUtil.downloads
-        .map { downloads ->
-          downloads.values
+      combine(
+        downloadUtil.downloads.map { downloads ->
+          val failedIds = downloads.values
             .filter { it.state == androidx.media3.exoplayer.offline.Download.STATE_FAILED && DownloadUtil.isAutomaticDownload(it) }
             .map { it.request.id }
             .toSet()
-        }
+          failedIds to DownloadUtil.automaticDownloadCount(downloads)
+        }.distinctUntilChanged(),
+        dataStore.data.map { preferences ->
+          (preferences[AutoDownloadOnLikeKey] == true) to (preferences[AutoDownloadLimitKey] ?: 25)
+        }.distinctUntilChanged(),
+      ) { downloadState, settings ->
+        Triple(downloadState.first, downloadState.second, settings)
+      }
         .distinctUntilChanged()
-        .collect { failedIds ->
-          if (failedIds.isEmpty() || !dataStore.get(AutoDownloadOnLikeKey, false)) return@collect
+        .collect { (failedIds, _, settings) ->
+          val autoDownloadOnLike = settings.first
+          if (failedIds.isEmpty() || !autoDownloadOnLike) return@collect
           failedIds.forEach { songId ->
             // One retry per song at a time; don't count an attempt while one is still pending.
             if (songId in pendingLikedAutoDownloadRetries) return@forEach
@@ -3188,7 +3210,6 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             if (attempts >= maxLikedAutoDownloadRetries) return@forEach
             val song = database.song(songId).first()?.song ?: return@forEach
             if (!song.liked) return@forEach
-            likedAutoDownloadRetryAttempts[songId] = attempts + 1
             pendingLikedAutoDownloadRetries.add(songId)
             scope.launch {
               try {
@@ -3200,7 +3221,9 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
                     current.liked &&
                     dataStore.get(AutoDownloadOnLikeKey, false)
                 ) {
-                  enqueueAutomaticDownload(songId, current.title)
+                  if (enqueueAutomaticDownload(songId, current.title)) {
+                    likedAutoDownloadRetryAttempts[songId] = attempts + 1
+                  }
                 }
               } finally {
                 // Runs on completion and cancellation, so later failures can retry again.
