@@ -12,7 +12,7 @@ class BiquadFilter(
   private val frequency: Double,
   private val gain: Double,
   private val q: Double = 1.41,
-  private val filterType: FilterType = FilterType.PK
+  private val filterType: FilterType = FilterType.PK,
 ) {
 
   private var a0 = 0.0

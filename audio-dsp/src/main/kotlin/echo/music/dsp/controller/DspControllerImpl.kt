@@ -62,7 +62,7 @@ class DspControllerImpl @Inject constructor() : DspController {
     return PlayerDspProcessors(
       equalizer = eq,
       duckProcessor = duck,
-      stereoWidener = widener
+      stereoWidener = widener,
     )
   }
 
@@ -111,7 +111,8 @@ class DspControllerImpl @Inject constructor() : DspController {
     _isEnabled.value = true
 
     if (eqProcessors.isEmpty()) {
-      Timber.tag(TAG).w("No audio processors registered yet. Storing profile as pending: ${profile.name}")
+      Timber.tag(TAG)
+        .w("No audio processors registered yet. Storing profile as pending: ${profile.name}")
       return Result.success(Unit)
     }
 

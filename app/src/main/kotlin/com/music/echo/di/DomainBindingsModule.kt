@@ -19,18 +19,18 @@ abstract class DomainBindingsModule {
   @Binds
   @Singleton
   abstract fun bindSongRepository(
-    impl: SongRepositoryImpl
+    impl: SongRepositoryImpl,
   ): SongRepository
 
   @Binds
   @Singleton
   abstract fun bindPlaylistRepository(
-    impl: PlaylistRepositoryImpl
+    impl: PlaylistRepositoryImpl,
   ): PlaylistRepository
 
   @Binds
   @Singleton
   abstract fun bindMusicFlowFeedSource(
-    impl: MusicFlowRepository
+    impl: MusicFlowRepository,
   ): MusicFlowFeedSource
 }

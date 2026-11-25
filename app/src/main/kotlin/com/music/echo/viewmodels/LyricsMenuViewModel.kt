@@ -94,8 +94,8 @@ constructor(
         LyricsEntity(
           mediaMetadata.id,
           lyricsWithProvider.lyrics ?: "",
-          lyricsWithProvider.providerName
-        )
+          lyricsWithProvider.providerName,
+        ),
       )
     }
   }

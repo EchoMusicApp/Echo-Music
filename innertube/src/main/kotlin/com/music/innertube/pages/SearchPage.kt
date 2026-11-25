@@ -20,8 +20,12 @@ data class SearchResult(
 
 object SearchPage {
   fun toYTItem(renderer: MusicResponsiveListItemRenderer): YTItem? {
-    PodcastPage.show(renderer)?.let { return it }
-    PodcastPage.episode(renderer)?.let { return it }
+    PodcastPage.show(renderer)?.let {
+      return it
+    }
+    PodcastPage.episode(renderer)?.let {
+      return it
+    }
     val secondaryLine =
       renderer.flexColumns
         .getOrNull(1)
@@ -31,7 +35,7 @@ object SearchPage {
         ?.splitBySeparator()
         ?: return null.also {
           println(
-            "[UPLOAD_DEBUG] SearchPage.toYTItem FAILED: secondaryLine is null for renderer: $renderer"
+            "[UPLOAD_DEBUG] SearchPage.toYTItem FAILED: secondaryLine is null for renderer: $renderer",
           )
         }
     return when {
@@ -62,7 +66,7 @@ object SearchPage {
                 ?.videoId
               ?: return null.also {
                 println(
-                  "[UPLOAD_DEBUG] SearchPage.toYTItem FAILED: id is null for renderer: $renderer"
+                  "[UPLOAD_DEBUG] SearchPage.toYTItem FAILED: id is null for renderer: $renderer",
                 )
               },
           title =
@@ -72,7 +76,8 @@ object SearchPage {
               ?.text
               ?.runs
               ?.firstOrNull()
-              ?.text?.let(ApiText::clean) ?: return null,
+              ?.text
+              ?.let(ApiText::clean) ?: return null,
           artists =
             secondaryLine.firstOrNull()?.oddElements()?.map {
               Artist(
@@ -82,7 +87,7 @@ object SearchPage {
             }
               ?: return null.also {
                 println(
-                  "[UPLOAD_DEBUG] SearchPage.toYTItem FAILED: artists is null for renderer: $renderer"
+                  "[UPLOAD_DEBUG] SearchPage.toYTItem FAILED: artists is null for renderer: $renderer",
                 )
               },
           album =
@@ -104,7 +109,7 @@ object SearchPage {
               it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
             } != null,
           libraryAddToken = libraryTokens.addToken,
-          libraryRemoveToken = libraryTokens.removeToken
+          libraryRemoveToken = libraryTokens.removeToken,
         )
       }
       renderer.isArtist -> {
@@ -117,7 +122,8 @@ object SearchPage {
               ?.text
               ?.runs
               ?.firstOrNull()
-              ?.text?.let(ApiText::clean) ?: return null,
+              ?.text
+              ?.let(ApiText::clean) ?: return null,
           thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
           shuffleEndpoint =
             renderer.menu
@@ -153,7 +159,8 @@ object SearchPage {
               ?.text
               ?.runs
               ?.firstOrNull()
-              ?.text?.let(ApiText::clean) ?: return null,
+              ?.text
+              ?.let(ApiText::clean) ?: return null,
           artists =
             secondaryLine.getOrNull(1)?.oddElements()?.map {
               Artist(
@@ -181,7 +188,8 @@ object SearchPage {
               ?.text
               ?.runs
               ?.firstOrNull()
-              ?.text?.let(ApiText::clean) ?: return null,
+              ?.text
+              ?.let(ApiText::clean) ?: return null,
           author =
             secondaryLine.firstOrNull()?.firstOrNull()?.let {
               Artist(

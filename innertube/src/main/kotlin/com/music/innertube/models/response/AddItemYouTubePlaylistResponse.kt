@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AddItemYouTubePlaylistResponse(
   val status: String,
-  val playlistEditResults: List<PlaylistEditResult>
+  val playlistEditResults: List<PlaylistEditResult>,
 ) {
   @Serializable
   data class PlaylistEditResult(

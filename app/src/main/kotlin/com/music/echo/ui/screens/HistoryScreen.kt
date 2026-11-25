@@ -104,8 +104,8 @@ fun HistoryScreen(
       saver =
         listSaver<MutableList<Long>, Long>(
           save = { it.toList() },
-          restore = { it.toMutableStateList() }
-        )
+          restore = { it.toMutableStateList() },
+        ),
     ) {
       mutableStateListOf()
     }
@@ -180,7 +180,7 @@ fun HistoryScreen(
                 section.songs.filter { song ->
                   song.title.contains(query.text, ignoreCase = true) ||
                     song.artists.any { it.name.contains(query.text, ignoreCase = true) }
-                }
+                },
             )
           }
           ?.filter { it.songs.isNotEmpty() }
@@ -208,8 +208,8 @@ fun HistoryScreen(
           .asPaddingValues(),
       modifier =
         Modifier.windowInsetsPadding(
-          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top)
-        )
+          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top),
+        ),
     ) {
       item(key = "chips_row") {
         ChipsRow(
@@ -228,7 +228,7 @@ fun HistoryScreen(
             if (it == HistorySource.REMOTE) {
               viewModel.fetchRemoteHistory()
             }
-          }
+          },
         )
       }
 
@@ -237,13 +237,13 @@ fun HistoryScreen(
           stickyHeader {
             NavigationTitle(
               title = section.title,
-              modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)
+              modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background),
             )
           }
 
           itemsIndexed(
             items = section.songs,
-            key = { index, it -> "${section.title}_${it.id}_${index}" }
+            key = { index, it -> "${section.title}_${it.id}_${index}" },
           ) { index, song ->
             YouTubeListItem(
               item = song,
@@ -258,10 +258,10 @@ fun HistoryScreen(
                         song = song,
                         navController = navController,
                         onDismiss = menuState::dismiss,
-                        onHistoryRemoved = { viewModel.fetchRemoteHistory() }
+                        onHistoryRemoved = { viewModel.fetchRemoteHistory() },
                       )
                     }
-                  }
+                  },
                 ) {
                   Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
                 }
@@ -282,12 +282,12 @@ fun HistoryScreen(
                           song = song,
                           navController = navController,
                           onDismiss = menuState::dismiss,
-                          onHistoryRemoved = { viewModel.fetchRemoteHistory() }
+                          onHistoryRemoved = { viewModel.fetchRemoteHistory() },
                         )
                       }
-                    }
+                    },
                   )
-                  .animateItem()
+                  .animateItem(),
             )
           }
         }
@@ -296,13 +296,13 @@ fun HistoryScreen(
           stickyHeader {
             NavigationTitle(
               title = dateAgoToString(dateAgo),
-              modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)
+              modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface),
             )
           }
 
           itemsIndexed(
             items = dateEvents,
-            key = { index, event -> "${dateAgo}_${event.event.id}_$index" }
+            key = { index, event -> "${dateAgo}_${event.event.id}_$index" },
           ) { index, event ->
             val onCheckedChange: (Boolean) -> Unit = {
               if (it) {
@@ -329,10 +329,10 @@ fun HistoryScreen(
                           originalSong = event.song,
                           event = event.event,
                           navController = navController,
-                          onDismiss = menuState::dismiss
+                          onDismiss = menuState::dismiss,
                         )
                       }
-                    }
+                    },
                   ) {
                     Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
                   }
@@ -351,8 +351,8 @@ fun HistoryScreen(
                           ListQueue(
                             title = dateAgoToString(dateAgo),
                             items = dateEvents.map { it.song.toMediaItem() },
-                            startIndex = index
-                          )
+                            startIndex = index,
+                          ),
                         )
                       }
                     },
@@ -362,9 +362,9 @@ fun HistoryScreen(
                         inSelectMode = true
                         onCheckedChange(true)
                       }
-                    }
+                    },
                   )
-                  .animateItem()
+                  .animateItem(),
             )
           }
         }
@@ -391,26 +391,26 @@ fun HistoryScreen(
             playerConnection.playQueue(
               ListQueue(
                 title = context.getString(R.string.history),
-                items = songs.map { it.toMediaItem() }.shuffled()
-              )
+                items = songs.map { it.toMediaItem() }.shuffled(),
+              ),
             )
           }
         } else {
           playerConnection.playQueue(
             ListQueue(
               title = context.getString(R.string.history),
-              items = allEvents.map { it.song.toMediaItem() }.shuffled()
-            )
+              items = allEvents.map { it.song.toMediaItem() }.shuffled(),
+            ),
           )
         }
-      }
+      },
     )
   }
 
   TopAppBar(
     colors =
       TopAppBarDefaults.topAppBarColors(
-        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
       ),
     title = {
       if (inSelectMode) {
@@ -422,7 +422,7 @@ fun HistoryScreen(
           placeholder = {
             Text(
               text = stringResource(R.string.search),
-              style = MaterialTheme.typography.titleLarge
+              style = MaterialTheme.typography.titleLarge,
             )
           },
           singleLine = true,
@@ -436,7 +436,7 @@ fun HistoryScreen(
               unfocusedIndicatorColor = Color.Transparent,
               disabledIndicatorColor = Color.Transparent,
             ),
-          modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
+          modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
         )
       } else {
         Text(stringResource(R.string.history))
@@ -464,7 +464,7 @@ fun HistoryScreen(
             if (!isSearching) {
               navController.backToMain()
             }
-          }
+          },
         ) {
           Icon(painter = painterResource(R.drawable.arrow_back), contentDescription = null)
         }
@@ -481,7 +481,7 @@ fun HistoryScreen(
               selection.clear()
               selection.addAll(allEvents.map { it.event.id })
             }
-          }
+          },
         )
         IconButton(
           enabled = selection.isNotEmpty(),
@@ -494,10 +494,10 @@ fun HistoryScreen(
                   },
                 onDismiss = menuState::dismiss,
                 clearAction = onExitSelectionMode,
-                currentItems = emptyList()
+                currentItems = emptyList(),
               )
             }
-          }
+          },
         ) {
           Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
         }
@@ -506,6 +506,6 @@ fun HistoryScreen(
           Icon(painter = painterResource(R.drawable.search), contentDescription = null)
         }
       }
-    }
+    },
   )
 }

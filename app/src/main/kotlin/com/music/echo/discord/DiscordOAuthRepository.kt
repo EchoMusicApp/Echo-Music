@@ -116,7 +116,7 @@ object DiscordOAuthRepository {
         }
         require(
           redirect.path == "/authorize/callback" ||
-            (redirect.host == "authorize" && redirect.path == "/callback")
+            (redirect.host == "authorize" && redirect.path == "/callback"),
         ) {
           "Unexpected Discord redirect target"
         }

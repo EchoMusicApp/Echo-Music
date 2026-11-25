@@ -32,7 +32,7 @@ fun RefreshAiRecommendationDialog(onDismiss: () -> Unit) {
       try {
         AiRecommendationHelper.generateRecommendations(
           context = context,
-          onLog = { log -> withContext(Dispatchers.Main) { generationLog = log } }
+          onLog = { log -> withContext(Dispatchers.Main) { generationLog = log } },
         )
         withContext(Dispatchers.Main) { onDismiss() }
       } catch (e: Exception) {
@@ -50,48 +50,48 @@ fun RefreshAiRecommendationDialog(onDismiss: () -> Unit) {
         onDismiss()
       }
     },
-    properties = DialogProperties(usePlatformDefaultWidth = false)
+    properties = DialogProperties(usePlatformDefaultWidth = false),
   ) {
     Surface(
       modifier = Modifier.fillMaxWidth(0.9f).wrapContentHeight(),
       shape = RoundedCornerShape(24.dp),
       color = MaterialTheme.colorScheme.surface,
-      tonalElevation = 6.dp
+      tonalElevation = 6.dp,
     ) {
       Column(
         modifier = Modifier.padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         Text(
           text = "Refreshing Recommendations",
           style = MaterialTheme.typography.headlineSmall,
-          color = MaterialTheme.colorScheme.onSurface
+          color = MaterialTheme.colorScheme.onSurface,
         )
 
         if (isGenerating) {
           CircularProgressIndicator(
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = 16.dp),
           )
           Text(
             text = generationLog,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
           )
         } else if (errorLog != null) {
           Text(
             text = errorLog!!,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.error,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
           )
           Text(
             text = "Last Log: $generationLog",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
           )
           Button(onClick = onDismiss) { Text(stringResource(R.string.close)) }
         }

@@ -45,16 +45,18 @@ constructor(
 
   private val playlistId: String = savedStateHandle.get<String>("playlistId").orEmpty()
   private val initialTitle: String = savedStateHandle.get<String>("title") ?: "Playlist"
-  private val initialCover: String? = savedStateHandle.get<String>("cover")?.takeIf { it.isNotBlank() }
+  private val initialCover: String? =
+    savedStateHandle.get<String>("cover")?.takeIf { it.isNotBlank() }
 
-  private val _uiState = MutableStateFlow(
-    SpotifyPlaylistDetailUiState(
-      playlistId = playlistId,
-      title = initialTitle,
-      coverUrl = initialCover,
-      isLoading = true,
+  private val _uiState =
+    MutableStateFlow(
+      SpotifyPlaylistDetailUiState(
+        playlistId = playlistId,
+        title = initialTitle,
+        coverUrl = initialCover,
+        isLoading = true,
+      ),
     )
-  )
   val uiState: StateFlow<SpotifyPlaylistDetailUiState> = _uiState.asStateFlow()
 
   init {
@@ -73,47 +75,48 @@ constructor(
 
   suspend fun refreshAndAwait(): Boolean = fetchTracks()
 
-  private suspend fun fetchTracks(): Boolean = withContext(Dispatchers.IO) {
-    _uiState.update { it.copy(isLoading = true, error = null) }
-    try {
-      spotifyImportRepository.restoreSession()
+  private suspend fun fetchTracks(): Boolean =
+    withContext(Dispatchers.IO) {
+      _uiState.update { it.copy(isLoading = true, error = null) }
+      try {
+        spotifyImportRepository.restoreSession()
 
-      val tracksList = mutableListOf<SpotifyTrack>()
-      var total = 0
+        val tracksList = mutableListOf<SpotifyTrack>()
+        var total = 0
 
-      if (playlistId == "liked") {
-        val result = Spotify.likedSongs(limit = 50, offset = 0)
-        val page = result.getOrThrow()
-        tracksList.addAll(page.items.map { it.track })
-        total = page.total
-      } else {
-        val result = Spotify.playlistTracks(playlistId = playlistId, limit = 50, offset = 0)
-        val page = result.getOrThrow()
-        tracksList.addAll(page.items.mapNotNull { it.track })
-        total = page.total
-      }
+        if (playlistId == "liked") {
+          val result = Spotify.likedSongs(limit = 50, offset = 0)
+          val page = result.getOrThrow()
+          tracksList.addAll(page.items.map { it.track })
+          total = page.total
+        } else {
+          val result = Spotify.playlistTracks(playlistId = playlistId, limit = 50, offset = 0)
+          val page = result.getOrThrow()
+          tracksList.addAll(page.items.mapNotNull { it.track })
+          total = page.total
+        }
 
-      _uiState.update {
-        it.copy(
-          tracks = tracksList,
-          totalCount = total,
-          isLoading = false,
-          error = null,
-        )
+        _uiState.update {
+          it.copy(
+            tracks = tracksList,
+            totalCount = total,
+            isLoading = false,
+            error = null,
+          )
+        }
+        prewarmTracks(tracksList)
+        true
+      } catch (e: Exception) {
+        reportException(e)
+        _uiState.update {
+          it.copy(
+            isLoading = false,
+            error = e.message ?: "Failed to load tracks",
+          )
+        }
+        false
       }
-      prewarmTracks(tracksList)
-      true
-    } catch (e: Exception) {
-      reportException(e)
-      _uiState.update {
-        it.copy(
-          isLoading = false,
-          error = e.message ?: "Failed to load tracks",
-        )
-      }
-      false
     }
-  }
 
   private fun prewarmTracks(tracks: List<SpotifyTrack>) {
     viewModelScope.launch(Dispatchers.IO) {
@@ -140,25 +143,27 @@ constructor(
       val nextTrack = tracks.getOrNull(effectiveIndex + 1)
       val prevTrack = if (effectiveIndex > 0) tracks.getOrNull(effectiveIndex - 1) else null
 
-      val resolved: SongItem? = withContext(Dispatchers.IO) {
-        if (nextTrack != null && spotifyPlaybackResolver.getCached(nextTrack.id) == null) {
-          async { spotifyPlaybackResolver.resolveTrack(nextTrack) }
+      val resolved: SongItem? =
+        withContext(Dispatchers.IO) {
+          if (nextTrack != null && spotifyPlaybackResolver.getCached(nextTrack.id) == null) {
+            async { spotifyPlaybackResolver.resolveTrack(nextTrack) }
+          }
+          if (prevTrack != null && spotifyPlaybackResolver.getCached(prevTrack.id) == null) {
+            async { spotifyPlaybackResolver.resolveTrack(prevTrack) }
+          }
+          spotifyPlaybackResolver.resolveTrack(track)
         }
-        if (prevTrack != null && spotifyPlaybackResolver.getCached(prevTrack.id) == null) {
-          async { spotifyPlaybackResolver.resolveTrack(prevTrack) }
-        }
-        spotifyPlaybackResolver.resolveTrack(track)
-      }
       _uiState.update { it.copy(resolvingTrackId = null) }
 
       if (resolved != null) {
-        val queue = SpotifyQueue(
-          title = _uiState.value.title.ifBlank { initialTitle },
-          tracks = tracks,
-          startIndex = effectiveIndex,
-          preloadItem = resolved.toMediaMetadata(),
-          resolver = spotifyPlaybackResolver,
-        )
+        val queue =
+          SpotifyQueue(
+            title = _uiState.value.title.ifBlank { initialTitle },
+            tracks = tracks,
+            startIndex = effectiveIndex,
+            preloadItem = resolved.toMediaMetadata(),
+            resolver = spotifyPlaybackResolver,
+          )
         onQueueReady(queue)
       } else {
         onError()
@@ -173,9 +178,10 @@ constructor(
   ) {
     viewModelScope.launch {
       _uiState.update { it.copy(resolvingTrackId = track.id) }
-      val resolved = withContext(Dispatchers.IO) {
-        spotifyPlaybackResolver.resolveTrack(track)
-      }
+      val resolved =
+        withContext(Dispatchers.IO) {
+          spotifyPlaybackResolver.resolveTrack(track)
+        }
       _uiState.update { it.copy(resolvingTrackId = null) }
 
       if (resolved != null) {

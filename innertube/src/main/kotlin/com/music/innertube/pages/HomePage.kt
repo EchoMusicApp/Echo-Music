@@ -30,7 +30,7 @@ data class HomePage(
   ) {
     companion object {
       fun fromChipCloudChipRenderer(
-        renderer: SectionListRenderer.Header.ChipCloudRenderer.Chip
+        renderer: SectionListRenderer.Header.ChipCloudRenderer.Chip,
       ): Chip? {
         return Chip(
           title = renderer.chipCloudChipRenderer.text?.runs?.firstOrNull()?.text ?: return null,
@@ -53,9 +53,9 @@ data class HomePage(
     val liveOnly: Boolean = false,
   ) {
     /**
-     * The "Listen together" stations: live streams the app cannot join. Recognized by their
-     * items, whatever the language: the title alone matched only in English, so in Italian
-     * ("Da ascoltare insieme") they showed.
+     * The "Listen together" stations: live streams the app cannot join. Recognized by their items,
+     * whatever the language: the title alone matched only in English, so in Italian ("Da ascoltare
+     * insieme") they showed.
      */
     val isStationListenTogether: Boolean
       get() {
@@ -312,7 +312,7 @@ data class HomePage(
     if (disableVideos) {
       copy(
         sections =
-          sections.map { section -> section.copy(items = section.items.filterVideoSongs(true)) }
+          sections.map { section -> section.copy(items = section.items.filterVideoSongs(true)) },
       )
     } else this
 }

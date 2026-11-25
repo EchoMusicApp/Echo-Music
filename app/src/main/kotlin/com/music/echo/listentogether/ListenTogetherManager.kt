@@ -40,7 +40,7 @@ class ListenTogetherManager
 @Inject
 constructor(
   private val client: ListenTogetherClient,
-  @ApplicationContext private val context: Context
+  @ApplicationContext private val context: Context,
 ) {
   companion object {
     private const val TAG = "ListenTogetherManager"
@@ -227,7 +227,7 @@ constructor(
       override fun onPositionDiscontinuity(
         oldPosition: Player.PositionInfo,
         newPosition: Player.PositionInfo,
-        reason: Int
+        reason: Int,
       ) {
         try {
           if (isSyncing || !canControlMusic || !isInRoom) return
@@ -387,17 +387,16 @@ constructor(
   fun initialize() {
     Timber.tag(TAG).d("Initializing ListenTogetherManager")
     eventCollectorJob?.cancel()
-    eventCollectorJob =
-      scope.launch {
-        client.events.collect { event ->
-          try {
-            Timber.tag(TAG).d("Received event: $event")
-            handleEvent(event)
-          } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "Error handling event: $event")
-          }
+    eventCollectorJob = scope.launch {
+      client.events.collect { event ->
+        try {
+          Timber.tag(TAG).d("Received event: $event")
+          handleEvent(event)
+        } catch (e: Exception) {
+          Timber.tag(TAG).e(e, "Error handling event: $event")
         }
       }
+    }
 
     scope.launch {
       role.collect { newRole ->
@@ -474,7 +473,7 @@ constructor(
           currentTrack = event.state.currentTrack,
           isPlaying = event.state.isPlaying,
           position = event.state.position,
-          queue = event.state.queue
+          queue = event.state.queue,
         )
         applyHostVolumeIfNeeded(event.state.volume)
         updateGuestMuteState()
@@ -520,7 +519,7 @@ constructor(
       is ListenTogetherEvent.SyncStateReceived -> {
         Timber.tag(TAG)
           .d(
-            "SyncStateReceived: playing=${event.state.isPlaying}, pos=${event.state.position}, track=${event.state.currentTrack?.id}"
+            "SyncStateReceived: playing=${event.state.isPlaying}, pos=${event.state.position}, track=${event.state.currentTrack?.id}",
           )
         if (isGuestPlaybackRestricted) {
           handleSyncState(event.state)
@@ -564,7 +563,7 @@ constructor(
               if (serverTrackId != currentMetadata.id) {
                 Timber.tag(TAG)
                   .d(
-                    "Reconnected as host, server track ($serverTrackId) differs from local (${currentMetadata.id}), syncing"
+                    "Reconnected as host, server track ($serverTrackId) differs from local (${currentMetadata.id}), syncing",
                   )
                 sendTrackChangeInternal(currentMetadata)
               } else {
@@ -594,7 +593,7 @@ constructor(
               isPlaying = event.state.isPlaying,
               position = event.state.position,
               queue = event.state.queue,
-              bypassBuffer = true
+              bypassBuffer = true,
             )
             applyHostVolumeIfNeeded(event.state.volume)
 
@@ -714,7 +713,7 @@ constructor(
     if (savedState != null) {
       Timber.tag(TAG)
         .d(
-          "Restoring mute state on leave: was muted=$savedState, currently muted=${connection.isMuted.value}"
+          "Restoring mute state on leave: was muted=$savedState, currently muted=${connection.isMuted.value}",
         )
       connection.setMuted(savedState)
     } else {
@@ -748,7 +747,7 @@ constructor(
 
     Timber.tag(TAG)
       .d(
-        "Applying pending sync: track=$pendingTrackId, pos=${pending.position}, play=${pending.isPlaying}"
+        "Applying pending sync: track=$pendingTrackId, pos=${pending.position}, play=${pending.isPlaying}",
       )
     isSyncing = true
 
@@ -763,7 +762,7 @@ constructor(
     if (posDiff > tolerance) {
       Timber.tag(TAG)
         .d(
-          "Applying pending sync: seeking ${player.currentPosition} -> $targetPos (diff ${posDiff}ms > ${tolerance}ms)"
+          "Applying pending sync: seeking ${player.currentPosition} -> $targetPos (diff ${posDiff}ms > ${tolerance}ms)",
         )
       connection.seekTo(targetPos)
     } else {
@@ -819,7 +818,7 @@ constructor(
                     currentTrack = roomState.value?.currentTrack,
                     isPlaying = true,
                     position = adjustedPos,
-                    lastUpdate = now
+                    lastUpdate = now,
                   ))
                 .copy(isPlaying = true, position = adjustedPos, lastUpdate = now)
             applyPendingSyncIfReady()
@@ -843,13 +842,13 @@ constructor(
             if (posDiff > PLAYBACK_POSITION_TOLERANCE_MS) {
               Timber.tag(TAG)
                 .d(
-                  "Guest: PLAY seeking during playback ${player.currentPosition} -> $adjustedPos (diff ${posDiff}ms)"
+                  "Guest: PLAY seeking during playback ${player.currentPosition} -> $adjustedPos (diff ${posDiff}ms)",
                 )
               connection.seekTo(adjustedPos)
             } else {
               Timber.tag(TAG)
                 .d(
-                  "Guest: PLAY skipping seek - already playing, drift acceptable (${posDiff}ms < ${PLAYBACK_POSITION_TOLERANCE_MS}ms)"
+                  "Guest: PLAY skipping seek - already playing, drift acceptable (${posDiff}ms < ${PLAYBACK_POSITION_TOLERANCE_MS}ms)",
                 )
             }
           } else {
@@ -857,7 +856,7 @@ constructor(
             if (posDiff > POSITION_TOLERANCE_MS) {
               Timber.tag(TAG)
                 .d(
-                  "Guest: PLAY seeking while paused ${player.currentPosition} -> $adjustedPos (diff ${posDiff}ms)"
+                  "Guest: PLAY seeking while paused ${player.currentPosition} -> $adjustedPos (diff ${posDiff}ms)",
                 )
               connection.seekTo(adjustedPos)
             }
@@ -881,7 +880,7 @@ constructor(
                     currentTrack = roomState.value?.currentTrack,
                     isPlaying = false,
                     position = pos,
-                    lastUpdate = now
+                    lastUpdate = now,
                   ))
                 .copy(isPlaying = false, position = pos, lastUpdate = now)
             applyPendingSyncIfReady()
@@ -929,7 +928,7 @@ constructor(
           if (kotlin.math.abs(player.currentPosition - pos) > POSITION_TOLERANCE_MS) {
             Timber.tag(TAG)
               .d(
-                "Guest: SEEK to $pos from ${player.currentPosition} (diff > ${POSITION_TOLERANCE_MS}ms)"
+                "Guest: SEEK to $pos from ${player.currentPosition} (diff > ${POSITION_TOLERANCE_MS}ms)",
               )
             connection.seekTo(pos)
             lastSyncActionTime = now
@@ -951,7 +950,7 @@ constructor(
                 isPlaying = false,
                 position = 0,
                 queue = action.queue,
-                queueTitle = queueTitle
+                queueTitle = queueTitle,
               )
             } else {
 
@@ -1102,7 +1101,7 @@ constructor(
 
     Timber.tag(TAG)
       .d(
-        "handleSyncState: playing=${state.isPlaying}, pos=${state.position} -> adj=$adjustedPos, track=${state.currentTrack?.id}"
+        "handleSyncState: playing=${state.isPlaying}, pos=${state.position} -> adj=$adjustedPos, track=${state.currentTrack?.id}",
       )
 
     applyPlaybackState(
@@ -1110,7 +1109,7 @@ constructor(
       isPlaying = state.isPlaying,
       position = adjustedPos,
       queue = state.queue,
-      bypassBuffer = true
+      bypassBuffer = true,
     )
     applyHostVolumeIfNeeded(state.volume)
   }
@@ -1121,7 +1120,7 @@ constructor(
     position: Long,
     queue: List<TrackInfo>?,
     queueTitle: String? = null,
-    bypassBuffer: Boolean = false
+    bypassBuffer: Boolean = false,
   ) {
     val connection = playerConnection
     if (connection == null) {
@@ -1132,7 +1131,7 @@ constructor(
 
     Timber.tag(TAG)
       .d(
-        "Applying playback state: track=${currentTrack?.id}, pos=$position, queue=${queue?.size}, bypassBuffer=$bypassBuffer"
+        "Applying playback state: track=${currentTrack?.id}, pos=$position, queue=${queue?.size}, bypassBuffer=$bypassBuffer",
       )
 
     activeSyncJob?.cancel()
@@ -1175,7 +1174,7 @@ constructor(
       if (currentTrackGeneration != generation) {
         Timber.tag(TAG)
           .d(
-            "Skipping stale track generation: $generation vs current $currentTrackGeneration (track ${currentTrack.id})"
+            "Skipping stale track generation: $generation vs current $currentTrackGeneration (track ${currentTrack.id})",
           )
         return@launch
       }
@@ -1189,7 +1188,7 @@ constructor(
         if (currentTrackGeneration != generation) {
           Timber.tag(TAG)
             .d(
-              "Stale generation detected before setMediaItems: $generation vs $currentTrackGeneration"
+              "Stale generation detected before setMediaItems: $generation vs $currentTrackGeneration",
             )
           return@launch
         }
@@ -1257,7 +1256,7 @@ constructor(
               currentTrack = currentTrack,
               isPlaying = isPlaying,
               position = position,
-              lastUpdate = System.currentTimeMillis()
+              lastUpdate = System.currentTimeMillis(),
             )
           applyPendingSyncIfReady()
           client.sendBufferReady(currentTrack.id)
@@ -1286,7 +1285,7 @@ constructor(
           if (currentTrackGeneration != generation) {
             Timber.tag(TAG)
               .d(
-                "Skipping stale syncToTrack for ${track.id} (generation $generation vs $currentTrackGeneration)"
+                "Skipping stale syncToTrack for ${track.id} (generation $generation vs $currentTrackGeneration)",
               )
             isSyncing = false
             return@launch
@@ -1299,7 +1298,7 @@ constructor(
                 if (currentTrackGeneration != generation) {
                   Timber.tag(TAG)
                     .d(
-                      "Skipping stale track application for ${track.id} (generation $generation vs $currentTrackGeneration)"
+                      "Skipping stale track application for ${track.id} (generation $generation vs $currentTrackGeneration)",
                     )
                   isSyncing = false
                   return@launch
@@ -1321,8 +1320,8 @@ constructor(
                 connection.playQueue(
                   YouTubeQueue(
                     endpoint = WatchEndpoint(videoId = track.id),
-                    preloadItem = queue.firstOrNull()?.toMediaMetadata()
-                  )
+                    preloadItem = queue.firstOrNull()?.toMediaMetadata(),
+                  ),
                 )
                 try {
                   connection.service.queueTitle = "Listen Together"
@@ -1337,7 +1336,7 @@ constructor(
                   if (currentTrackGeneration != generation) {
                     Timber.tag(TAG)
                       .d(
-                        "Generation changed while waiting for player ready - aborting sync for ${track.id}"
+                        "Generation changed while waiting for player ready - aborting sync for ${track.id}",
                       )
                     isSyncing = false
                     return@launch
@@ -1363,7 +1362,7 @@ constructor(
                     currentTrack = track,
                     isPlaying = shouldPlay,
                     position = position,
-                    lastUpdate = System.currentTimeMillis()
+                    lastUpdate = System.currentTimeMillis(),
                   )
 
                 applyPendingSyncIfReady()
@@ -1371,7 +1370,7 @@ constructor(
                 client.sendBufferReady(track.id)
                 Timber.tag(TAG)
                   .d(
-                    "Sent buffer ready for ${track.id}, pending sync stored: pos=$position, play=$shouldPlay"
+                    "Sent buffer ready for ${track.id}, pending sync stored: pos=$position, play=$shouldPlay",
                   )
 
                 delay(100)
@@ -1455,7 +1454,7 @@ constructor(
         album = metadata.album?.title,
         duration = durationMs,
         thumbnail = metadata.thumbnailUrl,
-        suggestedBy = metadata.suggestedBy
+        suggestedBy = metadata.suggestedBy,
       )
 
     Timber.tag(TAG).d("Sending track change: ${trackInfo.title}, duration: $durationMs")
@@ -1480,7 +1479,7 @@ constructor(
         PlaybackActions.CHANGE_TRACK,
         queueTitle = currentTitle,
         trackInfo = trackInfo,
-        queue = currentQueue
+        queue = currentQueue,
       )
     }
   }
@@ -1489,53 +1488,51 @@ constructor(
     if (queueObserverJob?.isActive == true) return
 
     Timber.tag(TAG).d("Starting queue sync observation")
-    queueObserverJob =
-      scope.launch {
-        playerConnection
-          ?.queueWindows
-          ?.map { windows -> windows.map { it.toTrackInfo() } }
-          ?.distinctUntilChanged()
-          ?.collectLatest { tracks ->
-            if (!canControlMusic || !isInRoom || isSyncing) return@collectLatest
+    queueObserverJob = scope.launch {
+      playerConnection
+        ?.queueWindows
+        ?.map { windows -> windows.map { it.toTrackInfo() } }
+        ?.distinctUntilChanged()
+        ?.collectLatest { tracks ->
+          if (!canControlMusic || !isInRoom || isSyncing) return@collectLatest
 
-            delay(500)
+          delay(500)
 
-            Timber.tag(TAG).d("Sending SYNC_QUEUE with ${tracks.size} items")
-            val queueTitle =
-              try {
-                playerConnection?.queueTitle?.value
-              } catch (e: Exception) {
-                Timber.tag(TAG).e(e, "Failed to get queue title")
-                null
-              }
-            sendPlaybackActionWithSync {
-              client.sendPlaybackAction(
-                PlaybackActions.SYNC_QUEUE,
-                queueTitle = queueTitle,
-                queue = tracks
-              )
+          Timber.tag(TAG).d("Sending SYNC_QUEUE with ${tracks.size} items")
+          val queueTitle =
+            try {
+              playerConnection?.queueTitle?.value
+            } catch (e: Exception) {
+              Timber.tag(TAG).e(e, "Failed to get queue title")
+              null
             }
+          sendPlaybackActionWithSync {
+            client.sendPlaybackAction(
+              PlaybackActions.SYNC_QUEUE,
+              queueTitle = queueTitle,
+              queue = tracks,
+            )
           }
-      }
+        }
+    }
   }
 
   private fun startVolumeSyncObservation() {
     if (volumeObserverJob?.isActive == true) return
 
     Timber.tag(TAG).d("Starting volume sync observation")
-    volumeObserverJob =
-      scope.launch {
-        playerConnection?.service?.playerVolume?.collectLatest { volume ->
-          if (!isHost || !isInRoom || !syncHostVolumeEnabled.value) return@collectLatest
+    volumeObserverJob = scope.launch {
+      playerConnection?.service?.playerVolume?.collectLatest { volume ->
+        if (!isHost || !isInRoom || !syncHostVolumeEnabled.value) return@collectLatest
 
-          val normalized = volume.coerceIn(0f, 1f)
-          val last = lastSyncedVolume
-          if (last != null && kotlin.math.abs(last - normalized) < 0.01f) return@collectLatest
+        val normalized = volume.coerceIn(0f, 1f)
+        val last = lastSyncedVolume
+        if (last != null && kotlin.math.abs(last - normalized) < 0.01f) return@collectLatest
 
-          lastSyncedVolume = normalized
-          client.sendPlaybackAction(PlaybackActions.SET_VOLUME, volume = normalized)
-        }
+        lastSyncedVolume = normalized
+        client.sendPlaybackAction(PlaybackActions.SET_VOLUME, volume = normalized)
       }
+    }
   }
 
   private fun stopVolumeSyncObservation() {
@@ -1555,7 +1552,7 @@ constructor(
       album = metadata.album?.title,
       duration = durationMs,
       thumbnail = metadata.thumbnailUrl,
-      suggestedBy = metadata.suggestedBy
+      suggestedBy = metadata.suggestedBy,
     )
   }
 
@@ -1572,7 +1569,7 @@ constructor(
       album = if (album != null) Album(id = "", title = album) else null,
       duration = (duration / 1000).toInt(),
       thumbnailUrl = thumbnail,
-      suggestedBy = suggestedBy
+      suggestedBy = suggestedBy,
     )
   }
 
@@ -1612,19 +1609,18 @@ constructor(
 
   private fun startHeartbeat() {
     if (heartbeatJob?.isActive == true) return
-    heartbeatJob =
-      scope.launch {
-        while (heartbeatJob?.isActive == true && isInRoom && isHost) {
-          delay(10000L)
-          playerConnection?.player?.let { player ->
-            if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
-              val pos = player.currentPosition
-              Timber.tag(TAG).d("Host heartbeat: sending PLAY at pos $pos")
-              client.sendPlaybackAction(PlaybackActions.PLAY, position = pos)
-            }
+    heartbeatJob = scope.launch {
+      while (heartbeatJob?.isActive == true && isInRoom && isHost) {
+        delay(10000L)
+        playerConnection?.player?.let { player ->
+          if (player.playWhenReady && player.playbackState == Player.STATE_READY) {
+            val pos = player.currentPosition
+            Timber.tag(TAG).d("Host heartbeat: sending PLAY at pos $pos")
+            client.sendPlaybackAction(PlaybackActions.PLAY, position = pos)
           }
         }
       }
+    }
     Timber.tag(TAG).d("Host heartbeat started (10s interval)")
   }
 

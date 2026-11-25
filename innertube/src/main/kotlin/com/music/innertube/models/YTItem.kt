@@ -133,7 +133,7 @@ fun <T : YTItem> List<T>.filterYoutubeShorts(enabled: Boolean = false) =
   }
 
 fun <T : YTItem> List<T>.filterBlockedArtists(
-  blockedArtists: Set<String> = com.music.innertube.YouTube.blockedArtists
+  blockedArtists: Set<String> = com.music.innertube.YouTube.blockedArtists,
 ): List<T> =
   if (blockedArtists.isNotEmpty()) {
     val blockedIds = blockedArtists.map { it.substringBefore("||") }.toSet()
@@ -161,7 +161,7 @@ fun <T : YTItem> List<T>.filterBlockedArtists(
   }
 
 fun <T : YTItem> List<T>.filterDislikedSongs(
-  dislikedSongs: Set<String> = com.music.innertube.YouTube.dislikedSongs
+  dislikedSongs: Set<String> = com.music.innertube.YouTube.dislikedSongs,
 ): List<T> =
   if (dislikedSongs.isNotEmpty()) {
     val dislikedIds = dislikedSongs.map { it.substringBefore("||") }.toSet()

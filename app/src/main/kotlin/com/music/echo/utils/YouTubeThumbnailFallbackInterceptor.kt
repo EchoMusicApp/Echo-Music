@@ -44,8 +44,7 @@ class YouTubeThumbnailFallbackInterceptor : Interceptor {
 
   /** Only a missing variant (404) is fixed by another URL; a network error or timeout is not. */
   private fun isNotFound(result: ImageResult): Boolean =
-    result is ErrorResult &&
-      (result.throwable as? HttpException)?.response?.code == HTTP_NOT_FOUND
+    result is ErrorResult && (result.throwable as? HttpException)?.response?.code == HTTP_NOT_FOUND
 
   private companion object {
     const val HTTP_NOT_FOUND = 404

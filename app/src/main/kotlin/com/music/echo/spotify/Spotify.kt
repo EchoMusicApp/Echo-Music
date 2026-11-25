@@ -255,7 +255,7 @@ object Spotify {
             TextContent(
               body.toString(),
               ContentType.Application.Json.withParameter("charset", "UTF-8"),
-            )
+            ),
           )
         }
 
@@ -676,7 +676,7 @@ object Spotify {
       ?: data.int("numTracks")
 
   private fun parseFolderWrapper(
-    wrapper: JsonObject
+    wrapper: JsonObject,
   ): echo.music.iad1tya.spotify.models.SpotifyLibraryFolder? {
     val uri = wrapper.str("_uri") ?: return null
     // Spotify has shipped this object under several shapes over time; the name
@@ -1280,7 +1280,7 @@ object Spotify {
           total = feedData.int("totalCount") ?: 0,
           limit = pagingInfo?.int("limit") ?: limit,
           offset = pagingInfo?.int("offset") ?: offset,
-        )
+        ),
     )
   }
 
@@ -1344,7 +1344,7 @@ object Spotify {
   }
 
   private fun parseHomeSection(
-    sectionObj: JsonObject
+    sectionObj: JsonObject,
   ): echo.music.iad1tya.spotify.models.SpotifyHomeFeedSection? {
     val sectionData = sectionObj.obj("data") ?: return null
     val typename = sectionData.str("__typename") ?: return null
@@ -1372,7 +1372,7 @@ object Spotify {
   }
 
   private fun parseHomeItem(
-    itemObj: JsonObject
+    itemObj: JsonObject,
   ): echo.music.iad1tya.spotify.models.SpotifyHomeFeedItem? {
     val content = itemObj.obj("content") ?: return null
     val wrapper = content.str("__typename") ?: return null
@@ -1387,7 +1387,7 @@ object Spotify {
   }
 
   private fun parseHomePlaylist(
-    data: JsonObject
+    data: JsonObject,
   ): echo.music.iad1tya.spotify.models.SpotifyHomeFeedItem.Playlist? {
     val uri = data.str("uri") ?: return null
     val imageItem = data.obj("images")?.arr("items")?.firstOrNull()?.jsonObject
@@ -1415,7 +1415,7 @@ object Spotify {
   }
 
   private fun parseHomeAlbum(
-    data: JsonObject
+    data: JsonObject,
   ): echo.music.iad1tya.spotify.models.SpotifyHomeFeedItem.Album? {
     val uri = data.str("uri") ?: return null
     val artists =
@@ -1434,7 +1434,7 @@ object Spotify {
   }
 
   private fun parseHomeArtist(
-    data: JsonObject
+    data: JsonObject,
   ): echo.music.iad1tya.spotify.models.SpotifyHomeFeedItem.Artist? {
     val uri = data.str("uri") ?: return null
     val profile = data.obj("profile")

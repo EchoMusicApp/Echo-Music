@@ -51,7 +51,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun isRouteSelected(
   currentRoute: String?,
   screenRoute: String,
-  navigationItems: List<Screens>
+  navigationItems: List<Screens>,
 ): Boolean {
   if (currentRoute == null) return false
   if (currentRoute == screenRoute) return true
@@ -78,14 +78,17 @@ fun AppNavigationRail(
   shuffleContentDescription: String = "",
   onAiHubClick: (() -> Unit)? = null,
   aiHubIconRes: Int? = null,
-  aiHubContentDescription: String = ""
+  aiHubContentDescription: String = "",
 ) {
   val containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
   val haptics = LocalHapticFeedback.current
   val viewConfiguration = LocalViewConfiguration.current
   var showMoreOptionsSheet by rememberSaveable { mutableStateOf(false) }
   val hasMoreOptions =
-    onMusicFlowClick != null || (onShuffleClick != null && shuffleIconRes != null) || onAiHubClick != null
+    onMusicFlowClick != null ||
+      (onShuffleClick != null && shuffleIconRes != null) ||
+      onAiHubClick != null ||
+      onMusicRecognitionClick != null
 
   NavigationRail(modifier = modifier, containerColor = containerColor) {
     Spacer(modifier = Modifier.weight(1f))
@@ -139,23 +142,10 @@ fun AppNavigationRail(
         icon = {
           Icon(
             painter = painterResource(id = iconRes),
-            contentDescription = stringResource(screen.titleId)
+            contentDescription = stringResource(screen.titleId),
           )
-        }
+        },
       )
-
-      if (screen == Screens.Library && onMusicRecognitionClick != null) {
-        NavigationRailItem(
-          selected = false,
-          onClick = onMusicRecognitionClick,
-          icon = {
-            Icon(
-              painter = painterResource(id = R.drawable.mic),
-              contentDescription = musicRecognitionContentDescription
-            )
-          }
-        )
-      }
     }
 
     if (hasMoreOptions) {
@@ -165,9 +155,9 @@ fun AppNavigationRail(
         icon = {
           Icon(
             painter = painterResource(id = R.drawable.more_horiz),
-            contentDescription = stringResource(R.string.more_label)
+            contentDescription = stringResource(R.string.more_label),
           )
-        }
+        },
       )
     }
 
@@ -180,22 +170,22 @@ fun AppNavigationRail(
       onDismissRequest = { showMoreOptionsSheet = false },
       sheetState = sheetState,
       dragHandle = { BottomSheetDefaults.DragHandle() },
-      containerColor = MaterialTheme.colorScheme.surfaceContainer
+      containerColor = MaterialTheme.colorScheme.surfaceContainer,
     ) {
       Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
       ) {
         Text(
           text = stringResource(R.string.more_options),
           style =
             MaterialTheme.typography.headlineSmall.copy(
               fontWeight = FontWeight.Bold,
-              letterSpacing = 0.5.sp
+              letterSpacing = 0.5.sp,
             ),
           color = MaterialTheme.colorScheme.onSurface,
           textAlign = TextAlign.Center,
-          modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+          modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
         )
 
         Material3SettingsGroup(
@@ -207,28 +197,15 @@ fun AppNavigationRail(
                     title = {
                       Text(
                         if (musicFlowContentDescription.isNotEmpty()) musicFlowContentDescription
-                        else stringResource(R.string.music_flow)
+                        else stringResource(R.string.music_flow),
                       )
                     },
                     icon = painterResource(musicFlowIconRes),
                     onClick = {
                       showMoreOptionsSheet = false
                       onMusicFlowClick()
-                    }
-                  )
-                )
-              }
-
-              if (onShuffleClick != null && shuffleIconRes != null) {
-                add(
-                  Material3SettingsItem(
-                    title = { Text(shuffleContentDescription) },
-                    icon = painterResource(shuffleIconRes),
-                    trailingContent = {
-                      Switch(checked = shuffleEnabled, onCheckedChange = { onShuffleClick() })
                     },
-                    onClick = onShuffleClick
-                  )
+                  ),
                 )
               }
 
@@ -240,11 +217,43 @@ fun AppNavigationRail(
                     onClick = {
                       showMoreOptionsSheet = false
                       onAiHubClick()
-                    }
-                  )
+                    },
+                  ),
                 )
               }
-            }
+
+              if (onMusicRecognitionClick != null) {
+                add(
+                  Material3SettingsItem(
+                    title = {
+                      Text(
+                        musicRecognitionContentDescription.ifEmpty {
+                          stringResource(R.string.recognition)
+                        },
+                      )
+                    },
+                    icon = painterResource(R.drawable.mic),
+                    onClick = {
+                      showMoreOptionsSheet = false
+                      onMusicRecognitionClick()
+                    },
+                  ),
+                )
+              }
+
+              if (onShuffleClick != null && shuffleIconRes != null) {
+                add(
+                  Material3SettingsItem(
+                    title = { Text(shuffleContentDescription) },
+                    icon = painterResource(shuffleIconRes),
+                    trailingContent = {
+                      Switch(checked = shuffleEnabled, onCheckedChange = { onShuffleClick() })
+                    },
+                    onClick = onShuffleClick,
+                  ),
+                )
+              }
+            },
         )
       }
     }
@@ -260,7 +269,7 @@ fun AppNavigationBar(
   pureBlack: Boolean = false,
   slimNav: Boolean = false,
   glassEnabled: Boolean = false,
-  onSearchLongClick: (() -> Unit)? = null
+  onSearchLongClick: (() -> Unit)? = null,
 ) {
   val containerColor = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
   val contentColor = if (pureBlack) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
@@ -271,7 +280,7 @@ fun AppNavigationBar(
   NavigationBar(
     modifier = navModifier,
     containerColor = containerColor,
-    contentColor = contentColor
+    contentColor = contentColor,
   ) {
     navigationItems.forEach { screen ->
       val isSelected =
@@ -322,7 +331,7 @@ fun AppNavigationBar(
         icon = {
           Icon(
             painter = painterResource(id = iconRes),
-            contentDescription = stringResource(screen.titleId)
+            contentDescription = stringResource(screen.titleId),
           )
         },
         label =
@@ -331,10 +340,10 @@ fun AppNavigationBar(
               Text(
                 text = stringResource(screen.titleId),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
               )
             }
-          } else null
+          } else null,
       )
     }
   }

@@ -40,7 +40,7 @@ data class LibraryPage(
             explicit =
               renderer.subtitleBadges?.find {
                 it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
-              } != null
+              } != null,
           )
         renderer.isPlaylist ->
           PlaylistItem(
@@ -50,7 +50,10 @@ data class LibraryPage(
             title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             author =
               renderer.subtitle?.runs?.firstOrNull()?.let {
-                Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                Artist(
+                  name = ApiText.clean(it.text),
+                  id = it.navigationEndpoint?.browseEndpoint?.browseId,
+                )
               },
             songCountText = renderer.subtitle?.runs?.lastOrNull()?.text,
             thumbnail =
@@ -81,7 +84,7 @@ data class LibraryPage(
             isEditable =
               renderer.menu?.menuRenderer?.items?.find {
                 it.menuNavigationItemRenderer?.icon?.iconType == "EDIT"
-              } != null
+              } != null,
           )
         renderer.isArtist ->
           ArtistItem(
@@ -160,7 +163,7 @@ data class LibraryPage(
               ?.runs
               ?.oddElements()
           println(
-            "[UPLOAD_DEBUG] LibraryPage.parse: videoId=$videoId, title=$title, artistRuns=${artistRuns?.map { "${it.text}(browseId=${it.navigationEndpoint?.browseEndpoint?.browseId})" }}"
+            "[UPLOAD_DEBUG] LibraryPage.parse: videoId=$videoId, title=$title, artistRuns=${artistRuns?.map { "${it.text}(browseId=${it.navigationEndpoint?.browseEndpoint?.browseId})" }}",
           )
 
           // For uploaded songs, artists may not have browseEndpoint - make it optional
@@ -169,7 +172,7 @@ data class LibraryPage(
               val browseId = it.navigationEndpoint?.browseEndpoint?.browseId
               if (browseId == null) {
                 println(
-                  "[UPLOAD_DEBUG] LibraryPage.parse: Artist '${it.text}' has no browseId, using empty string"
+                  "[UPLOAD_DEBUG] LibraryPage.parse: Artist '${it.text}' has no browseId, using empty string",
                 )
                 // For uploaded songs, use empty string for artist ID if not available
                 Artist(name = ApiText.clean(it.text), id = "")
@@ -186,33 +189,32 @@ data class LibraryPage(
               ?.runs
               ?.firstOrNull()
           println(
-            "[UPLOAD_DEBUG] LibraryPage.parse: albumRun=${albumRun?.text}, albumBrowseId=${albumRun?.navigationEndpoint?.browseEndpoint?.browseId}"
+            "[UPLOAD_DEBUG] LibraryPage.parse: albumRun=${albumRun?.text}, albumBrowseId=${albumRun?.navigationEndpoint?.browseEndpoint?.browseId}",
           )
 
           // For uploaded songs, album may not have browseEndpoint - make it optional
-          val album =
-            albumRun?.let {
-              val albumBrowseId = it.navigationEndpoint?.browseEndpoint?.browseId
-              if (albumBrowseId == null) {
-                println(
-                  "[UPLOAD_DEBUG] LibraryPage.parse: Album '${it.text}' has no browseId, using empty string"
-                )
-                Album(name = ApiText.clean(it.text), id = "")
-              } else {
-                Album(name = ApiText.clean(it.text), id = albumBrowseId)
-              }
+          val album = albumRun?.let {
+            val albumBrowseId = it.navigationEndpoint?.browseEndpoint?.browseId
+            if (albumBrowseId == null) {
+              println(
+                "[UPLOAD_DEBUG] LibraryPage.parse: Album '${it.text}' has no browseId, using empty string",
+              )
+              Album(name = ApiText.clean(it.text), id = "")
+            } else {
+              Album(name = ApiText.clean(it.text), id = albumBrowseId)
             }
+          }
 
           val thumbnailUrl = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl()
           if (thumbnailUrl == null) {
             println(
-              "[UPLOAD_DEBUG] LibraryPage.parse FAILED: thumbnail is null for videoId=$videoId"
+              "[UPLOAD_DEBUG] LibraryPage.parse FAILED: thumbnail is null for videoId=$videoId",
             )
             return null
           }
 
           println(
-            "[UPLOAD_DEBUG] LibraryPage.parse SUCCESS: videoId=$videoId, title=$title, artists=${artists.map { it.name }}, album=${album?.name}"
+            "[UPLOAD_DEBUG] LibraryPage.parse SUCCESS: videoId=$videoId, title=$title, artists=${artists.map { it.name }}, album=${album?.name}",
           )
 
           SongItem(
@@ -243,7 +245,7 @@ data class LibraryPage(
                 ?.playNavigationEndpoint
                 ?.watchEndpoint,
             libraryAddToken = libraryTokens.addToken,
-            libraryRemoveToken = libraryTokens.removeToken
+            libraryRemoveToken = libraryTokens.removeToken,
           )
         }
         renderer.isArtist ->
@@ -256,7 +258,8 @@ data class LibraryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text?.let(ApiText::clean) ?: return null,
+                ?.text
+                ?.let(ApiText::clean) ?: return null,
             thumbnail =
               renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
             shuffleEndpoint =
@@ -274,11 +277,11 @@ data class LibraryPage(
                 ?.find { it.menuNavigationItemRenderer?.icon?.iconType == "MIX" }
                 ?.menuNavigationItemRenderer
                 ?.navigationEndpoint
-                ?.watchPlaylistEndpoint
+                ?.watchPlaylistEndpoint,
           )
         else -> {
           println(
-            "[UPLOAD_DEBUG] LibraryPage.parse: Not a song or artist, isSong=${renderer.isSong}, isArtist=${renderer.isArtist}"
+            "[UPLOAD_DEBUG] LibraryPage.parse: Not a song or artist, isSong=${renderer.isSong}, isArtist=${renderer.isArtist}",
           )
           null
         }
@@ -292,7 +295,10 @@ data class LibraryPage(
         for (run in runs) {
           if (run.navigationEndpoint != null) {
             artists.add(
-              Artist(id = run.navigationEndpoint.browseEndpoint?.browseId!!, name = ApiText.clean(run.text))
+              Artist(
+                id = run.navigationEndpoint.browseEndpoint?.browseId!!,
+                name = ApiText.clean(run.text),
+              ),
             )
           }
         }

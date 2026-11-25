@@ -12,7 +12,7 @@ object TTMLParser {
     val words: List<ParsedWord>,
     val agent: String? = null,
     val isBackground: Boolean = false,
-    val backgroundLines: List<ParsedLine> = emptyList()
+    val backgroundLines: List<ParsedLine> = emptyList(),
   )
 
   data class ParsedWord(val text: String, val startTime: Double, val endTime: Double)
@@ -21,7 +21,7 @@ object TTMLParser {
     val text: String,
     val startTime: Double,
     val endTime: Double,
-    val hasTrailingSpace: Boolean
+    val hasTrailingSpace: Boolean,
   )
 
   // Helper function to get attribute by local name (handles namespace prefixes)
@@ -111,8 +111,8 @@ object TTMLParser {
                           text = wordText,
                           startTime = parseTime(wordBegin),
                           endTime = parseTime(wordEnd),
-                          hasTrailingSpace = hasTrailingSpace
-                        )
+                          hasTrailingSpace = hasTrailingSpace,
+                        ),
                       )
                     }
                   }
@@ -142,8 +142,8 @@ object TTMLParser {
               words = words,
               agent = agent,
               isBackground = false,
-              backgroundLines = backgroundLines
-            )
+              backgroundLines = backgroundLines,
+            ),
           )
         }
       }
@@ -187,8 +187,8 @@ object TTMLParser {
                 text = wordText,
                 startTime = parseTime(wordBegin),
                 endTime = parseTime(wordEnd),
-                hasTrailingSpace = hasTrailingSpace
-              )
+                hasTrailingSpace = hasTrailingSpace,
+              ),
             )
           }
         }
@@ -212,7 +212,7 @@ object TTMLParser {
         words = words,
         agent = null,
         isBackground = true,
-        backgroundLines = emptyList()
+        backgroundLines = emptyList(),
       )
     } else null
   }
@@ -261,8 +261,8 @@ object TTMLParser {
               ParsedWord(
                 text = currentText.toString().trim(),
                 startTime = currentStartTime,
-                endTime = currentEndTime
-              )
+                endTime = currentEndTime,
+              ),
             )
           }
           currentText = StringBuilder(span.text)
@@ -282,8 +282,8 @@ object TTMLParser {
         ParsedWord(
           text = currentText.toString().trim(),
           startTime = currentStartTime,
-          endTime = currentEndTime
-        )
+          endTime = currentEndTime,
+        ),
       )
     }
 
@@ -308,8 +308,8 @@ object TTMLParser {
             seconds,
             centiseconds,
             agentPrefix,
-            line.text
-          )
+            line.text,
+          ),
         )
 
         if (line.words.isNotEmpty()) {
@@ -333,8 +333,8 @@ object TTMLParser {
               bgMinutes,
               bgSeconds,
               bgCentiseconds,
-              bgLine.text
-            )
+              bgLine.text,
+            ),
           )
 
           if (bgLine.words.isNotEmpty()) {

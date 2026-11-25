@@ -35,7 +35,7 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
             ForegroundInfo(
               DownloadNotificationManager.NOTIFICATION_ID,
               startingNotification,
-              ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+              ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
             )
           } else {
             ForegroundInfo(DownloadNotificationManager.NOTIFICATION_ID, startingNotification)
@@ -54,7 +54,7 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
         if (connection.responseCode != HttpURLConnection.HTTP_OK) {
           DownloadNotificationManager.showDownloadFailed(
             version,
-            context.getString(R.string.server_error, connection.responseCode)
+            context.getString(R.string.server_error, connection.responseCode),
           )
           if (connection.responseCode >= 500) {
             return@withContext Result.retry()
@@ -111,7 +111,7 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
                   as android.app.NotificationManager
               notificationManager.notify(
                 DownloadNotificationManager.NOTIFICATION_ID,
-                progressNotification
+                progressNotification,
               )
 
               setProgress(workDataOf("progress" to progress.toFloat() / 100f))
@@ -144,7 +144,7 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
               if (downloadFile.exists()) downloadFile.delete()
               DownloadNotificationManager.showDownloadFailed(
                 version,
-                e.message ?: "Failed to extract zip file"
+                e.message ?: "Failed to extract zip file",
               )
               return@withContext Result.failure()
             } finally {
@@ -177,13 +177,13 @@ class UpdateDownloadWorker(private val context: Context, workerParams: WorkerPar
       } catch (e: IOException) {
         DownloadNotificationManager.showDownloadFailed(
           version,
-          e.message ?: context.getString(R.string.download_failed)
+          e.message ?: context.getString(R.string.download_failed),
         )
         return@withContext Result.retry()
       } catch (e: Exception) {
         DownloadNotificationManager.showDownloadFailed(
           version,
-          e.message ?: context.getString(R.string.download_failed)
+          e.message ?: context.getString(R.string.download_failed),
         )
         Result.failure()
       }

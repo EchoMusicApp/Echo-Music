@@ -8,5 +8,5 @@ enum class FilterType {
   LSC,
   HSC,
   LPQ,
-  HPQ
+  HPQ,
 }

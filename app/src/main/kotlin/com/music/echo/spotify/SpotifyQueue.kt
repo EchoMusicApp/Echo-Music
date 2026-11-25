@@ -11,8 +11,8 @@ import kotlinx.coroutines.withContext
 /**
  * Queue for Spotify playlist and collection playback.
  *
- * Resolves Spotify tracks into playable YouTube MediaItems while preserving
- * the playlist's exact track ordering, duplicate tracks, and starting position.
+ * Resolves Spotify tracks into playable YouTube MediaItems while preserving the playlist's exact
+ * track ordering, duplicate tracks, and starting position.
  */
 class SpotifyQueue(
   private val title: String? = null,
@@ -62,11 +62,12 @@ class SpotifyQueue(
         }
       }
 
-      val safeIndex = if (resolvedItems.isNotEmpty()) {
-        targetMediaItemIndex.coerceIn(0, resolvedItems.lastIndex)
-      } else {
-        0
-      }
+      val safeIndex =
+        if (resolvedItems.isNotEmpty()) {
+          targetMediaItemIndex.coerceIn(0, resolvedItems.lastIndex)
+        } else {
+          0
+        }
 
       isInitialized = true
 
@@ -99,4 +100,3 @@ class SpotifyQueue(
     const val PAGE_SIZE = 25
   }
 }
-

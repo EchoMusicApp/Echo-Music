@@ -63,16 +63,15 @@ object ArtistVideoCanvasProvider {
       cache.remove(key)
     }
 
-    val response =
-      runCatching {
-          client.get(BASE_URL) {
-            parameter("s", song)
-            parameter("a", artist)
-            if (album != null) parameter("al", album)
-            if (duration != null && duration > 0) parameter("d", duration)
-          }
-        }
-        .getOrNull()
+    val response = runCatching {
+      client.get(BASE_URL) {
+        parameter("s", song)
+        parameter("a", artist)
+        if (album != null) parameter("al", album)
+        if (duration != null && duration > 0) parameter("d", duration)
+      }
+    }
+      .getOrNull()
 
     val value =
       when (response?.status) {

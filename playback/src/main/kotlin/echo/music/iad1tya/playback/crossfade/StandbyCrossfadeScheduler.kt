@@ -6,8 +6,11 @@ import kotlinx.coroutines.flow.StateFlow
 
 sealed interface ArmedStatus {
   data object Idle : ArmedStatus
+
   data class Preparing(val targetMediaId: String, val startedAt: Long) : ArmedStatus
+
   data class Armed(val standbyPlayer: ExoPlayer, val targetMediaId: String) : ArmedStatus
+
   data class Fading(val progress: Float) : ArmedStatus
 }
 
@@ -23,37 +26,27 @@ interface StandbyCrossfadeScheduler {
    */
   var onCrossfadeSwapped: ((outgoingPlayer: ExoPlayer, incomingPlayer: ExoPlayer) -> Unit)?
 
-  /**
-   * Notifies the scheduler of track or queue changes.
-   */
+  /** Notifies the scheduler of track or queue changes. */
   fun onQueueOrTrackChanged(
     primaryPlayer: ExoPlayer,
     nextItem: MediaItem?,
-    crossfadeDurationMs: Long
+    crossfadeDurationMs: Long,
   )
 
-  /**
-   * High frequency position tick to evaluate pre-arming and trigger timing without polling.
-   */
+  /** High frequency position tick to evaluate pre-arming and trigger timing without polling. */
   fun onPlaybackPositionTick(
     primaryPlayer: ExoPlayer,
     currentPositionMs: Long,
     durationMs: Long,
-    playerFactory: () -> ExoPlayer
+    playerFactory: () -> ExoPlayer,
   )
 
-  /**
-   * Starts crossfade immediately if armed, or forces transition.
-   */
+  /** Starts crossfade immediately if armed, or forces transition. */
   fun triggerCrossfadeNow(primaryPlayer: ExoPlayer)
 
-  /**
-   * Aborts active pre-arm or crossfade on user pause, seek, or queue clear.
-   */
+  /** Aborts active pre-arm or crossfade on user pause, seek, or queue clear. */
   fun cancelCrossfade()
 
-  /**
-   * Releases any allocated standby player resources.
-   */
+  /** Releases any allocated standby player resources. */
   fun release()
 }

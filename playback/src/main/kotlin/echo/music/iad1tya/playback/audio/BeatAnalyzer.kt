@@ -237,7 +237,7 @@ object BeatAnalyzer {
         mixInPointMs,
         mixOutPointMs,
         key?.first,
-        key?.second
+        key?.second,
       )
     } catch (e: Exception) {
       Timber.tag(TAG).w(e, "Beat analysis failed")

@@ -70,7 +70,7 @@ constructor(
                 it[HideVideoSongsKey]
               } catch (e: Exception) {
                 null
-              }) ?: false
+              }) ?: false,
             )
           }
           .distinctUntilChanged(),
@@ -94,7 +94,7 @@ constructor(
             collator.strength = Collator.PRIMARY
             filteredSongs
               .sortedWith(
-                compareBy(collator) { song -> song.song.artists.joinToString("") { it.name } }
+                compareBy(collator) { song -> song.song.artists.joinToString("") { it.name } },
               )
               .groupBy { it.song.album?.title }
               .flatMap { (_, songsByAlbum) ->

@@ -62,7 +62,8 @@ data class PlaylistPage(
             ?.text
             ?.runs
             ?.firstOrNull()
-            ?.text?.let(ApiText::clean) ?: return null,
+            ?.text
+            ?.let(ApiText::clean) ?: return null,
         artists =
           secondaryLineRuns
             ?.firstOrNull()
@@ -84,7 +85,7 @@ data class PlaylistPage(
             ?.let {
               Album(
                 name = ApiText.clean(it.text),
-                id = it.navigationEndpoint?.browseEndpoint?.browseId ?: return@let null
+                id = it.navigationEndpoint?.browseEndpoint?.browseId ?: return@let null,
               )
             },
         duration =
@@ -129,7 +130,7 @@ data class PlaylistPage(
               ?.watchEndpoint
               ?.playlistSetVideoId,
         libraryAddToken = libraryTokens.addToken,
-        libraryRemoveToken = libraryTokens.removeToken
+        libraryRemoveToken = libraryTokens.removeToken,
       )
     }
   }

@@ -30,14 +30,14 @@ fun RandomizeGridItem(isLoading: Boolean, onClick: () -> Unit, modifier: Modifie
     animateFloatAsState(
       targetValue = if (isLoading) 0f else 1f,
       animationSpec = tween(durationMillis = 600),
-      label = "dotOffset"
+      label = "dotOffset",
     )
 
   val loadingAlpha by
     animateFloatAsState(
       targetValue = if (isLoading) 1f else 0f,
       animationSpec = tween(durationMillis = 400),
-      label = "loadingAlpha"
+      label = "loadingAlpha",
     )
 
   Box(
@@ -47,7 +47,7 @@ fun RandomizeGridItem(isLoading: Boolean, onClick: () -> Unit, modifier: Modifie
         .clip(RoundedCornerShape(ThumbnailCornerRadius))
         .background(MaterialTheme.colorScheme.surfaceContainerHigh)
         .clickable(onClick = onClick),
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     val dotColor = MaterialTheme.colorScheme.onSurface
     val dotSize = 14.dp
@@ -59,7 +59,7 @@ fun RandomizeGridItem(isLoading: Boolean, onClick: () -> Unit, modifier: Modifie
           .offset(x = -padding * dotOffsetMultiplier, y = -padding * dotOffsetMultiplier)
           .size(dotSize)
           .clip(CircleShape)
-          .background(dotColor)
+          .background(dotColor),
     )
 
     Box(
@@ -68,12 +68,12 @@ fun RandomizeGridItem(isLoading: Boolean, onClick: () -> Unit, modifier: Modifie
           .offset(x = padding * dotOffsetMultiplier, y = -padding * dotOffsetMultiplier)
           .size(dotSize)
           .clip(CircleShape)
-          .background(dotColor)
+          .background(dotColor),
     )
 
     Box(
       modifier =
-        Modifier.align(Alignment.Center).size(dotSize).clip(CircleShape).background(dotColor)
+        Modifier.align(Alignment.Center).size(dotSize).clip(CircleShape).background(dotColor),
     )
 
     Box(
@@ -82,7 +82,7 @@ fun RandomizeGridItem(isLoading: Boolean, onClick: () -> Unit, modifier: Modifie
           .offset(x = -padding * dotOffsetMultiplier, y = padding * dotOffsetMultiplier)
           .size(dotSize)
           .clip(CircleShape)
-          .background(dotColor)
+          .background(dotColor),
     )
 
     Box(
@@ -91,7 +91,7 @@ fun RandomizeGridItem(isLoading: Boolean, onClick: () -> Unit, modifier: Modifie
           .offset(x = padding * dotOffsetMultiplier, y = padding * dotOffsetMultiplier)
           .size(dotSize)
           .clip(CircleShape)
-          .background(dotColor)
+          .background(dotColor),
     )
 
     Box(modifier = Modifier.alpha(loadingAlpha)) {

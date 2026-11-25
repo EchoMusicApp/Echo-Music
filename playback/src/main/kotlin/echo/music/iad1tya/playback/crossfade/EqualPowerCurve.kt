@@ -5,9 +5,8 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Computes constant acoustic power volume curves using equal-power sine/cosine.
- * Outgoing: cos(t * PI / 2)
- * Incoming: sin(t * PI / 2)
+ * Computes constant acoustic power volume curves using equal-power sine/cosine. Outgoing: cos(t *
+ * PI / 2) Incoming: sin(t * PI / 2)
  *
  * Guaranteed: cos^2 + sin^2 = 1.0 (constant acoustic power, eliminating center volume dip).
  */

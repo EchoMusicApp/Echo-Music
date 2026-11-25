@@ -54,11 +54,11 @@ class PlaylistNavigationTest {
   fun normalPlaylistUrlPreservesCompleteId() {
     assertEquals(
       "PLabc_123-xyz",
-      onlinePlaylistIdFromUrl(" https://music.youtube.com/playlist?si=share&list=PLabc_123-xyz ")
+      onlinePlaylistIdFromUrl(" https://music.youtube.com/playlist?si=share&list=PLabc_123-xyz "),
     )
     assertEquals(
       "PLabc_123-xyz",
-      onlinePlaylistIdFromUrl("https://www.youtube.com/playlist?list=PLabc_123-xyz&si=share")
+      onlinePlaylistIdFromUrl("https://www.youtube.com/playlist?list=PLabc_123-xyz&si=share"),
     )
   }
 
@@ -71,7 +71,7 @@ class PlaylistNavigationTest {
     val route = onlinePlaylistRoute(onlinePlaylistIdFromUrl(url))!!
     assertEquals(
       "online_playlist/PLabc%2Fpart%3Fx%3D1%26y%3D2%23fragment%20%2B%252F",
-      route
+      route,
     )
     assertEquals(id, URLDecoder.decode(route.substringAfter('/'), StandardCharsets.UTF_8.name()))
   }
@@ -82,7 +82,7 @@ class PlaylistNavigationTest {
       listOf(null, 0, 10).forEach { remoteSongCount ->
         assertEquals(
           "local_playlist/LPabcdefgh",
-          libraryPlaylistRoute("LPabcdefgh", browseId, false, 0, remoteSongCount)
+          libraryPlaylistRoute("LPabcdefgh", browseId, false, 0, remoteSongCount),
         )
       }
     }
@@ -93,7 +93,7 @@ class PlaylistNavigationTest {
     listOf(null, 10).forEach { remoteSongCount ->
       assertEquals(
         "online_playlist/PLabc_123-xyz",
-        libraryPlaylistRoute("LPabcdefgh", "PLabc_123-xyz", false, 0, remoteSongCount)
+        libraryPlaylistRoute("LPabcdefgh", "PLabc_123-xyz", false, 0, remoteSongCount),
       )
     }
   }
@@ -102,15 +102,15 @@ class PlaylistNavigationTest {
   fun editablePopulatedAndZeroRemoteCountPlaylistsStayLocal() {
     assertEquals(
       "local_playlist/LPabcdefgh",
-      libraryPlaylistRoute("LPabcdefgh", "PLabc", true, 0, 10)
+      libraryPlaylistRoute("LPabcdefgh", "PLabc", true, 0, 10),
     )
     assertEquals(
       "local_playlist/LPabcdefgh",
-      libraryPlaylistRoute("LPabcdefgh", "PLabc", false, 1, 10)
+      libraryPlaylistRoute("LPabcdefgh", "PLabc", false, 1, 10),
     )
     assertEquals(
       "local_playlist/LPabcdefgh",
-      libraryPlaylistRoute("LPabcdefgh", "PLabc", false, 0, 0)
+      libraryPlaylistRoute("LPabcdefgh", "PLabc", false, 0, 0),
     )
   }
 }

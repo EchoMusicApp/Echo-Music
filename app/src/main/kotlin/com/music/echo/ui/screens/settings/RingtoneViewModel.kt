@@ -22,7 +22,7 @@ data class RingtoneUiState(
   val statusMessage: String = "",
   val isComplete: Boolean = false,
   val isSuccess: Boolean = false,
-  val ringtoneUri: Uri? = null
+  val ringtoneUri: Uri? = null,
 )
 
 class RingtoneViewModel : ViewModel() {
@@ -36,7 +36,7 @@ class RingtoneViewModel : ViewModel() {
         targetSongId = songId,
         targetSongTitle = title,
         targetSongArtist = artist,
-        targetSongDuration = durationSeconds * 1000L
+        targetSongDuration = durationSeconds * 1000L,
       )
     }
   }
@@ -64,7 +64,7 @@ class RingtoneViewModel : ViewModel() {
         statusMessage = "Starting...",
         isComplete = false,
         isSuccess = false,
-        ringtoneUri = null
+        ringtoneUri = null,
       )
     }
 
@@ -85,10 +85,10 @@ class RingtoneViewModel : ViewModel() {
               isComplete = true,
               isSuccess = success,
               statusMessage = message,
-              ringtoneUri = uri
+              ringtoneUri = uri,
             )
           }
-        }
+        },
       )
     }
   }

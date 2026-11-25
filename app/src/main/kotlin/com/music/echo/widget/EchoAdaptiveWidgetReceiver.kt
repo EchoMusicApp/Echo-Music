@@ -2,6 +2,7 @@
 package echo.music.iad1tya.widget
 
 /**
- * AppWidgetProvider for Echo Adaptive Player (2-in-1 widget: compact controls that expands to show upcoming songs queue).
+ * AppWidgetProvider for Echo Adaptive Player (2-in-1 widget: compact controls that expands to show
+ * upcoming songs queue).
  */
 class EchoAdaptiveWidgetReceiver : MusicWidgetReceiver()

@@ -21,9 +21,14 @@ class MusicFlowQueue(
   override val preloadItem: MediaMetadata? = null
 
   override suspend fun getInitialStatus() =
-    Queue.Status(title, items.map { it.song.toMediaItem() }, startIndex.coerceIn(0, (items.size - 1).coerceAtLeast(0)))
+    Queue.Status(
+      title,
+      items.map { it.song.toMediaItem() },
+      startIndex.coerceIn(0, (items.size - 1).coerceAtLeast(0)),
+    )
 
-  override fun hasNextPage(): Boolean = session.generation == generation && session.state.value.hasMore
+  override fun hasNextPage(): Boolean =
+    session.generation == generation && session.state.value.hasMore
 
   override suspend fun nextPage(): List<MediaItem> {
     if (session.generation != generation) return emptyList()

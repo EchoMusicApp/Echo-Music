@@ -23,7 +23,7 @@ data class BrowseResponse(
   val header: Header?,
   val microformat: Microformat?,
   val responseContext: ResponseContext,
-  val background: ThumbnailRenderer?
+  val background: ThumbnailRenderer?,
 ) {
   @Serializable
   data class Contents(
@@ -48,7 +48,7 @@ data class BrowseResponse(
     val sectionListContinuation: SectionListContinuation?,
     val musicPlaylistShelfContinuation: MusicPlaylistShelfContinuation?,
     val gridContinuation: GridContinuation?,
-    val musicShelfContinuation: MusicShelfRenderer?
+    val musicShelfContinuation: MusicShelfRenderer?,
   ) {
     @Serializable
     data class SectionListContinuation(

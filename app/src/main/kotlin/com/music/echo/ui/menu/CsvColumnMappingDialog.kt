@@ -181,7 +181,7 @@ fun CsvColumnMappingDialog(
                 titleColumnIndex = titleColumnIndex,
                 urlColumnIndex = urlColumnIndex,
                 hasHeader = hasHeader,
-              )
+              ),
             )
           },
         ) {
@@ -274,7 +274,7 @@ fun CsvImportProgressDialog(
       DialogProperties(
         usePlatformDefaultWidth = false,
         dismissOnBackPress = false,
-        dismissOnClickOutside = false
+        dismissOnClickOutside = false,
       ),
   ) {
     Column(

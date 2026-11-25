@@ -35,15 +35,14 @@ class SleepTimer(
     } else {
       pauseWhenSongEnd = false
       triggerTime = System.currentTimeMillis() + minute.minutes.inWholeMilliseconds
-      sleepTimerJob =
-        scope.launch {
-          val delayTime = triggerTime - System.currentTimeMillis()
-          if (delayTime > 0) {
-            delay(delayTime)
-          }
-          fadeOutAndPause()
-          triggerTime = -1L
+      sleepTimerJob = scope.launch {
+        val delayTime = triggerTime - System.currentTimeMillis()
+        if (delayTime > 0) {
+          delay(delayTime)
         }
+        fadeOutAndPause()
+        triggerTime = -1L
+      }
     }
   }
 

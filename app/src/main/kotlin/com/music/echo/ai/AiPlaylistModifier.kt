@@ -36,7 +36,7 @@ object AiPlaylistModifier {
     playlistId: String,
     currentSongs: List<PlaylistSong>,
     userPrompt: String,
-    onLog: suspend (String) -> Unit
+    onLog: suspend (String) -> Unit,
   ) =
     withContext(Dispatchers.IO) {
       val database = InternalDatabase.newInstance(context)
@@ -54,7 +54,7 @@ object AiPlaylistModifier {
                   put("id", playlistSong.map.id)
                   put("title", playlistSong.song.song.title)
                   put("artist", playlistSong.song.artists.joinToString { it.name })
-                }
+                },
               )
             }
           }
@@ -94,7 +94,7 @@ object AiPlaylistModifier {
           val baseUrl =
             context.dataStore.get(
               OpenRouterBaseUrlKey,
-              "https://openrouter.ai/api/v1/chat/completions"
+              "https://openrouter.ai/api/v1/chat/completions",
             )
           val model = context.dataStore.get(OpenRouterModelKey, "openrouter/free")
 
@@ -119,15 +119,15 @@ object AiPlaylistModifier {
                       JSONObject().apply {
                         put("role", "system")
                         put("content", systemPrompt)
-                      }
+                      },
                     )
                     put(
                       JSONObject().apply {
                         put("role", "user")
                         put("content", userPrompt)
-                      }
+                      },
                     )
-                  }
+                  },
                 )
               }
               .toString()
@@ -217,15 +217,15 @@ object AiPlaylistModifier {
                 id = songItem.id,
                 title = songItem.title,
                 duration = songItem.duration ?: 0,
-                thumbnailUrl = songItem.thumbnail
+                thumbnailUrl = songItem.thumbnail,
               )
             database.upsert(songEntity)
             database.insert(
               PlaylistSongMap(
                 playlistId = playlistId,
                 songId = songItem.id,
-                position = maxPosition + 1 + index
-              )
+                position = maxPosition + 1 + index,
+              ),
             )
           }
         } else {

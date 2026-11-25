@@ -37,12 +37,13 @@ class DspControllerTest {
   @Test
   fun testApplyProfileAndDisable() {
     val trio = controller.createProcessors()
-    val profile = SavedEQProfile(
-      id = "test_profile",
-      name = "Test Profile",
-      preamp = -2.0,
-      bands = emptyList()
-    )
+    val profile =
+      SavedEQProfile(
+        id = "test_profile",
+        name = "Test Profile",
+        preamp = -2.0,
+        bands = emptyList(),
+      )
 
     val result = controller.applyProfile(profile)
     assertTrue(result.isSuccess)

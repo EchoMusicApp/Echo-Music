@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 data class PlayerDspProcessors(
   val equalizer: CustomEqualizerAudioProcessor,
   val duckProcessor: AutomixDuckAudioProcessor,
-  val stereoWidener: StereoWidenerAudioProcessor
+  val stereoWidener: StereoWidenerAudioProcessor,
 ) {
   fun asList(): List<AudioProcessor> = listOf(equalizer, duckProcessor, stereoWidener)
 }
@@ -23,26 +23,38 @@ interface DspController {
   /** Returns list of all configured DSP processors for ExoPlayer audio chain */
   fun getAudioProcessors(): List<AudioProcessor>
 
-  /** Factory for creating and registering a synchronized trio of processors for an ExoPlayer pipeline */
+  /**
+   * Factory for creating and registering a synchronized trio of processors for an ExoPlayer
+   * pipeline
+   */
   fun createProcessors(): PlayerDspProcessors
 
   /** Unregisters processors when an ExoPlayer instance is released */
   fun releaseProcessors(processors: PlayerDspProcessors)
 
   fun addAudioProcessor(processor: CustomEqualizerAudioProcessor)
+
   fun removeAudioProcessor(processor: CustomEqualizerAudioProcessor)
 
   fun addStereoWidener(processor: StereoWidenerAudioProcessor)
+
   fun removeStereoWidener(processor: StereoWidenerAudioProcessor)
 
   fun addDuckProcessor(processor: AutomixDuckAudioProcessor)
+
   fun removeDuckProcessor(processor: AutomixDuckAudioProcessor)
 
   fun applyProfile(profile: SavedEQProfile): Result<Unit>
+
   fun disable()
+
   fun disableEqualizer()
+
   fun setStereoWidth(width: Float)
+
   fun setAutoMixDuck(duckFactor: Float)
+
   fun isInitialized(): Boolean
+
   fun release()
 }

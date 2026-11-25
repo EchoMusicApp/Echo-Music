@@ -3,7 +3,6 @@ package echo.music.iad1tya.lyrics
 import android.content.Context
 import android.util.LruCache
 import dagger.hilt.android.qualifiers.ApplicationContext
-import echo.music.iad1tya.constants.FetchFasterLyricsKey
 import echo.music.iad1tya.constants.LyricsProviderOrderKey
 import echo.music.iad1tya.db.entities.LyricsEntity.Companion.LYRICS_NOT_FOUND
 import echo.music.iad1tya.models.MediaMetadata
@@ -26,7 +25,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -186,23 +184,21 @@ constructor(
     val providers = resolveLyricsProviders()
     currentLyricsJob =
       CoroutineScope(SupervisorJob()).launch {
-        val jobs =
-          providers.mapNotNull { provider ->
-            if (provider.isEnabled(context)) {
-              launch {
-                try {
-                  provider.getAllLyrics(mediaId, songTitle, songArtists, duration, album) { lyrics
-                    ->
-                    val result = LyricsResult(provider.name, lyrics)
-                    allResult += result
-                    callback(result)
-                  }
-                } catch (e: Exception) {
-                  reportException(e)
+        val jobs = providers.mapNotNull { provider ->
+          if (provider.isEnabled(context)) {
+            launch {
+              try {
+                provider.getAllLyrics(mediaId, songTitle, songArtists, duration, album) { lyrics ->
+                  val result = LyricsResult(provider.name, lyrics)
+                  allResult += result
+                  callback(result)
                 }
+              } catch (e: Exception) {
+                reportException(e)
               }
-            } else null
-          }
+            }
+          } else null
+        }
         jobs.forEach { it.join() }
         cache.put(cacheKey, allResult.toList())
       }

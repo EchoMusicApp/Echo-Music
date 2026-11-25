@@ -37,7 +37,7 @@ data class SongEntity(
   @ColumnInfo(defaultValue = "0") val isDownloaded: Boolean = false,
   @ColumnInfo(name = "isUploaded", defaultValue = false.toString()) val isUploaded: Boolean = false,
   @ColumnInfo(name = "isVideo", defaultValue = false.toString()) val isVideo: Boolean = false,
-  @ColumnInfo(defaultValue = "0") val hideFromQuickPicks: Boolean = false
+  @ColumnInfo(defaultValue = "0") val hideFromQuickPicks: Boolean = false,
 ) {
   fun localToggleLike() =
     copy(
@@ -49,7 +49,7 @@ data class SongEntity(
     copy(
         liked = !liked,
         likedDate = if (!liked) LocalDateTime.now() else null,
-        inLibrary = if (!liked) inLibrary ?: LocalDateTime.now() else inLibrary
+        inLibrary = if (!liked) inLibrary ?: LocalDateTime.now() else inLibrary,
       )
       .also { CoroutineScope(Dispatchers.IO).launch { YouTube.likeVideo(id, !liked) } }
 
@@ -57,7 +57,7 @@ data class SongEntity(
     copy(
         liked = if (inLibrary == null) liked else false,
         inLibrary = if (inLibrary == null) LocalDateTime.now() else null,
-        likedDate = if (inLibrary == null) likedDate else null
+        likedDate = if (inLibrary == null) likedDate else null,
       )
       .also {
         if (syncToYouTube) {

@@ -77,7 +77,7 @@ fun YouTubeSelectionSongMenu(
           songSelection.all { song ->
             val metadata = song.toMediaMetadata()
             metadata.liked
-          }
+          },
       )
     }
 
@@ -87,7 +87,7 @@ fun YouTubeSelectionSongMenu(
         songSelection.all { song ->
           val metadata = song.toMediaMetadata()
           metadata.inLibrary != null
-        }
+        },
       )
     }
 
@@ -132,13 +132,13 @@ fun YouTubeSelectionSongMenu(
                   inLibrary = metadata.inLibrary,
                   isLocal = false,
                   libraryAddToken = metadata.libraryAddToken,
-                  libraryRemoveToken = metadata.libraryRemoveToken
+                  libraryRemoveToken = metadata.libraryRemoveToken,
                 ),
               artists =
                 metadata.artists.map { artist ->
                   echo.music.iad1tya.db.entities.ArtistEntity(
                     id = artist.id ?: "",
-                    name = artist.name
+                    name = artist.name,
                   )
                 },
               album =
@@ -148,9 +148,9 @@ fun YouTubeSelectionSongMenu(
                     title = album.title,
                     thumbnailUrl = metadata.thumbnailUrl,
                     songCount = 0,
-                    duration = 0
+                    duration = 0,
                   )
-                }
+                },
             )
           }
           .toMutableStateList()
@@ -272,15 +272,15 @@ fun YouTubeSelectionSongMenu(
               Text(
                 text =
                   stringResource(
-                    if (allInLibrary) R.string.remove_from_library else R.string.add_to_library
-                  )
+                    if (allInLibrary) R.string.remove_from_library else R.string.add_to_library,
+                  ),
               )
             },
             icon = {
               Icon(
                 painter =
                   painterResource(
-                    if (allInLibrary) R.drawable.library_add_check else R.drawable.library_add
+                    if (allInLibrary) R.drawable.library_add_check else R.drawable.library_add,
                   ),
                 contentDescription = null,
               )
@@ -306,7 +306,7 @@ fun YouTubeSelectionSongMenu(
               }
               clearAction()
               onDismiss()
-            }
+            },
           ),
           when (downloadState) {
             Download.STATE_COMPLETED -> {
@@ -315,7 +315,7 @@ fun YouTubeSelectionSongMenu(
                 icon = {
                   Icon(painter = painterResource(R.drawable.offline), contentDescription = null)
                 },
-                onClick = { showRemoveDownloadDialog = true }
+                onClick = { showRemoveDownloadDialog = true },
               )
             }
             Download.STATE_QUEUED,
@@ -325,7 +325,7 @@ fun YouTubeSelectionSongMenu(
                 icon = {
                   CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                 },
-                onClick = { showRemoveDownloadDialog = true }
+                onClick = { showRemoveDownloadDialog = true },
               )
             }
             else -> {
@@ -353,7 +353,7 @@ fun YouTubeSelectionSongMenu(
                   }
                   clearAction()
                   onDismiss()
-                }
+                },
               )
             }
           },
@@ -365,7 +365,7 @@ fun YouTubeSelectionSongMenu(
               Icon(
                 painter =
                   painterResource(
-                    if (allLiked) R.drawable.favorite else R.drawable.favorite_border
+                    if (allLiked) R.drawable.favorite else R.drawable.favorite_border,
                   ),
                 contentDescription = null,
               )
@@ -391,7 +391,7 @@ fun YouTubeSelectionSongMenu(
                         inLibrary = metadata.inLibrary,
                         isLocal = false,
                         libraryAddToken = metadata.libraryAddToken,
-                        libraryRemoveToken = metadata.libraryRemoveToken
+                        libraryRemoveToken = metadata.libraryRemoveToken,
                       )
                     update(songEntity)
                     syncUtils.likeSong(songEntity)
@@ -400,8 +400,8 @@ fun YouTubeSelectionSongMenu(
               }
               clearAction()
               onDismiss()
-            }
-          )
+            },
+          ),
         ),
       )
     }

@@ -90,7 +90,7 @@ fun CastButton(
             }
           }
           .padding(horizontal = 16.dp, vertical = 12.dp),
-      verticalAlignment = Alignment.CenterVertically
+      verticalAlignment = Alignment.CenterVertically,
     ) {
       Image(
         painter = painterResource(if (isCasting) deviceType.connectedIcon else R.drawable.cast),
@@ -99,8 +99,8 @@ fun CastButton(
         colorFilter =
           ColorFilter.tint(
             if (isCasting) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onSurface
-          )
+            else MaterialTheme.colorScheme.onSurface,
+          ),
       )
       Spacer(modifier = Modifier.width(16.dp))
       Text(
@@ -110,7 +110,7 @@ fun CastButton(
           } else {
             "Cast to..."
           },
-        style = MaterialTheme.typography.titleMedium
+        style = MaterialTheme.typography.titleMedium,
       )
     }
   } else {
@@ -123,9 +123,9 @@ fun CastButton(
             .background(
               brush =
                 Brush.radialGradient(
-                  colors = listOf(Color.Black.copy(alpha = 0.4f), Color.Transparent)
-                )
-            )
+                  colors = listOf(Color.Black.copy(alpha = 0.4f), Color.Transparent),
+                ),
+            ),
       )
 
       // Cast button
@@ -138,14 +138,14 @@ fun CastButton(
             } else {
               showPicker()
             }
-          }
+          },
       ) {
         Image(
           painter = painterResource(if (isCasting) deviceType.connectedIcon else R.drawable.cast),
           contentDescription = if (isCasting) "Stop casting" else "Cast",
           colorFilter =
             ColorFilter.tint(if (isCasting) MaterialTheme.colorScheme.primary else tintColor),
-          modifier = Modifier.size(24.dp)
+          modifier = Modifier.size(24.dp),
         )
       }
     }

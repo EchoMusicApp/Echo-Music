@@ -51,12 +51,12 @@ data class ArtistPage(
             ?.getItems()
             ?.mapNotNull { fromMusicResponsiveListItemRenderer(it) }
             ?.ifEmpty { null } ?: return null,
-        moreEndpoint = renderer.title?.runs?.firstOrNull()?.navigationEndpoint?.browseEndpoint
+        moreEndpoint = renderer.title?.runs?.firstOrNull()?.navigationEndpoint?.browseEndpoint,
       )
     }
 
     private fun fromMusicCarouselShelfRenderer(
-      renderer: MusicCarouselShelfRenderer
+      renderer: MusicCarouselShelfRenderer,
     ): ArtistSection? {
       return ArtistSection(
         title =
@@ -77,12 +77,12 @@ data class ArtistPage(
           renderer.header.musicCarouselShelfBasicHeaderRenderer.moreContentButton
             ?.buttonRenderer
             ?.navigationEndpoint
-            ?.browseEndpoint
+            ?.browseEndpoint,
       )
     }
 
     private fun fromMusicResponsiveListItemRenderer(
-      renderer: MusicResponsiveListItemRenderer
+      renderer: MusicResponsiveListItemRenderer,
     ): SongItem? {
       // Split the secondary line by bullet separator to separate artists from other metadata (like
       // views)
@@ -97,7 +97,10 @@ data class ArtistPage(
       // Extract artists from the first segment after splitting
       val artists =
         secondaryLineRuns?.firstOrNull()?.oddElements()?.map {
-          Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+          Artist(
+            name = ApiText.clean(it.text),
+            id = it.navigationEndpoint?.browseEndpoint?.browseId,
+          )
         }
 
       // Extract album from last flexColumn (like SimpMusic)
@@ -110,7 +113,10 @@ data class ArtistPage(
           ?.firstOrNull()
           ?.let {
             if (it.navigationEndpoint?.browseEndpoint?.browseId != null) {
-              Album(name = ApiText.clean(it.text), id = it.navigationEndpoint.browseEndpoint.browseId)
+              Album(
+                name = ApiText.clean(it.text),
+                id = it.navigationEndpoint.browseEndpoint.browseId,
+              )
             } else null
           }
 
@@ -146,7 +152,8 @@ data class ArtistPage(
             ?.text
             ?.runs
             ?.firstOrNull()
-            ?.text?.let(ApiText::clean) ?: return null,
+            ?.text
+            ?.let(ApiText::clean) ?: return null,
         artists = artists ?: return null,
         album = album,
         duration = null,
@@ -164,7 +171,7 @@ data class ArtistPage(
             ?.playNavigationEndpoint
             ?.watchEndpoint,
         libraryAddToken = libraryTokens.addToken,
-        libraryRemoveToken = libraryTokens.removeToken
+        libraryRemoveToken = libraryTokens.removeToken,
       )
     }
 
@@ -182,11 +189,15 @@ data class ArtistPage(
                     it.navigationEndpoint?.browseEndpoint != null
                 }
                 .map {
-                  Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                  Artist(
+                    name = ApiText.clean(it.text),
+                    id = it.navigationEndpoint?.browseEndpoint?.browseId,
+                  )
                 }
                 .ifEmpty {
-                  subtitleRuns.firstOrNull()?.let { listOf(Artist(name = ApiText.clean(it.text), id = null)) }
-                    ?: emptyList()
+                  subtitleRuns.firstOrNull()?.let {
+                    listOf(Artist(name = ApiText.clean(it.text), id = null))
+                  } ?: emptyList()
                 },
             album = null,
             duration = null,
@@ -196,7 +207,7 @@ data class ArtistPage(
             explicit =
               renderer.subtitleBadges?.find {
                 it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
-              } != null
+              } != null,
           )
         }
         renderer.isAlbum -> {
@@ -218,7 +229,7 @@ data class ArtistPage(
             explicit =
               renderer.subtitleBadges?.find {
                 it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
-              } != null
+              } != null,
           )
         }
         renderer.isPlaylist -> {
@@ -229,7 +240,11 @@ data class ArtistPage(
                 ?: return null,
             title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             author =
-              Artist(name = renderer.subtitle?.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null, id = null),
+              Artist(
+                name =
+                  renderer.subtitle?.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
+                id = null,
+              ),
             songCountText = null,
             thumbnail =
               renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
@@ -253,7 +268,7 @@ data class ArtistPage(
                 .find { it.menuNavigationItemRenderer?.icon?.iconType == "MIX" }
                 ?.menuNavigationItemRenderer
                 ?.navigationEndpoint
-                ?.watchPlaylistEndpoint ?: return null
+                ?.watchPlaylistEndpoint ?: return null,
           )
         }
         renderer.isArtist -> {

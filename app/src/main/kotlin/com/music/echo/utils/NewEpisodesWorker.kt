@@ -32,9 +32,9 @@ import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
 /**
- * Checks the followed podcast shows and notifies about episodes published since the last check.
- * A show's first check only records its latest episode, so following one does not notify about
- * what was already out.
+ * Checks the followed podcast shows and notifies about episodes published since the last check. A
+ * show's first check only records its latest episode, so following one does not notify about what
+ * was already out.
  */
 class NewEpisodesWorker(appContext: Context, workerParams: WorkerParameters) :
   CoroutineWorker(appContext, workerParams) {
@@ -92,7 +92,7 @@ class NewEpisodesWorker(appContext: Context, workerParams: WorkerParameters) :
           CHANNEL_ID,
           applicationContext.getString(R.string.new_episodes),
           NotificationManager.IMPORTANCE_DEFAULT,
-        )
+        ),
       )
     }
     // MainActivity opens playlist links, and a show is a playlist.
@@ -133,7 +133,7 @@ class NewEpisodesWorker(appContext: Context, workerParams: WorkerParameters) :
         val request =
           PeriodicWorkRequestBuilder<NewEpisodesWorker>(6, TimeUnit.HOURS)
             .setConstraints(
-              Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+              Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
             )
             .build()
         WorkManager.getInstance(context)

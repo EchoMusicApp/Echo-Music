@@ -22,8 +22,8 @@ class LocalAlbumArtFetcher(
     val albumUri = ContentUris.withAppendedId(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumId)
     val bitmap =
       runCatching {
-          options.context.contentResolver.loadThumbnail(albumUri, Size(SIZE, SIZE), null)
-        }
+        options.context.contentResolver.loadThumbnail(albumUri, Size(SIZE, SIZE), null)
+      }
         .getOrNull() ?: return null
     return ImageFetchResult(
       image = bitmap.asImage(),

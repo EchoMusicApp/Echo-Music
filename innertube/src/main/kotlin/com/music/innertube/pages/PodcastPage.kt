@@ -5,11 +5,11 @@ import com.music.innertube.models.Artist
 import com.music.innertube.models.MusicMultiRowListItemRenderer
 import com.music.innertube.models.MusicResponsiveListItemRenderer
 import com.music.innertube.models.MusicTwoRowItemRenderer
-import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.PODCAST_BROWSE_PREFIX
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.Run
 import com.music.innertube.models.SongItem
+import com.music.innertube.models.WatchEndpoint
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import com.music.innertube.utils.parseTime
 
@@ -30,8 +30,7 @@ object PodcastPage {
     browseId?.startsWith(PODCAST_BROWSE_PREFIX) == true
 
   /**
-   * An episode row. [show] is used when the row does not name its show, as on the show's own
-   * page.
+   * An episode row. [show] is used when the row does not name its show, as on the show's own page.
    */
   fun episode(renderer: MusicMultiRowListItemRenderer, show: Artist? = null): SongItem? {
     val watchEndpoint = renderer.onTap?.watchEndpoint ?: return null
@@ -40,14 +39,19 @@ object PodcastPage {
       title = renderer.title?.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
       artists = listOfNotNull(renderer.secondTitle?.runs?.firstOrNull()?.toArtist() ?: show),
       duration =
-        renderer.playbackProgress?.musicPlaybackProgressRenderer?.durationText?.runs?.let(
-          ::parseDuration
-        ),
+        renderer.playbackProgress
+          ?.musicPlaybackProgressRenderer
+          ?.durationText
+          ?.runs
+          ?.let(
+            ::parseDuration,
+          ),
       musicVideoType = MUSIC_VIDEO_TYPE_PODCAST_EPISODE,
       thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
       endpoint = watchEndpoint,
       // "271K views • 19 dic 2025": the date is the last part.
-      publishedText = renderer.subtitle?.runs?.lastOrNull()?.text?.trim()?.takeIf { it.isNotEmpty() },
+      publishedText =
+        renderer.subtitle?.runs?.lastOrNull()?.text?.trim()?.takeIf { it.isNotEmpty() },
       playedPercent =
         renderer.playbackProgress?.musicPlaybackProgressRenderer?.playbackProgressPercentage,
       description =
@@ -57,12 +61,13 @@ object PodcastPage {
 
   /**
    * An episode card on Home ("Listen again"): it opens the episode's page, whose id is the
-   * episode's video id after [EPISODE_BROWSE_PREFIX]. These cards were dropped, so a shelf of
-   * four items showed two.
+   * episode's video id after [EPISODE_BROWSE_PREFIX]. These cards were dropped, so a shelf of four
+   * items showed two.
    */
   fun episode(renderer: MusicTwoRowItemRenderer): SongItem? {
     val browse = renderer.navigationEndpoint.browseEndpoint ?: return null
-    val pageType = browse.browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType
+    val pageType =
+      browse.browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType
     if (pageType != "MUSIC_PAGE_TYPE_NON_MUSIC_AUDIO_TRACK_PAGE") return null
     val playEndpoint =
       renderer.thumbnailOverlay
@@ -73,7 +78,9 @@ object PodcastPage {
         ?.watchEndpoint
     val videoId =
       playEndpoint?.videoId
-        ?: browse.browseId.takeIf { it.startsWith(EPISODE_BROWSE_PREFIX) }?.removePrefix(EPISODE_BROWSE_PREFIX)
+        ?: browse.browseId
+          .takeIf { it.startsWith(EPISODE_BROWSE_PREFIX) }
+          ?.removePrefix(EPISODE_BROWSE_PREFIX)
         ?: return null
     val subtitle = renderer.subtitle?.runs.orEmpty()
     // "54 minutes left • show": the show is the part that links to it, or the last one.
@@ -191,8 +198,9 @@ object PodcastPage {
           ?.let(ApiText::clean) ?: return null,
       artists =
         listOfNotNull(
-          secondLine.firstOrNull { isShowBrowseId(it.navigationEndpoint?.browseEndpoint?.browseId) }
-            ?.toArtist()
+          secondLine
+            .firstOrNull { isShowBrowseId(it.navigationEndpoint?.browseEndpoint?.browseId) }
+            ?.toArtist(),
         ),
       musicVideoType = MUSIC_VIDEO_TYPE_PODCAST_EPISODE,
       thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,

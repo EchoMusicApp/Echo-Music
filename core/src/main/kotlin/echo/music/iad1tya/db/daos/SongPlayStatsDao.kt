@@ -14,10 +14,11 @@ interface SongPlayStatsDao {
   @Query("SELECT * FROM song_play_stats WHERE trackKey IN (:trackKeys)")
   suspend fun findByKeys(trackKeys: List<String>): List<SongPlayStatsEntity>
 
-  @Upsert
-  suspend fun upsert(entity: SongPlayStatsEntity)
+  @Upsert suspend fun upsert(entity: SongPlayStatsEntity)
 
-  @Query("SELECT * FROM song_play_stats WHERE lastPlayedAtMillis >= :sinceMillis ORDER BY totalPlayTimeMs DESC LIMIT :limit")
+  @Query(
+    "SELECT * FROM song_play_stats WHERE lastPlayedAtMillis >= :sinceMillis ORDER BY totalPlayTimeMs DESC LIMIT :limit",
+  )
   suspend fun mostPlayedSince(sinceMillis: Long, limit: Int): List<SongPlayStatsEntity>
 
   /** One page of eligible automatic-download candidates; trackKey breaks ties so paging is stable. */
@@ -30,9 +31,7 @@ interface SongPlayStatsDao {
   @Query("SELECT * FROM song_play_stats ORDER BY totalPlayTimeMs DESC LIMIT :limit")
   fun observeTopPlayed(limit: Int): Flow<List<SongPlayStatsEntity>>
 
-  @Query("SELECT trackKey FROM song_play_stats")
-  suspend fun getAllTrackKeys(): List<String>
+  @Query("SELECT trackKey FROM song_play_stats") suspend fun getAllTrackKeys(): List<String>
 
-  @Query("DELETE FROM song_play_stats")
-  suspend fun clearAll()
+  @Query("DELETE FROM song_play_stats") suspend fun clearAll()
 }

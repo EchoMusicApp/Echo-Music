@@ -41,7 +41,7 @@ class NewPipeDownloaderImpl(
               IpVersion.AUTO -> addresses
             }
           }
-        }
+        },
       )
       .proxySelector(
         object : ProxySelector() {
@@ -49,7 +49,7 @@ class NewPipeDownloaderImpl(
             listOfNotNull(YouTube.proxy ?: Proxy.NO_PROXY)
 
           override fun connectFailed(uri: URI?, sa: SocketAddress?, ioe: IOException?) {}
-        }
+        },
       )
       .proxyAuthenticator { _, response ->
         YouTube.proxyAuth?.let { auth ->
@@ -95,7 +95,7 @@ class NewPipeDownloaderImpl(
       response.message,
       response.headers.toMultimap(),
       responseBodyToReturn,
-      latestUrl
+      latestUrl,
     )
   }
 }
@@ -184,7 +184,7 @@ object NewPipeExtractor {
       val streamInfo =
         StreamInfo.getInfo(NewPipe.getService(0), "https://www.youtube.com/watch?v=$videoId")
       streamsList.addAll(
-        streamInfo.audioStreams + streamInfo.videoStreams + streamInfo.videoOnlyStreams
+        streamInfo.audioStreams + streamInfo.videoStreams + streamInfo.videoOnlyStreams,
       )
     } catch (e: Exception) {
       // Attempt 2 and 3 would theoretically use a different classloader or service ID,
@@ -209,7 +209,8 @@ object NewPipeExtractor {
       val streamInfo =
         StreamInfo.getInfo(NewPipe.getService(0), "https://www.youtube.com/watch?v=$videoId")
       val durationSec = streamInfo.duration
-      val videoStreams = (streamInfo.videoStreams + streamInfo.videoOnlyStreams).distinctBy { it.content }
+      val videoStreams =
+        (streamInfo.videoStreams + streamInfo.videoOnlyStreams).distinctBy { it.content }
 
       val isMp4 = { s: org.schabi.newpipe.extractor.stream.VideoStream ->
         val name = s.format?.name.orEmpty()
@@ -266,8 +267,8 @@ object NewPipeExtractor {
             height = h,
             videoUrl = url,
             audioUrl = null,
-            isMuxed = true
-          )
+            isMuxed = true,
+          ),
         )
       }
 
@@ -280,8 +281,8 @@ object NewPipeExtractor {
             height = h,
             videoUrl = url,
             audioUrl = bestAudio,
-            isMuxed = false
-          )
+            isMuxed = false,
+          ),
         )
       }
 
@@ -297,5 +298,5 @@ data class NewPipeVideoTrack(
   val height: Int,
   val videoUrl: String,
   val audioUrl: String? = null,
-  val isMuxed: Boolean = true
+  val isMuxed: Boolean = true,
 )

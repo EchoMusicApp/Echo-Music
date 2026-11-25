@@ -93,11 +93,11 @@ private constructor(
     Timber.tag(TAG).d("Initializing CipherWebView...")
     Timber.tag(TAG)
       .d(
-        "  sigInfo: name=${sigInfo?.name}, constantArg=${sigInfo?.constantArg}, hardcoded=${sigInfo?.isHardcoded}"
+        "  sigInfo: name=${sigInfo?.name}, constantArg=${sigInfo?.constantArg}, hardcoded=${sigInfo?.isHardcoded}",
       )
     Timber.tag(TAG)
       .d(
-        "  nFuncInfo: name=${nFuncInfo?.name}, arrayIdx=${nFuncInfo?.arrayIndex}, hardcoded=${nFuncInfo?.isHardcoded}"
+        "  nFuncInfo: name=${nFuncInfo?.name}, arrayIdx=${nFuncInfo?.arrayIndex}, hardcoded=${nFuncInfo?.isHardcoded}",
       )
 
     val settings = webView.settings
@@ -142,10 +142,10 @@ private constructor(
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
           Timber.tag(TAG)
             .e(
-              "=== RENDER PROCESS GONE === didCrash=${runCatching { detail.didCrash() }.getOrNull()}"
+              "=== RENDER PROCESS GONE === didCrash=${runCatching { detail.didCrash() }.getOrNull()}",
             )
           onRendererGone(
-            "WebView render process gone (didCrash=${runCatching { detail.didCrash() }.getOrNull()})"
+            "WebView render process gone (didCrash=${runCatching { detail.didCrash() }.getOrNull()})",
           )
           // Consume the event so the framework doesn't kill the app process.
           return true
@@ -173,8 +173,9 @@ private constructor(
   // Single-shot take — synchronized because JS-bridge callbacks arrive on a WebView-internal
   // thread while onRenderProcessGone/timeouts run on the main thread.
   @Synchronized
-  private fun takeInitContinuation(): Continuation<CipherWebView>? =
-    initContinuation.also { initContinuation = null }
+  private fun takeInitContinuation(): Continuation<CipherWebView>? = initContinuation.also {
+    initContinuation = null
+  }
 
   private inline fun <T> T.resumeSafely(block: (T) -> Unit) {
     // A continuation cancelled by withTimeout may already be completed; never let that
@@ -198,7 +199,7 @@ private constructor(
       html,
       "text/html",
       "utf-8",
-      null
+      null,
     )
     Timber.tag(TAG).d("WebView loading started...")
   }
@@ -543,7 +544,7 @@ function discoverAndInit() {
   private fun throwIfDead() {
     if (isDead) {
       throw CipherRendererGoneException(
-        "CipherWebView renderer is gone — instance must be recreated"
+        "CipherWebView renderer is gone — instance must be recreated",
       )
     }
   }
@@ -567,13 +568,13 @@ function discoverAndInit() {
     destroyed = true
     // After a render-process crash some WebView methods can throw — never let teardown crash.
     runCatching {
-        webView.clearHistory()
-        webView.clearCache(true)
-        webView.loadUrl("about:blank")
-        webView.onPause()
-        webView.removeAllViews()
-        webView.destroy()
-      }
+      webView.clearHistory()
+      webView.clearCache(true)
+      webView.loadUrl("about:blank")
+      webView.onPause()
+      webView.removeAllViews()
+      webView.destroy()
+    }
       .onFailure { Timber.tag(TAG).w("WebView teardown threw: $it") }
   }
 
@@ -627,7 +628,7 @@ function discoverAndInit() {
           val expr = sigJsExpr.replace("INPUT", "sig")
           Timber.tag(TAG).d("Sig: expression-based export: $expr")
           add(
-            "window._cipherSigFunc = function(sig) { try { return $expr; } catch(e) { return null; } };"
+            "window._cipherSigFunc = function(sig) { try { return $expr; } catch(e) { return null; } };",
           )
         } else if (sigFuncName != null) {
           val sigConstArgs = sigInfo?.constantArgs
@@ -644,7 +645,7 @@ function discoverAndInit() {
             Timber.tag(TAG).d("Sig function needs full wrapper:")
             Timber.tag(TAG).d("  $sigFuncName($mainArgsStr, $preprocessFunc($prepArgsStr, sig))")
             add(
-              "window._cipherSigFunc = function(sig) { return $sigFuncName($mainArgsStr, $preprocessFunc($prepArgsStr, sig)); };"
+              "window._cipherSigFunc = function(sig) { return $sigFuncName($mainArgsStr, $preprocessFunc($prepArgsStr, sig)); };",
             )
           } else if (!sigConstArgs.isNullOrEmpty()) {
             val argsStr = sigConstArgs.joinToString(", ")
@@ -653,11 +654,11 @@ function discoverAndInit() {
           } else if (isHardcoded) {
             Timber.tag(TAG).d("Will export sig function $sigFuncName in hardcoded mode (legacy)")
             add(
-              "window._cipherSigFunc = typeof $sigFuncName !== 'undefined' ? $sigFuncName : null;"
+              "window._cipherSigFunc = typeof $sigFuncName !== 'undefined' ? $sigFuncName : null;",
             )
           } else {
             add(
-              "window._cipherSigFunc = typeof $sigFuncName !== 'undefined' ? $sigFuncName : null;"
+              "window._cipherSigFunc = typeof $sigFuncName !== 'undefined' ? $sigFuncName : null;",
             )
           }
         }
@@ -667,7 +668,7 @@ function discoverAndInit() {
           val expr = nJsExpr.replace("INPUT", "n")
           Timber.tag(TAG).d("N: expression-based export: ${expr.take(80)}")
           add(
-            "window._nTransformFunc = function(n) { try { return $expr; } catch(e) { return n; } };"
+            "window._nTransformFunc = function(n) { try { return $expr; } catch(e) { return n; } };",
           )
         } else if (nFuncName != null) {
           val nConstArgs = nFuncInfo?.constantArgs
@@ -730,7 +731,7 @@ function discoverAndInit() {
           playerJsFile.writeText(modifiedJs)
           Timber.tag(TAG)
             .d(
-              "Player.js written to cache: ${playerJsFile.absolutePath} (${modifiedJs.length} chars)"
+              "Player.js written to cache: ${playerJsFile.absolutePath} (${modifiedJs.length} chars)",
             )
           dir
         }
@@ -749,11 +750,11 @@ function discoverAndInit() {
       } catch (e: TimeoutCancellationException) {
         Timber.tag(TAG)
           .e(
-            "CipherWebView init timed out after ${CREATE_TIMEOUT_MS}ms — treating renderer as gone"
+            "CipherWebView init timed out after ${CREATE_TIMEOUT_MS}ms — treating renderer as gone",
           )
         destroyQuietly(created)
         throw CipherRendererGoneException(
-          "CipherWebView init timed out after ${CREATE_TIMEOUT_MS}ms"
+          "CipherWebView init timed out after ${CREATE_TIMEOUT_MS}ms",
         )
       } catch (e: Exception) {
         // Covers both caller cancellation (CancellationException is rethrown, never

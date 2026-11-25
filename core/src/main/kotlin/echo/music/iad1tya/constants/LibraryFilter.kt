@@ -10,4 +10,3 @@ enum class LibraryFilter {
   SPOTIFY,
   PODCASTS,
 }
-

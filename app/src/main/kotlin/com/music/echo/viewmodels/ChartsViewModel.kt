@@ -43,7 +43,7 @@ class ChartsViewModel @Inject constructor() : ViewModel() {
             _chartsPage.value =
               _chartsPage.value?.copy(
                 sections = _chartsPage.value?.sections.orEmpty() + newPage.sections,
-                continuation = newPage.continuation
+                continuation = newPage.continuation,
               )
           }
           .onFailure { e -> _error.value = "Failed to load more: ${e.message}" }

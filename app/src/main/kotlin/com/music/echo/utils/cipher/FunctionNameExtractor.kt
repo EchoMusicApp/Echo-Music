@@ -21,7 +21,7 @@ object FunctionNameExtractor {
     val preprocessFunc: String? = null, // Preprocessing function e.g., f1
     val preprocessArgs: List<Int>? = null, // Preprocess args e.g., f1(1, 6528, sig) -> [1, 6528]
     val jsExpression: String? = null,
-    val isHardcoded: Boolean = false
+    val isHardcoded: Boolean = false,
   )
 
   data class NFunctionInfo(
@@ -29,7 +29,7 @@ object FunctionNameExtractor {
     val arrayIndex: Int?, // e.g. FUNC[0] -> index=0
     val constantArgs: List<Int>? = null, // e.g. GU(6, 6010, n) -> [6, 6010]
     val jsExpression: String? = null,
-    val isHardcoded: Boolean = false
+    val isHardcoded: Boolean = false,
   )
 
   /**
@@ -47,7 +47,7 @@ object FunctionNameExtractor {
     val nArrayIndex: Int?,
     val nConstantArgs: List<Int>?, // e.g. GU(6, 6010, n) -> [6, 6010]
     val nJsExpression: String? = null,
-    val signatureTimestamp: Int
+    val signatureTimestamp: Int,
   )
 
   // ==================== DETECTION PATTERNS ====================
@@ -64,7 +64,7 @@ object FunctionNameExtractor {
     listOf(
       Regex("""jsUrl['":\s]+[^"']*?/player/([a-f0-9]{8})/"""),
       Regex("""player_ias\.vflset/[^/]+/([a-f0-9]{8})/"""),
-      Regex("""/s/player/([a-f0-9]{8})/""")
+      Regex("""/s/player/([a-f0-9]{8})/"""),
     )
 
   // Modern 2025+ signature deobfuscation function patterns
@@ -72,16 +72,16 @@ object FunctionNameExtractor {
     listOf(
       // Pattern 1 (2025+): &&(VAR=FUNC(NUM,decodeURIComponent(VAR))
       Regex(
-        """&&\s*\(\s*[a-zA-Z0-9$]+\s*=\s*([a-zA-Z0-9$]+)\s*\(\s*(\d+)\s*,\s*decodeURIComponent\s*\(\s*[a-zA-Z0-9$]+\s*\)"""
+        """&&\s*\(\s*[a-zA-Z0-9$]+\s*=\s*([a-zA-Z0-9$]+)\s*\(\s*(\d+)\s*,\s*decodeURIComponent\s*\(\s*[a-zA-Z0-9$]+\s*\)""",
       ),
       // Pattern 1a (April 2026): &&(z=hJ(6,decodeURIComponent(h.s))
       Regex(
-        """&&\s*\(\s*[a-zA-Z0-9$]+\s*=\s*([a-zA-Z0-9$]+)\s*\(\s*(\d+)\s*,\s*decodeURIComponent\s*\(\s*[a-zA-Z0-9$]+\s*\.\s*[a-z]\s*\)"""
+        """&&\s*\(\s*[a-zA-Z0-9$]+\s*=\s*([a-zA-Z0-9$]+)\s*\(\s*(\d+)\s*,\s*decodeURIComponent\s*\(\s*[a-zA-Z0-9$]+\s*\.\s*[a-z]\s*\)""",
       ),
       // Classic patterns (pre-2025, kept as fallback)
       Regex("""\b[cs]\s*&&\s*[adf]\.set\([^,]+\s*,\s*encodeURIComponent\(([a-zA-Z0-9$]+)\("""),
       Regex(
-        """\b[a-zA-Z0-9]+\s*&&\s*[a-zA-Z0-9]+\.set\([^,]+\s*,\s*encodeURIComponent\(([a-zA-Z0-9$]+)\("""
+        """\b[a-zA-Z0-9]+\s*&&\s*[a-zA-Z0-9]+\.set\([^,]+\s*,\s*encodeURIComponent\(([a-zA-Z0-9$]+)\(""",
       ),
       Regex("""\bm=([a-zA-Z0-9${'$'}]{2,})\(decodeURIComponent\(h\.s\)\)"""),
       Regex("""\bc\s*&&\s*d\.set\([^,]+\s*,\s*(?:encodeURIComponent\s*\()([a-zA-Z0-9$]+)\("""),
@@ -95,7 +95,7 @@ object FunctionNameExtractor {
       Regex("""\.get\("n"\)\)&&\(b=([a-zA-Z0-9$]+)(?:\[(\d+)\])?\(([a-zA-Z0-9])\)"""),
       // Pattern 2: .get("n"))&&(FUNC=VAR[IDX](FUNC) (2025+ variant)
       Regex(
-        """\.get\("n"\)\)\s*&&\s*\(([a-zA-Z0-9$]+)\s*=\s*([a-zA-Z0-9$]+)(?:\[(\d+)\])?\(\1\)"""
+        """\.get\("n"\)\)\s*&&\s*\(([a-zA-Z0-9$]+)\s*=\s*([a-zA-Z0-9$]+)(?:\[(\d+)\])?\(\1\)""",
       ),
       // Pattern 3: .get("n");if(m){var M=n.match... (April 2026 variant)
       Regex("""\.get\("n"\);if\([a-zA-Z0-9$]+\)\s*\{[^}]*match"""),
@@ -198,7 +198,7 @@ object FunctionNameExtractor {
         } else {
           Timber.tag(TAG)
             .d(
-              "USING HARDCODED SIG FUNCTION: ${config.sigFuncName}(${config.sigConstantArgs}, ...)"
+              "USING HARDCODED SIG FUNCTION: ${config.sigFuncName}(${config.sigConstantArgs}, ...)",
             )
           Timber.tag(TAG)
             .d("Sig preprocess: ${config.sigPreprocessFunc}(${config.sigPreprocessArgs}, sig)")
@@ -210,7 +210,7 @@ object FunctionNameExtractor {
           preprocessFunc = config.sigPreprocessFunc,
           preprocessArgs = config.sigPreprocessArgs,
           jsExpression = config.sigJsExpression,
-          isHardcoded = true
+          isHardcoded = true,
         )
       }
     }
@@ -227,7 +227,7 @@ object FunctionNameExtractor {
         Timber.tag(TAG).d("  name=$name, constantArg=$constArg")
         Timber.tag(TAG)
           .d(
-            "  match context: ...${playerJs.substring(maxOf(0, match.range.first - 20), minOf(playerJs.length, match.range.last + 20))}..."
+            "  match context: ...${playerJs.substring(maxOf(0, match.range.first - 20), minOf(playerJs.length, match.range.last + 20))}...",
           )
         return SigFunctionInfo(name, constArg, isHardcoded = false)
       }
@@ -269,7 +269,7 @@ object FunctionNameExtractor {
           config.nArrayIndex,
           config.nConstantArgs,
           config.nJsExpression,
-          isHardcoded = true
+          isHardcoded = true,
         )
       }
     }
@@ -383,7 +383,7 @@ object FunctionNameExtractor {
     Timber.tag(TAG).d("Sig Constant Arg:   ${sigInfo?.constantArg}")
     Timber.tag(TAG)
       .d(
-        "N-Function:         ${nFuncInfo?.name ?: "NOT FOUND"} (hardcoded=${nFuncInfo?.isHardcoded})"
+        "N-Function:         ${nFuncInfo?.name ?: "NOT FOUND"} (hardcoded=${nFuncInfo?.isHardcoded})",
       )
     Timber.tag(TAG).d("N-Array Index:      ${nFuncInfo?.arrayIndex}")
     Timber.tag(TAG).d("Signature TS:       $signatureTimestamp")
@@ -393,7 +393,7 @@ object FunctionNameExtractor {
       hasQArrayObfuscation = hasQArray,
       sigInfo = sigInfo,
       nFuncInfo = nFuncInfo,
-      signatureTimestamp = signatureTimestamp
+      signatureTimestamp = signatureTimestamp,
     )
   }
 
@@ -402,6 +402,6 @@ object FunctionNameExtractor {
     val hasQArrayObfuscation: Boolean,
     val sigInfo: SigFunctionInfo?,
     val nFuncInfo: NFunctionInfo?,
-    val signatureTimestamp: Int?
+    val signatureTimestamp: Int?,
   )
 }

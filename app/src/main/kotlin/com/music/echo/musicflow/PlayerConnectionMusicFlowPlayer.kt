@@ -41,7 +41,11 @@ class PlayerConnectionMusicFlowPlayer(
     player.playWhenReady = playWhenReady
   }
 
-  override fun startQueue(items: List<MusicFlowItem>, startIndex: Int, playWhenReady: Boolean): Any {
+  override fun startQueue(
+    items: List<MusicFlowItem>,
+    startIndex: Int,
+    playWhenReady: Boolean,
+  ): Any {
     val queue = MusicFlowQueue(queueTitle, items, startIndex, session)
     service.playQueue(queue, playWhenReady)
     return queue
@@ -59,7 +63,8 @@ class PlayerConnectionMusicFlowPlayer(
   override fun snapshot(): Any? = service.snapshotQueue()
 
   override fun restore(snapshot: Any, playWhenReady: Boolean) {
-    if (snapshot is MusicService.QueueSnapshot) service.restoreQueueSnapshot(snapshot, playWhenReady)
+    if (snapshot is MusicService.QueueSnapshot)
+      service.restoreQueueSnapshot(snapshot, playWhenReady)
   }
 
   override fun isPlaying(): Boolean = connection.isPlaying.value

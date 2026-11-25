@@ -27,6 +27,6 @@ private object EmptyBackdrop : Backdrop {
   override fun DrawScope.drawBackdrop(
     density: Density,
     coordinates: LayoutCoordinates?,
-    layerBlock: (GraphicsLayerScope.() -> Unit)?
+    layerBlock: (GraphicsLayerScope.() -> Unit)?,
   ) {}
 }

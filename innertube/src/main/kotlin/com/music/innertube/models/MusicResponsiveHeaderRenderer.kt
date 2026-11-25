@@ -15,7 +15,7 @@ data class MusicResponsiveHeaderRenderer(
   @Serializable
   data class Button(
     val musicPlayButtonRenderer: MusicPlayButtonRenderer?,
-    val menuRenderer: Menu.MenuRenderer?
+    val menuRenderer: Menu.MenuRenderer?,
   ) {
     @Serializable
     data class MusicPlayButtonRenderer(

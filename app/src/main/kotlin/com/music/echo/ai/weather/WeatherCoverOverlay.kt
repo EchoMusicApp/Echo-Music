@@ -41,14 +41,14 @@ fun WeatherCoverOverlay(
   weatherInfo: WeatherInfo?,
   modifier: Modifier = Modifier,
   shape: Shape = RoundedCornerShape(16.dp),
-  placeholderPainter: Painter? = null
+  placeholderPainter: Painter? = null,
 ) {
   Box(
     modifier =
       modifier
         .aspectRatio(1f)
         .clip(shape)
-        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
   ) {
     // Base Cover Art Image
     if (!imageUrl.isNullOrBlank()) {
@@ -56,14 +56,14 @@ fun WeatherCoverOverlay(
         model = imageUrl,
         contentDescription = playlistName,
         contentScale = ContentScale.Crop,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
       )
     } else if (placeholderPainter != null) {
       Image(
         painter = placeholderPainter,
         contentDescription = playlistName,
         contentScale = ContentScale.Crop,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
       )
     }
 
@@ -75,9 +75,9 @@ fun WeatherCoverOverlay(
           .align(Alignment.BottomCenter)
           .background(
             Brush.verticalGradient(
-              colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))
-            )
-          )
+              colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f)),
+            ),
+          ),
     )
 
     // Typography & Weather Snapshot Overlay
@@ -88,7 +88,7 @@ fun WeatherCoverOverlay(
           MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 15.sp),
         color = Color.White,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
       )
 
       if (weatherInfo != null) {
@@ -101,11 +101,11 @@ fun WeatherCoverOverlay(
             style =
               MaterialTheme.typography.bodySmall.copy(
                 fontWeight = FontWeight.Medium,
-                fontSize = 12.sp
+                fontSize = 12.sp,
               ),
             color = Color.White.copy(alpha = 0.9f),
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
           )
         }
       }

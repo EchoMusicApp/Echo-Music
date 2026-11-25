@@ -136,7 +136,7 @@ constructor(
                     section.items
                       .filterExplicit(hideExplicit)
                       .filterVideoSongs(hideVideoSongs)
-                      .filterYoutubeShorts(hideYoutubeShorts)
+                      .filterYoutubeShorts(hideYoutubeShorts),
                 )
               }
               .filter { section -> section.items.isNotEmpty() }

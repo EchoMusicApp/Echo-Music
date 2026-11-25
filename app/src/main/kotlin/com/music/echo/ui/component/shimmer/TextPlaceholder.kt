@@ -20,7 +20,7 @@ import kotlin.random.Random
 fun TextPlaceholder(
   modifier: Modifier = Modifier,
   height: Dp = 16.dp,
-  shape: CornerBasedShape = RoundedCornerShape(0.dp)
+  shape: CornerBasedShape = RoundedCornerShape(0.dp),
 ) {
   Box(
     modifier =
@@ -29,6 +29,6 @@ fun TextPlaceholder(
         .height(height)
         .fillMaxWidth(remember { 0.25f + Random.nextFloat() * 0.5f })
         .clip(shape)
-        .background(MaterialTheme.colorScheme.surfaceVariant)
+        .background(MaterialTheme.colorScheme.surfaceVariant),
   )
 }

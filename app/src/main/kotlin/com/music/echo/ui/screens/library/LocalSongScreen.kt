@@ -276,10 +276,9 @@ fun LocalSongScreen(
     remember(songs, query, sortType, sortDescending, collator) {
       derivedStateOf {
         val normalizedQuery = query.trim()
-        val supportedSongs =
-          songs.filter { song ->
-            song.format == null || SupportedLocalAudio.isSupportedMimeType(song.format?.mimeType)
-          }
+        val supportedSongs = songs.filter { song ->
+          song.format == null || SupportedLocalAudio.isSupportedMimeType(song.format?.mimeType)
+        }
         val filteredSongs =
           if (normalizedQuery.isBlank()) {
             supportedSongs
@@ -343,179 +342,63 @@ fun LocalSongScreen(
     )
   }
 
-  val topBarContent = @Composable {
-    AnimatedContent(
-      targetState = inSelectMode to isSearchActive,
-      transitionSpec = {
-        fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) togetherWith
-          fadeOut(spring(stiffness = Spring.StiffnessMediumLow))
-      },
-      label = "localSongTopBar",
-    ) { (isSelecting, searching) ->
-      if (isSelecting) {
-        TopAppBar(
-          title = {
-            Text(pluralStringResource(R.plurals.n_selected, selection.size, selection.size))
-          },
-          navigationIcon = {
-            IconButton(onClick = onExitSelectionMode) {
-              Icon(
-                painter = painterResource(R.drawable.close),
-                contentDescription = null,
-              )
-            }
-          },
-          actions = {
-            Checkbox(
-              checked = selection.size == visibleSongs.size && selection.isNotEmpty(),
-              onCheckedChange = {
-                if (selection.size == visibleSongs.size) {
-                  selection.clear()
-                } else {
-                  selection.clear()
-                  selection.addAll(visibleSongs.map { it.id })
-                }
-              }
-            )
-            IconButton(
-              enabled = selection.isNotEmpty(),
-              onClick = {
-                menuState.show {
-                  SelectionSongMenu(
-                    songSelection = selection.mapNotNull { id -> songs.find { it.id == id } },
-                    onDismiss = menuState::dismiss,
-                    clearAction = onExitSelectionMode
-                  )
-                }
-              }
-            ) {
-              Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
-            }
-          },
-          colors =
-            TopAppBarDefaults.topAppBarColors(
-              containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
-            ),
-          windowInsets = TopAppBarDefaults.windowInsets,
-        )
-      } else if (searching) {
-        SearchBar(
-          inputField = {
-            SearchBarDefaults.InputField(
-              query = query,
-              onQueryChange = { query = it },
-              onSearch = { isSearchActive = false },
-              expanded = false,
-              onExpandedChange = {},
-              placeholder = { Text(text = stringResource(R.string.search_library)) },
-              leadingIcon = {
-                IconButton(
-                  onClick = {
-                    query = ""
-                    isSearchActive = false
-                  },
-                ) {
-                  Icon(
-                    painter = painterResource(R.drawable.arrow_back),
-                    contentDescription = stringResource(R.string.back_button_desc),
-                  )
-                }
-              },
-              trailingIcon =
-                if (query.isNotEmpty()) {
-                  {
-                    IconButton(onClick = { query = "" }) {
-                      Icon(
-                        painter = painterResource(R.drawable.close),
-                        contentDescription = stringResource(R.string.close),
-                      )
-                    }
-                  }
-                } else {
-                  null
-                },
-            )
-          },
-          expanded = false,
-          onExpandedChange = {},
-          modifier =
-            Modifier.fillMaxWidth()
-              .padding(horizontal = 16.dp)
-              .padding(top = 8.dp, bottom = 4.dp),
-          windowInsets = SearchBarDefaults.windowInsets,
-        ) {}
-      } else {
-        LargeTopAppBar(
-          title = {
-            Text(
-              text = stringResource(R.string.local_history),
-              fontWeight = FontWeight.Bold,
-              maxLines = 1,
-              overflow = TextOverflow.Ellipsis,
-            )
-          },
-          navigationIcon = {
-            IconButton(onClick = onBack) {
-              Icon(
-                painter = painterResource(R.drawable.arrow_back),
-                contentDescription = null,
-              )
-            }
-          },
-          actions = {
-            IconButton(onClick = { isSearchActive = true }) {
-              Icon(
-                painter = painterResource(R.drawable.search),
-                contentDescription = stringResource(R.string.search),
-              )
-            }
-            IconButton(onClick = { showScanSheet = true }) {
-              Icon(
-                painter = painterResource(R.drawable.settings),
-                contentDescription = stringResource(R.string.settings),
-              )
-            }
-          },
-          colors =
-            TopAppBarDefaults.largeTopAppBarColors(
-              containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
-              scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
-            ),
-          scrollBehavior = scrollBehavior,
-          windowInsets = TopAppBarDefaults.windowInsets,
-        )
-      }
-    }
-  }
-
-  val mainContent = @Composable { paddingValues: PaddingValues ->
-    LazyColumn(
-      state = listState,
-      modifier = Modifier.fillMaxSize().padding(paddingValues),
-      contentPadding =
-        if (isEmbedded) {
-          LocalPlayerAwareWindowInsets.current.asPaddingValues()
-        } else {
-          PaddingValues(
-            top = 12.dp,
-            bottom = bottomContentPadding,
-          )
+  val topBarContent =
+    @Composable {
+      AnimatedContent(
+        targetState = inSelectMode to isSearchActive,
+        transitionSpec = {
+          fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) togetherWith
+            fadeOut(spring(stiffness = Spring.StiffnessMediumLow))
         },
-    ) {
-      if (isEmbedded && filterContent != null) {
-        item(
-          key = "filter",
-          contentType = CONTENT_TYPE_HEADER,
-        ) {
-          filterContent()
-        }
-      }
-
-      if (isEmbedded && isSearchActive) {
-        item(
-          key = "embedded_search",
-          contentType = CONTENT_TYPE_HEADER,
-        ) {
+        label = "localSongTopBar",
+      ) { (isSelecting, searching) ->
+        if (isSelecting) {
+          TopAppBar(
+            title = {
+              Text(pluralStringResource(R.plurals.n_selected, selection.size, selection.size))
+            },
+            navigationIcon = {
+              IconButton(onClick = onExitSelectionMode) {
+                Icon(
+                  painter = painterResource(R.drawable.close),
+                  contentDescription = null,
+                )
+              }
+            },
+            actions = {
+              Checkbox(
+                checked = selection.size == visibleSongs.size && selection.isNotEmpty(),
+                onCheckedChange = {
+                  if (selection.size == visibleSongs.size) {
+                    selection.clear()
+                  } else {
+                    selection.clear()
+                    selection.addAll(visibleSongs.map { it.id })
+                  }
+                },
+              )
+              IconButton(
+                enabled = selection.isNotEmpty(),
+                onClick = {
+                  menuState.show {
+                    SelectionSongMenu(
+                      songSelection = selection.mapNotNull { id -> songs.find { it.id == id } },
+                      onDismiss = menuState::dismiss,
+                      clearAction = onExitSelectionMode,
+                    )
+                  }
+                },
+              ) {
+                Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
+              }
+            },
+            colors =
+              TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
+              ),
+            windowInsets = TopAppBarDefaults.windowInsets,
+          )
+        } else if (searching) {
           SearchBar(
             inputField = {
               SearchBarDefaults.InputField(
@@ -559,117 +442,196 @@ fun LocalSongScreen(
               Modifier.fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .padding(top = 8.dp, bottom = 4.dp),
-            windowInsets = WindowInsets(0.dp),
+            windowInsets = SearchBarDefaults.windowInsets,
           ) {}
-        }
-      }
-
-      item(
-        key = "controls",
-        contentType = CONTENT_TYPE_HEADER,
-      ) {
-        LocalSongControlsCard(
-          sortType = sortType,
-          sortDescending = sortDescending,
-          visibleSongCount = visibleSongs.size,
-          onSortTypeChange = { onSortTypeNameChange(it.name) },
-          onSortDescendingChange = onSortDescendingChange,
-          onSearchClick = if (isEmbedded) { { isSearchActive = !isSearchActive } } else null,
-          onScanClick = if (isEmbedded) { { showScanSheet = true } } else null,
-        )
-      }
-
-      if (visibleSongs.isEmpty()) {
-        item(
-          key = "empty",
-          contentType = CONTENT_TYPE_HEADER,
-        ) {
-          LocalSongEmptyState(
-            query = query,
-            scanState = scanState,
-            hasStoragePermission = hasStoragePermission,
-            onScan = {
-              if (hasStoragePermission) {
-                viewModel.scanDevice(scanConfig)
-              } else {
-                permissionLauncher.launch(storagePermission)
+        } else {
+          LargeTopAppBar(
+            title = {
+              Text(
+                text = stringResource(R.string.local_history),
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+              )
+            },
+            navigationIcon = {
+              IconButton(onClick = onBack) {
+                Icon(
+                  painter = painterResource(R.drawable.arrow_back),
+                  contentDescription = null,
+                )
               }
             },
-            onConfigureFolders = { showScanSheet = true },
+            actions = {
+              IconButton(onClick = { isSearchActive = true }) {
+                Icon(
+                  painter = painterResource(R.drawable.search),
+                  contentDescription = stringResource(R.string.search),
+                )
+              }
+              IconButton(onClick = { showScanSheet = true }) {
+                Icon(
+                  painter = painterResource(R.drawable.settings),
+                  contentDescription = stringResource(R.string.settings),
+                )
+              }
+            },
+            colors =
+              TopAppBarDefaults.largeTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
+                scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+              ),
+            scrollBehavior = scrollBehavior,
+            windowInsets = TopAppBarDefaults.windowInsets,
           )
         }
-      } else {
+      }
+    }
 
-        itemsIndexed(
-          items = visibleSongs,
-          key = { _, item -> item.id },
-          contentType = { _, _ -> CONTENT_TYPE_SONG },
-        ) { index, song ->
-          val onCheckedChange: (Boolean) -> Unit = {
-            if (it) {
-              selection.add(song.id)
-            } else {
-              selection.remove(song.id)
-            }
+  val mainContent =
+    @Composable { paddingValues: PaddingValues ->
+      LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize().padding(paddingValues),
+        contentPadding =
+          if (isEmbedded) {
+            LocalPlayerAwareWindowInsets.current.asPaddingValues()
+          } else {
+            PaddingValues(
+              top = 12.dp,
+              bottom = bottomContentPadding,
+            )
+          },
+      ) {
+        if (isEmbedded && filterContent != null) {
+          item(
+            key = "filter",
+            contentType = CONTENT_TYPE_HEADER,
+          ) {
+            filterContent()
           }
-          SongListItem(
-            song = song,
-            showInLibraryIcon = false,
-            showDownloadIcon = false,
-            shape = echo.music.iad1tya.utils.listItemShape(index, visibleSongs.size),
-            isActive = song.id == mediaMetadata?.id,
-            isPlaying = isPlaying,
-            trailingContent = {
-              if (inSelectMode) {
-                Checkbox(checked = selection.contains(song.id), onCheckedChange = onCheckedChange)
-              } else {
-                IconButton(
-                  onClick = {
-                    menuState.show {
-                      SongMenu(
-                        originalSong = song,
-                        navController = navController,
-                        onDismiss = menuState::dismiss,
+        }
+
+        if (isEmbedded && isSearchActive) {
+          item(
+            key = "embedded_search",
+            contentType = CONTENT_TYPE_HEADER,
+          ) {
+            SearchBar(
+              inputField = {
+                SearchBarDefaults.InputField(
+                  query = query,
+                  onQueryChange = { query = it },
+                  onSearch = { isSearchActive = false },
+                  expanded = false,
+                  onExpandedChange = {},
+                  placeholder = { Text(text = stringResource(R.string.search_library)) },
+                  leadingIcon = {
+                    IconButton(
+                      onClick = {
+                        query = ""
+                        isSearchActive = false
+                      },
+                    ) {
+                      Icon(
+                        painter = painterResource(R.drawable.arrow_back),
+                        contentDescription = stringResource(R.string.back_button_desc),
                       )
                     }
                   },
-                ) {
-                  Icon(
-                    painter = painterResource(R.drawable.more_vert),
-                    contentDescription = null,
-                  )
+                  trailingIcon =
+                    if (query.isNotEmpty()) {
+                      {
+                        IconButton(onClick = { query = "" }) {
+                          Icon(
+                            painter = painterResource(R.drawable.close),
+                            contentDescription = stringResource(R.string.close),
+                          )
+                        }
+                      }
+                    } else {
+                      null
+                    },
+                )
+              },
+              expanded = false,
+              onExpandedChange = {},
+              modifier =
+                Modifier.fillMaxWidth()
+                  .padding(horizontal = 16.dp)
+                  .padding(top = 8.dp, bottom = 4.dp),
+              windowInsets = WindowInsets(0.dp),
+            ) {}
+          }
+        }
+
+        item(
+          key = "controls",
+          contentType = CONTENT_TYPE_HEADER,
+        ) {
+          LocalSongControlsCard(
+            sortType = sortType,
+            sortDescending = sortDescending,
+            visibleSongCount = visibleSongs.size,
+            onSortTypeChange = { onSortTypeNameChange(it.name) },
+            onSortDescendingChange = onSortDescendingChange,
+            onSearchClick =
+              if (isEmbedded) {
+                { isSearchActive = !isSearchActive }
+              } else null,
+            onScanClick =
+              if (isEmbedded) {
+                { showScanSheet = true }
+              } else null,
+          )
+        }
+
+        if (visibleSongs.isEmpty()) {
+          item(
+            key = "empty",
+            contentType = CONTENT_TYPE_HEADER,
+          ) {
+            LocalSongEmptyState(
+              query = query,
+              scanState = scanState,
+              hasStoragePermission = hasStoragePermission,
+              onScan = {
+                if (hasStoragePermission) {
+                  viewModel.scanDevice(scanConfig)
+                } else {
+                  permissionLauncher.launch(storagePermission)
                 }
+              },
+              onConfigureFolders = { showScanSheet = true },
+            )
+          }
+        } else {
+
+          itemsIndexed(
+            items = visibleSongs,
+            key = { _, item -> item.id },
+            contentType = { _, _ -> CONTENT_TYPE_SONG },
+          ) { index, song ->
+            val onCheckedChange: (Boolean) -> Unit = {
+              if (it) {
+                selection.add(song.id)
+              } else {
+                selection.remove(song.id)
               }
-            },
-            modifier =
-              Modifier.fillMaxWidth()
-                .combinedClickable(
-                  onClick = {
-                    if (inSelectMode) {
-                      onCheckedChange(!selection.contains(song.id))
-                    } else if (song.id == mediaMetadata?.id) {
-                      playerConnection.player.togglePlayPause()
-                    } else {
-                      playerConnection.playQueue(
-                        ListQueue(
-                          title =
-                            if (query.isBlank()) {
-                              context.getString(R.string.local_history)
-                            } else {
-                              context.getString(R.string.queue_searched_songs)
-                            },
-                          items = queueItems,
-                          startIndex = index,
-                        ),
-                      )
-                    }
-                  },
-                  onLongClick = {
-                    if (!inSelectMode) {
-                      haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                      inSelectMode = true
-                      onCheckedChange(true)
-                    } else {
+            }
+            SongListItem(
+              song = song,
+              showInLibraryIcon = false,
+              showDownloadIcon = false,
+              shape = echo.music.iad1tya.utils.listItemShape(index, visibleSongs.size),
+              isActive = song.id == mediaMetadata?.id,
+              isPlaying = isPlaying,
+              trailingContent = {
+                if (inSelectMode) {
+                  Checkbox(checked = selection.contains(song.id), onCheckedChange = onCheckedChange)
+                } else {
+                  IconButton(
+                    onClick = {
                       menuState.show {
                         SongMenu(
                           originalSong = song,
@@ -677,16 +639,61 @@ fun LocalSongScreen(
                           onDismiss = menuState::dismiss,
                         )
                       }
-                    }
-                  },
-                )
-                .padding(horizontal = 16.dp)
-                .animateItem(),
-          )
+                    },
+                  ) {
+                    Icon(
+                      painter = painterResource(R.drawable.more_vert),
+                      contentDescription = null,
+                    )
+                  }
+                }
+              },
+              modifier =
+                Modifier.fillMaxWidth()
+                  .combinedClickable(
+                    onClick = {
+                      if (inSelectMode) {
+                        onCheckedChange(!selection.contains(song.id))
+                      } else if (song.id == mediaMetadata?.id) {
+                        playerConnection.player.togglePlayPause()
+                      } else {
+                        playerConnection.playQueue(
+                          ListQueue(
+                            title =
+                              if (query.isBlank()) {
+                                context.getString(R.string.local_history)
+                              } else {
+                                context.getString(R.string.queue_searched_songs)
+                              },
+                            items = queueItems,
+                            startIndex = index,
+                          ),
+                        )
+                      }
+                    },
+                    onLongClick = {
+                      if (!inSelectMode) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        inSelectMode = true
+                        onCheckedChange(true)
+                      } else {
+                        menuState.show {
+                          SongMenu(
+                            originalSong = song,
+                            navController = navController,
+                            onDismiss = menuState::dismiss,
+                          )
+                        }
+                      }
+                    },
+                  )
+                  .padding(horizontal = 16.dp)
+                  .animateItem(),
+            )
+          }
         }
       }
     }
-  }
 
   if (isEmbedded) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -720,7 +727,7 @@ fun LocalSongScreen(
                   selection.clear()
                   selection.addAll(visibleSongs.map { it.id })
                 }
-              }
+              },
             )
             IconButton(
               enabled = selection.isNotEmpty(),
@@ -729,17 +736,17 @@ fun LocalSongScreen(
                   SelectionSongMenu(
                     songSelection = selection.mapNotNull { id -> songs.find { it.id == id } },
                     onDismiss = menuState::dismiss,
-                    clearAction = onExitSelectionMode
+                    clearAction = onExitSelectionMode,
                   )
                 }
-              }
+              },
             ) {
               Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
             }
           },
           colors =
             TopAppBarDefaults.topAppBarColors(
-              containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+              containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
             ),
           windowInsets = WindowInsets(0.dp),
         )
@@ -747,9 +754,7 @@ fun LocalSongScreen(
     }
   } else {
     Scaffold(
-      modifier =
-        Modifier.fillMaxSize()
-          .nestedScroll(scrollBehavior.nestedScrollConnection),
+      modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
       containerColor = MaterialTheme.colorScheme.surface,
       topBar = topBarContent,
     ) { paddingValues ->
@@ -862,14 +867,13 @@ private fun LocalSongEmptyState(
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(horizontal = 24.dp, vertical = 40.dp),
+    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 40.dp),
   ) {
     Icon(
-      painter = painterResource(
-        if (query.isNotBlank()) R.drawable.search else R.drawable.music_note
-      ),
+      painter =
+        painterResource(
+          if (query.isNotBlank()) R.drawable.search else R.drawable.music_note,
+        ),
       contentDescription = null,
       tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
       modifier = Modifier.size(56.dp),
@@ -878,11 +882,12 @@ private fun LocalSongEmptyState(
     Spacer(modifier = Modifier.height(16.dp))
 
     Text(
-      text = if (query.isBlank()) {
-        stringResource(R.string.local_songs_empty_title)
-      } else {
-        stringResource(R.string.local_songs_no_matches_title)
-      },
+      text =
+        if (query.isBlank()) {
+          stringResource(R.string.local_songs_empty_title)
+        } else {
+          stringResource(R.string.local_songs_no_matches_title)
+        },
       style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.Bold,
       color = MaterialTheme.colorScheme.onSurface,
@@ -892,11 +897,12 @@ private fun LocalSongEmptyState(
     Spacer(modifier = Modifier.height(8.dp))
 
     Text(
-      text = if (query.isBlank()) {
-        stringResource(R.string.local_songs_empty_desc)
-      } else {
-        stringResource(R.string.local_songs_no_matches_desc)
-      },
+      text =
+        if (query.isBlank()) {
+          stringResource(R.string.local_songs_empty_desc)
+        } else {
+          stringResource(R.string.local_songs_no_matches_desc)
+        },
       style = MaterialTheme.typography.bodyMedium,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       textAlign = TextAlign.Center,
@@ -908,27 +914,30 @@ private fun LocalSongEmptyState(
       Button(
         onClick = onScan,
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(
-          containerColor = MaterialTheme.colorScheme.primary,
-          contentColor = MaterialTheme.colorScheme.onPrimary,
-        ),
+        colors =
+          ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+          ),
       ) {
         Icon(
-          painter = painterResource(
-            if (scanState.isScanning) R.drawable.sync else R.drawable.search
-          ),
+          painter =
+            painterResource(
+              if (scanState.isScanning) R.drawable.sync else R.drawable.search,
+            ),
           contentDescription = null,
           modifier = Modifier.size(18.dp),
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-          text = if (scanState.isScanning) {
-            stringResource(R.string.scanning_device)
-          } else if (!hasStoragePermission) {
-            "Grant Storage Access"
-          } else {
-            stringResource(R.string.scan_device)
-          },
+          text =
+            if (scanState.isScanning) {
+              stringResource(R.string.scanning_device)
+            } else if (!hasStoragePermission) {
+              "Grant Storage Access"
+            } else {
+              stringResource(R.string.scan_device)
+            },
           fontWeight = FontWeight.SemiBold,
         )
       }
@@ -957,7 +966,7 @@ private fun LocalSongEmptyState(
 @OptIn(
   ExperimentalMaterial3Api::class,
   ExperimentalMaterial3ExpressiveApi::class,
-  ExperimentalLayoutApi::class
+  ExperimentalLayoutApi::class,
 )
 @Composable
 private fun LocalSongScanSheet(
@@ -1318,7 +1327,7 @@ private fun LocalSongScanSheet(
                           if (!scanState.isScanning) {
                             onAddExcludedFolder()
                           }
-                        }
+                        },
                       ),
                 ) {
                   Icon(
@@ -1387,7 +1396,7 @@ private fun LocalSongScanSheet(
                           if (!scanState.isScanning) {
                             onAddIncludedFolder()
                           }
-                        }
+                        },
                       ),
                 ) {
                   Icon(
@@ -1696,8 +1705,11 @@ private fun ScanSheetInfoRow(
 
 private fun Uri.toExcludedFolderEntry(): String? {
   if (!DocumentsContract.isTreeUri(this)) return null
-  val treeDocumentId =
-    runCatching { DocumentsContract.getTreeDocumentId(this) }.getOrNull().orEmpty()
+  val treeDocumentId = runCatching {
+    DocumentsContract.getTreeDocumentId(this)
+  }
+    .getOrNull()
+    .orEmpty()
   val relativeFolder = treeDocumentId.substringAfter(':', missingDelimiterValue = treeDocumentId)
   return LocalSongScanConfig.normalizeFolderEntry(relativeFolder).takeIf(String::isNotEmpty)
 }

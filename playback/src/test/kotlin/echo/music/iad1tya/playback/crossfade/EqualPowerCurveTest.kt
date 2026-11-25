@@ -1,9 +1,9 @@
 package echo.music.iad1tya.playback.crossfade
 
+import kotlin.math.abs
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlin.math.abs
 
 class EqualPowerCurveTest {
 
@@ -24,7 +24,10 @@ class EqualPowerCurveTest {
       val progress = i / 100.0f
       val (outGain, inGain) = EqualPowerCurve.calculateGains(progress)
       val totalPower = (outGain * outGain) + (inGain * inGain)
-      assertTrue("Total power at $progress should be approx 1.0, but was $totalPower", abs(totalPower - 1.0f) < 0.005)
+      assertTrue(
+        "Total power at $progress should be approx 1.0, but was $totalPower",
+        abs(totalPower - 1.0f) < 0.005,
+      )
     }
   }
 

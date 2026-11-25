@@ -10,25 +10,28 @@ import org.junit.Test
 class UsbDacAudioSinkTest {
   @Test
   fun testSupportsPcmFormatsMatchingDacCapabilities() {
-    val caps = DacCapabilities(
-      uacVersion = 2,
-      supportedSampleRates = listOf(44100, 48000, 88200, 96000, 176400, 192000)
-    )
+    val caps =
+      DacCapabilities(
+        uacVersion = 2,
+        supportedSampleRates = listOf(44100, 48000, 88200, 96000, 176400, 192000),
+      )
     val sink = UsbDacAudioSink(UsbAudioDriver(), capabilities = caps)
 
-    val pcm96k = Format.Builder()
-      .setSampleMimeType(MimeTypes.AUDIO_RAW)
-      .setChannelCount(2)
-      .setSampleRate(96000)
-      .setPcmEncoding(androidx.media3.common.C.ENCODING_PCM_24BIT)
-      .build()
+    val pcm96k =
+      Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(2)
+        .setSampleRate(96000)
+        .setPcmEncoding(androidx.media3.common.C.ENCODING_PCM_24BIT)
+        .build()
     assertTrue(sink.supportsFormat(pcm96k))
 
-    val pcmOverMax = Format.Builder()
-      .setSampleMimeType(MimeTypes.AUDIO_RAW)
-      .setChannelCount(2)
-      .setSampleRate(384000)
-      .build()
+    val pcmOverMax =
+      Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(2)
+        .setSampleRate(384000)
+        .build()
     assertFalse(sink.supportsFormat(pcmOverMax))
   }
 
@@ -37,11 +40,12 @@ class UsbDacAudioSinkTest {
     val driver = UsbAudioDriver()
     val sink = UsbDacAudioSink(driver)
 
-    val format = Format.Builder()
-      .setSampleMimeType(MimeTypes.AUDIO_RAW)
-      .setChannelCount(2)
-      .setSampleRate(48000)
-      .build()
+    val format =
+      Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(2)
+        .setSampleRate(48000)
+        .build()
     sink.configure(format, 0, null)
 
     // isEnded() must be false before playback finishes
@@ -65,6 +69,9 @@ class UsbDacAudioSinkTest {
     sink.setVolume(0.5f)
 
     sink.flush()
-    org.junit.Assert.assertEquals(androidx.media3.exoplayer.audio.AudioSink.CURRENT_POSITION_NOT_SET, sink.getCurrentPositionUs(false))
+    org.junit.Assert.assertEquals(
+      androidx.media3.exoplayer.audio.AudioSink.CURRENT_POSITION_NOT_SET,
+      sink.getCurrentPositionUs(false),
+    )
   }
 }

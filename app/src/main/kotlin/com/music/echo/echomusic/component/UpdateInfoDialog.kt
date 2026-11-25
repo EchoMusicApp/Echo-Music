@@ -64,7 +64,7 @@ fun UpdateInfoDialog(onDismiss: () -> Unit) {
           ) {
             Row(
               modifier = Modifier.fillMaxWidth(),
-              verticalAlignment = Alignment.CenterVertically
+              verticalAlignment = Alignment.CenterVertically,
             ) {
               Surface(
                 shape = AbsoluteSmoothCornerShape(12.dp, 60),
@@ -73,7 +73,7 @@ fun UpdateInfoDialog(onDismiss: () -> Unit) {
                 Row(
                   modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                   verticalAlignment = Alignment.CenterVertically,
-                  horizontalArrangement = Arrangement.spacedBy(8.dp)
+                  horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                   Icon(
                     painter = painterResource(R.drawable.info),

@@ -11,12 +11,12 @@ import timber.log.Timber
 
 enum class MessageFormat {
   JSON,
-  PROTOBUF
+  PROTOBUF,
 }
 
 class MessageCodec(
   var format: MessageFormat = MessageFormat.JSON,
-  var compressionEnabled: Boolean = false
+  var compressionEnabled: Boolean = false,
 ) {
   companion object {
     private const val TAG = "MessageCodec"
@@ -59,7 +59,7 @@ class MessageCodec(
       Message(
         type = msgType,
         payload =
-          if (payload != null) json.encodeToJsonElement(serializer(payload), payload) else null
+          if (payload != null) json.encodeToJsonElement(serializer(payload), payload) else null,
       )
 
     var data = json.encodeToString(msg).toByteArray()
@@ -293,7 +293,7 @@ class MessageCodec(
           queue = pb.queueList.map { protoToTrackInfo(it) },
           queueTitle = pb.queueTitle.let { if (it.isEmpty()) null else it },
           volume = pb.volume.let { if (it <= 0) null else it },
-          serverTime = pb.serverTime.let { if (it <= 0) null else it }
+          serverTime = pb.serverTime.let { if (it <= 0) null else it },
         )
       }
       MessageTypes.BUFFER_WAIT -> {
@@ -324,7 +324,7 @@ class MessageCodec(
           position = pb.position,
           lastUpdate = pb.lastUpdate,
           queue = pb.queueList.map { protoToTrackInfo(it) },
-          volume = pb.volume.let { if (it <= 0) null else it }
+          volume = pb.volume.let { if (it <= 0) null else it },
         )
       }
       MessageTypes.RECONNECTED -> {
@@ -345,7 +345,7 @@ class MessageCodec(
           pb.suggestionId,
           pb.fromUserId,
           pb.fromUsername,
-          protoToTrackInfo(pb.trackInfo)
+          protoToTrackInfo(pb.trackInfo),
         )
       }
       MessageTypes.SUGGESTION_APPROVED -> {
@@ -384,7 +384,7 @@ class MessageCodec(
       album = proto.album.let { if (it.isEmpty()) null else it },
       duration = proto.duration,
       thumbnail = proto.thumbnail.let { if (it.isEmpty()) null else it },
-      suggestedBy = proto.suggestedBy.let { if (it.isEmpty()) null else it }
+      suggestedBy = proto.suggestedBy.let { if (it.isEmpty()) null else it },
     )
   }
 
@@ -393,7 +393,7 @@ class MessageCodec(
       userId = proto.userId,
       username = proto.username,
       isHost = proto.isHost,
-      isConnected = proto.isConnected
+      isConnected = proto.isConnected,
     )
   }
 
@@ -408,7 +408,7 @@ class MessageCodec(
       lastUpdate = proto.lastUpdate,
       volume = proto.volume,
       queue = proto.queueList.map { protoToTrackInfo(it) },
-      allowParticipantControl = proto.allowParticipantControl
+      allowParticipantControl = proto.allowParticipantControl,
     )
   }
 

@@ -13,8 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-@Serializable
-data class echomusicCanvasManifest(val items: List<echomusicCanvasItem> = emptyList())
+@Serializable data class echomusicCanvasManifest(val items: List<echomusicCanvasItem> = emptyList())
 
 @Serializable data class echomusicCanvasItem(val song: String, val artist: String, val url: String)
 
@@ -92,7 +91,7 @@ object echomusicCanvasProvider {
         name = target.song,
         artist = target.artist,
         videoUrl = target.url,
-        animated = target.url
+        animated = target.url,
       )
     } else {
       return null

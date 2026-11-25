@@ -40,7 +40,7 @@ data class SearchSummaryPage(
               return@mapNotNull null
             },
         )
-      }
+      },
     )
 
   fun filterDislikedSongs() =
@@ -53,7 +53,7 @@ data class SearchSummaryPage(
               return@mapNotNull null
             },
         )
-      }
+      },
     )
 
   fun filterExplicit(enabled: Boolean) =
@@ -67,7 +67,7 @@ data class SearchSummaryPage(
                 return@mapNotNull null
               },
           )
-        }
+        },
       )
     } else {
       this
@@ -85,7 +85,7 @@ data class SearchSummaryPage(
               }
             s.copy(items = filteredItems)
           }
-        }
+        },
       )
     } else {
       this
@@ -102,7 +102,7 @@ data class SearchSummaryPage(
                 return@mapNotNull null
               },
           )
-        }
+        },
       )
     } else {
       this
@@ -189,7 +189,7 @@ data class SearchSummaryPage(
             id = renderer.onTap.browseEndpoint.browseId.removePrefix("VL"),
             title =
               renderer.header?.musicCardShelfHeaderBasicRenderer?.title?.runs?.joinToString(
-                separator = ""
+                separator = "",
               ) {
                 ApiText.clean(it.text)
               } ?: return null,

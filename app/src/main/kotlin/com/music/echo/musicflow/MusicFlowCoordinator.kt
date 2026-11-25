@@ -60,7 +60,9 @@ class MusicFlowCoordinator(
       }
     }
 
-    player.takeoverBlock()?.let { return MusicFlowPlaybackStatus.Blocked(it) }
+    player.takeoverBlock()?.let {
+      return MusicFlowPlaybackStatus.Blocked(it)
+    }
 
     val items = session.state.value.items
     val startIndex = items.indexOfFirst { it.songId == songId }
@@ -99,7 +101,10 @@ class MusicFlowCoordinator(
     return true
   }
 
-  /** Drops the snapshot once another source (playlist, radio, cast, Listen Together) replaced the Flow queue. */
+  /**
+   * Drops the snapshot once another source (playlist, radio, cast, Listen Together) replaced the
+   * Flow queue.
+   */
   fun invalidateIfSuperseded() {
     val handle = session.queueHandle ?: return
     if (!player.ownsQueue(handle)) {

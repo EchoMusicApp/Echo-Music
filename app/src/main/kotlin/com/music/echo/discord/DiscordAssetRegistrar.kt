@@ -34,7 +34,7 @@ object DiscordAssetRegistrar {
       when (parsed) {
         is ImageType.Snowflake,
         is ImageType.MpPrefix,
-        is ImageType.DiscordCdn, -> {
+        is ImageType.DiscordCdn -> {
           return@withContext parsed.value
         }
         is ImageType.ExternalUrl -> {

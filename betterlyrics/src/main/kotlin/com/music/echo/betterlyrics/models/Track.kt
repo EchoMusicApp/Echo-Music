@@ -12,7 +12,7 @@ data class Track(
   val artist: String,
   val album: String? = null,
   val duration: Double,
-  val lyrics: Lyrics? = null
+  val lyrics: Lyrics? = null,
 )
 
 @Serializable data class Lyrics(val lines: List<Line>)
