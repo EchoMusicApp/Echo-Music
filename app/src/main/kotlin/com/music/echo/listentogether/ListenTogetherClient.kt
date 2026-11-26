@@ -865,8 +865,8 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
         scope.launch {
           _events.emit(
             ListenTogetherEvent.ConnectionError(
-              "Connection failed after $MAX_RECONNECT_ATTEMPTS attempts. ${t.message ?: "Unknown error"}"
-            )
+              "Connection failed after $MAX_RECONNECT_ATTEMPTS attempts. ${t.message ?: "Unknown error"}",
+            ),
           )
         }
       } else {
@@ -1028,7 +1028,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
               payload.userId,
               payload.state,
               receivedNs,
-            )
+            ),
           )
         }
         MessageTypes.JOIN_REJECTED -> {
@@ -1045,7 +1045,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
               ?: return
           _roomState.value =
             _roomState.value?.copy(
-              users = _roomState.value!!.users + UserInfo(payload.userId, payload.username, false)
+              users = _roomState.value!!.users + UserInfo(payload.userId, payload.username, false),
             )
           _pendingJoinRequests.value =
             _pendingJoinRequests.value.filter { it.userId != payload.userId }
@@ -1062,7 +1062,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
             codec.decodePayload(msgType, payloadBytes, detectedFormat) as? UserLeftPayload ?: return
           _roomState.value =
             _roomState.value?.copy(
-              users = _roomState.value!!.users.filter { it.userId != payload.userId }
+              users = _roomState.value!!.users.filter { it.userId != payload.userId },
             )
           log(LogLevel.INFO, "User left", payload.username)
           _events.tryEmit(ListenTogetherEvent.UserLeft(payload.userId, payload.username))
@@ -1137,7 +1137,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
                   _roomState.value?.copy(
                     queue =
                       if (payload.insertNext == true) listOf(ti) + currentQueue
-                      else currentQueue + ti
+                      else currentQueue + ti,
                   )
               }
             }
@@ -1314,7 +1314,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
               payload.state,
               payload.isHost,
               receivedNs,
-            )
+            ),
           )
         }
         MessageTypes.USER_RECONNECTED -> {
@@ -1327,7 +1327,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
               users =
                 _roomState.value!!.users.map { user ->
                   if (user.userId == payload.userId) user.copy(isConnected = true) else user
-                }
+                },
             )
           log(LogLevel.INFO, "User reconnected", payload.username)
           _events.tryEmit(ListenTogetherEvent.UserReconnected(payload.userId, payload.username))
@@ -1342,7 +1342,7 @@ class ListenTogetherClient @Inject constructor(private val context: Context) {
               users =
                 _roomState.value!!.users.map { user ->
                   if (user.userId == payload.userId) user.copy(isConnected = false) else user
-                }
+                },
             )
           log(LogLevel.INFO, "User temporarily disconnected", payload.username)
           _events.tryEmit(ListenTogetherEvent.UserDisconnected(payload.userId, payload.username))

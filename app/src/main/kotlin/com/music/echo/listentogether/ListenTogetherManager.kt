@@ -505,7 +505,7 @@ constructor(
       is ListenTogetherEvent.SyncStateReceived -> {
         Timber.tag(TAG)
           .d(
-            "SyncStateReceived: playing=${event.state.isPlaying}, pos=${event.state.position}, track=${event.state.currentTrack?.id}"
+            "SyncStateReceived: playing=${event.state.isPlaying}, pos=${event.state.position}, track=${event.state.currentTrack?.id}",
           )
         if (isInRoom && !isHost) {
           handleSyncState(event.state, event.receivedNs)
@@ -552,7 +552,7 @@ constructor(
               if (serverTrackId != currentMetadata.id) {
                 Timber.tag(TAG)
                   .d(
-                    "Reconnected as host, server track ($serverTrackId) differs from local (${currentMetadata.id}), syncing"
+                    "Reconnected as host, server track ($serverTrackId) differs from local (${currentMetadata.id}), syncing",
                   )
                 sendTrackChangeInternal(currentMetadata)
               } else {
@@ -703,7 +703,7 @@ constructor(
     if (savedState != null) {
       Timber.tag(TAG)
         .d(
-          "Restoring mute state on leave: was muted=$savedState, currently muted=${connection.isMuted.value}"
+          "Restoring mute state on leave: was muted=$savedState, currently muted=${connection.isMuted.value}",
         )
       connection.setMuted(savedState)
     } else {

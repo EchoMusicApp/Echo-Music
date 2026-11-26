@@ -98,7 +98,7 @@ data class RoomState(
 
 @Serializable
 data class UpdateRoomSettingsPayload(
-  @SerialName("allow_participant_control") val allowParticipantControl: Boolean
+  @SerialName("allow_participant_control") val allowParticipantControl: Boolean,
 )
 
 @Serializable data class CreateRoomPayload(val username: String)
