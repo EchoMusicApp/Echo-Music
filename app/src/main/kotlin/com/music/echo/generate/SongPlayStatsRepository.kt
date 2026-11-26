@@ -153,7 +153,6 @@ constructor(
         Timber.e(e, "Failed to record skip for $key")
       }
     }
-  }
 
   private companion object {
     const val CANDIDATE_PAGE_SIZE = 200
