@@ -41,6 +41,7 @@ fun ArtistVideo(
   videoUrl: String,
   modifier: Modifier = Modifier,
   onClick: () -> Unit,
+  onReadyChange: (Boolean) -> Unit = {},
 ) {
   val context = LocalContext.current
   var isVideoReady by remember(videoUrl) { mutableStateOf(false) }
@@ -109,11 +110,21 @@ fun ArtistVideo(
       label = "videoAlpha",
     )
 
+  LaunchedEffect(isVideoReady) { onReadyChange(isVideoReady) }
+
+  // Nothing to see or tap until the video shows: a grey square stood next to the artist's name
+  // when the video was slow or never played, and tapping it started a song.
   Box(
     modifier =
-      modifier.clip(RoundedCornerShape(4.dp)).background(Color.Black.copy(alpha = 0.3f)).clickable {
-        onClick()
-      },
+      modifier
+        .clip(RoundedCornerShape(4.dp))
+        .then(
+          if (isVideoReady) {
+            Modifier.background(Color.Black.copy(alpha = 0.3f)).clickable { onClick() }
+          } else {
+            Modifier
+          }
+        ),
   ) {
     AndroidView(
       factory = { viewContext ->
@@ -126,8 +137,15 @@ fun ArtistVideo(
               layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             }
           addView(textureView)
-          exoPlayer.setVideoTextureView(textureView)
           setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
+      },
+      // On every new player, not only the first: when the video changed, the new player drew
+      // nowhere and the video never showed.
+      update = { layout ->
+        if (layout.tag !== exoPlayer) {
+          layout.tag = exoPlayer
+          exoPlayer.setVideoTextureView(layout.getChildAt(0) as TextureView)
         }
       },
       modifier = Modifier.matchParentSize().alpha(videoAlpha),

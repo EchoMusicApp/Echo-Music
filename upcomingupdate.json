@@ -26,7 +26,8 @@
     "Settings: remove stale search results for lyrics options that no longer exist (provider toggles, per-language romanization, glow effect), so searching settings no longer points to missing options (#700)",
     "Home: show YouTube Music shelves made of list rows (Quick picks) and podcast episode cards, which were dropped",
     "Home: hide the live 'Listen together' stations in every language, and respect the Show speed dial setting",
-    "Spotify: resolve login failures and session expiration using Vivi Music's mobile user-agent WebView flow, resilient nuance caching with GitHub Gist API fallback, server-time offset fallback, and automatic anonymous token recovery (#854, #884)"
+    "Spotify: resolve login failures and session expiration using Vivi Music's mobile user-agent WebView flow, resilient nuance caching with GitHub Gist API fallback, server-time offset fallback, and automatic anonymous token recovery (#854, #884)",
+    "Artist page: the artist's video, or the Apple Music motion art of a top song, plays behind the photo instead of in a small square next to the name, with a chip naming the song; no more stretched YouTube clips, and a lighter fade over the header"
   ],
   "contributors": [
     "PurveshShinde"

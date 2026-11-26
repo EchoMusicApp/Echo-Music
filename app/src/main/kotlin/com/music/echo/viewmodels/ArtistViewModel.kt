@@ -15,7 +15,6 @@ import com.music.innertube.pages.ArtistPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
-import echo.music.iad1tya.canvas.YouTubeVideoCanvasProvider
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.constants.HideYoutubeShortsKey
@@ -145,23 +144,19 @@ constructor(
 
           val topSongsSection =
             page.sections.find { it.items.firstOrNull() is com.music.innertube.models.SongItem }
+          // The first top song with an Apple Music canvas, a short looping video made to stand
+          // behind the song: the search went on through every song, so the video and the song it
+          // plays were those of the last one found. A YouTube music video is not used: cropped to
+          // the header it showed stretched, letterboxed frames, and it streamed a whole video.
           topSongsSection?.items?.forEach { item ->
+            if (_artistVideoUrl.value != null) return@forEach
             if (item is com.music.innertube.models.SongItem) {
-              val artistTitle = page.artist?.title ?: ""
-              val appleCanvas =
-                AppleMusicCanvasProvider.getBySongArtist(
-                  song = item.title,
-                  artist = artistTitle,
-                )
               val canvasUrl =
-                appleCanvas?.preferredAnimationUrl
-                  ?: YouTubeVideoCanvasProvider.getCanvasForVideo(
-                      videoId = item.id,
-                      title = item.title,
-                      artist = artistTitle,
-                      durationSec = item.duration?.toLong() ?: 0L,
-                    )
-                    ?.preferredAnimationUrl
+                AppleMusicCanvasProvider.getBySongArtist(
+                    song = item.title,
+                    artist = page.artist?.title ?: "",
+                  )
+                  ?.preferredAnimationUrl
 
               if (canvasUrl != null) {
                 _artistVideoUrl.value = canvasUrl

@@ -6,6 +6,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -265,6 +266,7 @@ fun ArtistScreen(
           val artistName = artistPage?.artist?.title ?: libraryArtist?.artist?.name
 
           var backgroundVideoUrl by remember { mutableStateOf<String?>(null) }
+          var songVideoShown by remember { mutableStateOf(false) }
           LaunchedEffect(artistName, showArtistBackgroundVideo) {
             if (artistName != null && showArtistBackgroundVideo) {
               withContext(Dispatchers.IO) {
@@ -279,7 +281,12 @@ fun ArtistScreen(
             val artHeightDp = if (isTablet) 400.dp else configuration.screenWidthDp.dp
             val artHeightPx = with(density) { artHeightDp.toPx() }
 
-            if (thumbnail != null || backgroundVideoUrl != null) {
+            // The artist's own background video, or else the video of a top song: shown over
+            // the photo once it plays, instead of in a small square next to the name.
+            val headerVideoUrl =
+              backgroundVideoUrl?.takeIf { showArtistBackgroundVideo }
+                ?: artistVideoUrl?.takeIf { showArtistVideo }
+            if (thumbnail != null || headerVideoUrl != null) {
               Box(
                 modifier =
                   Modifier.fillMaxWidth().height(artHeightDp).offset {
@@ -290,7 +297,7 @@ fun ArtistScreen(
                   modifier =
                     Modifier.fillMaxSize()
                       .fadingEdge(
-                        bottom = 350.dp,
+                        bottom = 180.dp,
                       ),
                 ) {
                   if (thumbnail != null) {
@@ -301,26 +308,29 @@ fun ArtistScreen(
                       contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                     )
                   }
-                  if (backgroundVideoUrl != null && showArtistBackgroundVideo) {
+                  if (headerVideoUrl != null) {
                     ArtistVideo(
-                      videoUrl = backgroundVideoUrl!!,
+                      videoUrl = headerVideoUrl,
                       modifier = Modifier.fillMaxSize(),
                       onClick = {},
+                      onReadyChange = { ready ->
+                        songVideoShown = ready && headerVideoUrl == artistVideoUrl
+                      },
                     )
                   }
-                  // Scrim overlay to ensure text readability over bright artist images
+                  // Scrim overlay to ensure text readability over bright artist images: on the
+                  // lower part only, where the name sits. Over the whole picture, with the fade
+                  // below, it washed out the photo and the video.
                   Box(
                     modifier =
                       Modifier.fillMaxSize()
                         .background(
                           androidx.compose.ui.graphics.Brush.verticalGradient(
-                            colors =
-                              listOf(
-                                androidx.compose.ui.graphics.Color.Transparent,
-                                androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(
-                                  alpha = 0.6f,
-                                ),
-                                androidx.compose.material3.MaterialTheme.colorScheme.surface,
+                            0f to androidx.compose.ui.graphics.Color.Transparent,
+                            0.55f to androidx.compose.ui.graphics.Color.Transparent,
+                            1f to
+                              androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(
+                                alpha = 0.7f
                               ),
                           ),
                         ),
@@ -347,25 +357,6 @@ fun ArtistScreen(
                   verticalAlignment = Alignment.CenterVertically,
                   modifier = Modifier.padding(bottom = 16.dp),
                 ) {
-                  if (
-                    showArtistVideo && !(showArtistBackgroundVideo && backgroundVideoUrl != null)
-                  ) {
-                    artistVideoUrl?.let { videoUrl ->
-                      artistPage?.artist?.radioEndpoint?.let { radioEndpoint ->
-                        Spacer(modifier = Modifier.width(5.dp))
-                        ArtistVideo(
-                          videoUrl = videoUrl,
-                          modifier = Modifier.width(45.dp).height(45.dp),
-                          onClick = {
-                            val watchEndpoint =
-                              artistVideoSong?.endpoint ?: artistPage?.artist?.radioEndpoint
-                            watchEndpoint?.let { playerConnection.playQueue(YouTubeQueue(it)) }
-                          },
-                        )
-                      }
-                    }
-                  }
-
                   Spacer(modifier = Modifier.width(5.dp))
 
                   Text(
@@ -447,6 +438,37 @@ fun ArtistScreen(
                           )
                         }
                       }
+                  }
+
+                  // The song whose video plays at the top: says what the video is, and plays it.
+                  val videoSong = artistVideoSong
+                  if (songVideoShown && videoSong != null) {
+                    Row(
+                      verticalAlignment = Alignment.CenterVertically,
+                      modifier =
+                        Modifier.clip(RoundedCornerShape(12.dp))
+                          .background(MaterialTheme.colorScheme.primaryContainer)
+                          .clickable {
+                            videoSong.endpoint?.let { playerConnection.playQueue(YouTubeQueue(it)) }
+                          }
+                          .padding(horizontal = 12.dp, vertical = 6.dp),
+                    ) {
+                      Icon(
+                        painter = painterResource(R.drawable.music_note),
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                      )
+                      Spacer(modifier = Modifier.width(6.dp))
+                      Text(
+                        text = videoSong.title,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                      )
+                    }
                   }
                 }
 
