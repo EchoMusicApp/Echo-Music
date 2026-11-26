@@ -3104,12 +3104,13 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       }
 
       val limit = dataStore.get(AutoDownloadLimitKey, 25).coerceAtLeast(0)
+      // Reservations not already in automaticDownloadCount, so overlapping entries count once:
+      // a removing automatic entry is counted there and must not be counted again here.
       val pendingNotYetCounted =
         pendingAutoDownloads.count { pendingId ->
           val download = currentDownloads[pendingId]
           download == null ||
             download.state == androidx.media3.exoplayer.offline.Download.STATE_FAILED ||
-            download.state == androidx.media3.exoplayer.offline.Download.STATE_REMOVING ||
             !DownloadUtil.isAutomaticDownload(download)
         }
       val currentAutoDownloads =

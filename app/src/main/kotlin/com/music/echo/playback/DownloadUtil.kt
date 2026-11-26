@@ -400,13 +400,13 @@ constructor(
       androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data)
         .startsWith(AUTO_DOWNLOAD_DATA_PREFIX)
 
-    /** Count queued, paused, downloading and completed auto-downloads, excluding failed/removing. */
+    /**
+     * Count queued, paused, downloading, completed and removing auto-downloads, excluding failed
+     * ones. A removing entry keeps its slot until DownloadManager reports the removal finished
+     * (onDownloadRemoved drops it from the map), so the cap can't be exceeded in the meantime.
+     */
     fun automaticDownloadCount(downloads: Map<String, Download>): Int =
-      downloads.values.count {
-        isAutomaticDownload(it) &&
-          it.state != Download.STATE_FAILED &&
-          it.state != Download.STATE_REMOVING
-      }
+      downloads.values.count { isAutomaticDownload(it) && it.state != Download.STATE_FAILED }
 
     fun decodeDownloadTitle(data: ByteArray): String =
       androidx.media3.common.util.Util.fromUtf8Bytes(data)
