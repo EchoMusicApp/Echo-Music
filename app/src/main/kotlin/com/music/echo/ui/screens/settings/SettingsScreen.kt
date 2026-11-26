@@ -149,6 +149,22 @@ fun SettingsScreen(
       }
 
       if (
+        "echo connect".contains(searchLower) ||
+          "sync".contains(searchLower) ||
+          "desktop".contains(searchLower)
+      ) {
+        add(
+          Material3SettingsItem(
+            isHighlighted = (highlightKey == "Echo Connect"),
+            icon = painterResource(R.drawable.ic_echo_connect),
+            title = { Text("Echo Connect") },
+            description = { Text("Pair with Desktop, sync account, playlists & playback") },
+            onClick = { navController.navigate("settings/echo_connect") },
+          ),
+        )
+      }
+
+      if (
         aiLyricsText.lowercase().contains(searchLower) ||
           aiLyricsDesc.lowercase().contains(searchLower)
       ) {

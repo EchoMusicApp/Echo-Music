@@ -379,7 +379,7 @@ fun AudioDeviceBottomSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier)
         Spacer(modifier = Modifier.height(24.dp))
       }
 
-      EchoConnectLanSection(onDismiss = onDismiss)
+      EchoConnectQuickSwitcher(onDismiss = onDismiss)
 
       when {
         isLoading -> {
@@ -1372,6 +1372,111 @@ private fun ExtensionAudioSourceSelector(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
           )
+        }
+      }
+    }
+  }
+}
+
+@Composable
+private fun EchoConnectQuickSwitcher(onDismiss: () -> Unit) {
+  val context = LocalContext.current
+  val lanManager =
+    remember(context) { echo.music.iad1tya.lansync.LanSyncManager.getInstance(context) }
+  val peers by lanManager.peers.collectAsState()
+  val pairedPeerId by lanManager.pairedPeerId.collectAsState()
+  val activeRemotePeer by lanManager.activeRemotePeer.collectAsState()
+  val remoteStates by lanManager.remoteStates.collectAsState()
+
+  val pairedPeer =
+    remember(peers, pairedPeerId) {
+      pairedPeerId?.let { pid -> peers.firstOrNull { it.id == pid } }
+    } ?: return
+
+  val isLive = activeRemotePeer?.id == pairedPeer.id
+  val st = remoteStates[pairedPeer.id]
+
+  Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+    Text(
+      text = "Echo Connect",
+      style = MaterialTheme.typography.titleMedium,
+      color = MaterialTheme.colorScheme.onSurface,
+      modifier = Modifier.padding(bottom = 10.dp),
+    )
+    Surface(
+      shape = RoundedCornerShape(20.dp),
+      color = MaterialTheme.colorScheme.surfaceContainer,
+      border =
+        if (isLive) {
+          androidx.compose.foundation.BorderStroke(
+            1.5.dp,
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+          )
+        } else null,
+      modifier = Modifier.fillMaxWidth(),
+    ) {
+      Column(
+        modifier = Modifier.padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+      ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+          Icon(
+            painter = androidx.compose.ui.res.painterResource(R.drawable.ic_echo_connect),
+            contentDescription = null,
+            tint =
+              if (isLive) MaterialTheme.colorScheme.primary
+              else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(22.dp),
+          )
+          Column(modifier = Modifier.weight(1f)) {
+            Text(
+              text = pairedPeer.name,
+              style = MaterialTheme.typography.titleSmall,
+              fontWeight = FontWeight.SemiBold,
+              color =
+                if (isLive) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurface,
+            )
+            val sub = st?.current?.let { "${it.title} — ${it.artist}" } ?: "Ready on Wi-Fi"
+            Text(
+              text = sub,
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+            )
+          }
+        }
+        Row(
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          modifier = Modifier.fillMaxWidth(),
+        ) {
+          androidx.compose.material3.FilledTonalButton(
+            onClick = {
+              if (isLive) lanManager.disconnectRemotePeer()
+              else lanManager.handoffToPeer(pairedPeer)
+              onDismiss()
+            },
+            modifier = Modifier.weight(1f),
+          ) {
+            Text(
+              if (isLive) "This Phone" else "Play on ${pairedPeer.name}",
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis,
+            )
+          }
+          androidx.compose.material3.OutlinedButton(
+            onClick = {
+              lanManager.continueFromPeer(pairedPeer)
+              onDismiss()
+            },
+            modifier = Modifier.weight(1f),
+          ) {
+            Text("Move to Phone", maxLines = 1, overflow = TextOverflow.Ellipsis)
+          }
         }
       }
     }

@@ -7,23 +7,42 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.util.Log
 import androidx.core.content.edit
+import androidx.datastore.preferences.core.edit
 import androidx.media3.common.Player
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
+import echo.music.iad1tya.constants.AccountChannelHandleKey
+import echo.music.iad1tya.constants.AccountEmailKey
+import echo.music.iad1tya.constants.AccountNameKey
+import echo.music.iad1tya.constants.InnerTubeCookieKey
+import echo.music.iad1tya.constants.SpotifyAccessTokenKey
+import echo.music.iad1tya.constants.SpotifySpDcKey
+import echo.music.iad1tya.constants.SpotifySpKeyKey
+import echo.music.iad1tya.db.MusicDatabase
+import echo.music.iad1tya.db.entities.PlaylistEntity
+import echo.music.iad1tya.db.entities.PlaylistSongMap
+import echo.music.iad1tya.db.entities.SongEntity
 import echo.music.iad1tya.extensions.metadata
 import echo.music.iad1tya.extensions.toMediaItem
 import echo.music.iad1tya.models.MediaMetadata
 import echo.music.iad1tya.playback.PlayerConnection
 import echo.music.iad1tya.playback.queues.ListQueue
+import echo.music.iad1tya.spotify.Spotify
+import echo.music.iad1tya.spotify.SpotifyAuth
 import echo.music.iad1tya.utils.PodcastProgress
+import echo.music.iad1tya.utils.dataStore
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import java.net.ServerSocket
 import java.net.Socket
 import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -33,6 +52,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
@@ -107,6 +127,9 @@ class LanSyncManager private constructor(private val appContext: Context) {
     private const val SERVICE_TYPE = "_echomusic._tcp."
     private const val PREFS_NAME = "lan_sync_prefs"
     private const val KEY_DEVICE_ID = "device_id"
+    private const val KEY_PAIRED_PEER_ID = "paired_peer_id"
+    private const val KEY_PAIRED_PEER_NAME = "paired_peer_name"
+    private const val KEY_PAIR_TOKEN = "pair_token"
     private val JSON_MEDIA = "application/json; charset=utf-8".toMediaType()
 
     @Volatile private var instance: LanSyncManager? = null
@@ -138,6 +161,55 @@ class LanSyncManager private constructor(private val appContext: Context) {
     get() = Build.MODEL?.takeIf { it.isNotBlank() } ?: "Android Device"
 
   @Volatile private var playerConnection: PlayerConnection? = null
+  @Volatile private var database: MusicDatabase? = null
+
+  data class PairingSession(
+    val peer: LanPeer,
+    val code: String,
+    val expiresAtMs: Long,
+    val secondsLeft: Int,
+  )
+
+  data class SyncDetails(
+    val lastSyncAtMs: Long = 0L,
+    val accountStatus: String = "Not synced yet",
+    val localPlaylistsStatus: String = "Not synced yet",
+    val spotifyPlaylistsStatus: String = "Not synced yet",
+    val episodesStatus: String = "Not synced yet",
+  )
+
+  private val prefs by lazy { appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
+
+  private val _pairedPeerId = MutableStateFlow<String?>(prefs.getString(KEY_PAIRED_PEER_ID, null))
+  val pairedPeerId: StateFlow<String?> = _pairedPeerId.asStateFlow()
+
+  private val _pairedPeerName =
+    MutableStateFlow<String?>(prefs.getString(KEY_PAIRED_PEER_NAME, null))
+  val pairedPeerName: StateFlow<String?> = _pairedPeerName.asStateFlow()
+
+  private val _pairingSession = MutableStateFlow<PairingSession?>(null)
+  val pairingSession: StateFlow<PairingSession?> = _pairingSession.asStateFlow()
+
+  data class IncomingPairRequest(
+    val peer: LanPeer,
+    val expiresAtMs: Long,
+    val busy: Boolean = false,
+    val error: String? = null,
+  )
+
+  private val _incomingPairRequest = MutableStateFlow<IncomingPairRequest?>(null)
+  val incomingPairRequest: StateFlow<IncomingPairRequest?> = _incomingPairRequest.asStateFlow()
+
+  private val _syncBusy = MutableStateFlow(false)
+  val syncBusy: StateFlow<Boolean> = _syncBusy.asStateFlow()
+
+  private val _syncDetails = MutableStateFlow(SyncDetails())
+  val syncDetails: StateFlow<SyncDetails> = _syncDetails.asStateFlow()
+
+  private val _syncLogs = MutableStateFlow<List<String>>(emptyList())
+  val syncLogs: StateFlow<List<String>> = _syncLogs.asStateFlow()
+
+  private var pairingJob: Job? = null
 
   private val _peers = MutableStateFlow<List<LanPeer>>(emptyList())
   val peers: StateFlow<List<LanPeer>> = _peers.asStateFlow()
@@ -189,6 +261,9 @@ class LanSyncManager private constructor(private val appContext: Context) {
   @Volatile private var running = false
 
   fun attachPlayerConnection(connection: PlayerConnection?) {
+    if (connection != null) {
+      database = connection.database
+    }
     if (playerConnection === connection && observerJob?.isActive == true) return
     playerConnection = connection
     observerJob?.cancel()
@@ -312,8 +387,12 @@ class LanSyncManager private constructor(private val appContext: Context) {
 
     syncLoopJob = scope.launch {
       while (isActive && running) {
-        delay(25_000)
-        syncEpisodesWithAllPeers()
+        delay(300_000)
+        if (_pairedPeerId.value != null) {
+          forceSyncNow()
+        } else {
+          syncEpisodesWithAllPeers()
+        }
       }
     }
     Log.d(TAG, "Started LAN Sync on port $localPort as $deviceName ($deviceId)")
@@ -789,6 +868,47 @@ class LanSyncManager private constructor(private val appContext: Context) {
                 }
                 .toString()
             }
+            method == "POST" && path == "/v1/pair/start" -> {
+              val obj = JSONObject(bodyStr)
+              val id = obj.optString("deviceId")
+              val peer =
+                peerMap[id]
+                  ?: LanPeer(
+                    id = id,
+                    name = obj.optString("deviceName").ifBlank { "Echo Desktop" },
+                    platform = obj.optString("platform", "desktop"),
+                    host =
+                      obj.optString("host").ifBlank {
+                        sock.inetAddress?.hostAddress ?: "127.0.0.1"
+                      },
+                    port = obj.optInt("port", 45871),
+                  )
+              val exp = obj.optLong("expiresAtMs", System.currentTimeMillis() + 60_000L)
+              _incomingPairRequest.value = IncomingPairRequest(peer = peer, expiresAtMs = exp)
+              JSONObject().put("ok", true).toString()
+            }
+            method == "POST" && path == "/v1/pair/verify" -> {
+              val obj = JSONObject(bodyStr)
+              handlePairVerify(
+                  peerId = obj.optString("deviceId"),
+                  peerName = obj.optString("deviceName"),
+                  code = obj.optString("code"),
+                )
+                .toString()
+            }
+            method == "POST" && path == "/v1/pair/unpair" -> {
+              val obj = JSONObject(bodyStr)
+              val id = obj.optString("deviceId")
+              if (_pairedPeerId.value == null || _pairedPeerId.value == id) {
+                clearPairingStorage("Unpaired by remote device")
+              }
+              JSONObject().put("ok", true).toString()
+            }
+            method == "POST" && path == "/v1/sync" -> {
+              val incoming = JSONObject(bodyStr)
+              applyIncomingSyncBundle(incoming)
+              buildLocalSyncBundle().toString()
+            }
             else -> {
               writeHttpResponse(sock, 404, "Not Found", """{"error":"not found"}""")
               return
@@ -1108,5 +1228,416 @@ class LanSyncManager private constructor(private val appContext: Context) {
       repeat = o.optString("repeat", "off"),
       episodes = parseEpisodes(o.optJSONArray("episodes")),
     )
+  }
+
+  // --- 6-Digit Pairing & Full Account / Playlist / Spotify Sync ---
+
+  fun startPairing(peer: LanPeer) {
+    pairingJob?.cancel()
+    pairingJob = scope.launch {
+      while (isActive && _pairedPeerId.value != peer.id) {
+        val code = Random.nextInt(100_000, 1_000_000).toString()
+        val expiresAt = System.currentTimeMillis() + 60_000L
+        _pairingSession.value =
+          PairingSession(peer = peer, code = code, expiresAtMs = expiresAt, secondsLeft = 60)
+        val payload =
+          JSONObject().apply {
+            put("deviceId", deviceId)
+            put("deviceName", deviceName)
+            put("platform", "android")
+            localIPv4Address()?.let { put("host", it) }
+            put("port", serverSocket?.localPort ?: 45870)
+            put("expiresAtMs", expiresAt)
+          }
+        try {
+          executePostWithFallback(peer, "/v1/pair/start", payload.toString())
+        } catch (e: Exception) {
+          _statusMessage.value = "Could not reach ${peer.name}: ${e.message}"
+        }
+        for (sec in 59 downTo 0) {
+          delay(1000)
+          val cur = _pairingSession.value ?: return@launch
+          if (_pairedPeerId.value == peer.id) return@launch
+          _pairingSession.value = cur.copy(secondsLeft = sec)
+        }
+      }
+    }
+  }
+
+  fun cancelPairing() {
+    pairingJob?.cancel()
+    pairingJob = null
+    _pairingSession.value = null
+  }
+
+  fun dismissIncomingPairRequest() {
+    _incomingPairRequest.value = null
+  }
+
+  fun submitIncomingPairCode(code: String) {
+    val req = _incomingPairRequest.value ?: return
+    val trimmed = code.trim()
+    if (trimmed.length != 6) {
+      _incomingPairRequest.value = req.copy(error = "Enter the 6-digit code")
+      return
+    }
+    _incomingPairRequest.value = req.copy(busy = true, error = null)
+    scope.launch {
+      try {
+        val payload =
+          JSONObject().apply {
+            put("deviceId", deviceId)
+            put("deviceName", deviceName)
+            put("code", trimmed)
+          }
+        val body = executePostWithFallback(req.peer, "/v1/pair/verify", payload.toString())
+        val resp = if (body != null) JSONObject(body) else null
+        if (resp?.optBoolean("ok", false) == true) {
+          val token = resp.optString("pairToken")
+          prefs.edit {
+            putString(KEY_PAIRED_PEER_ID, req.peer.id)
+            putString(KEY_PAIRED_PEER_NAME, req.peer.name)
+            putString(KEY_PAIR_TOKEN, token)
+          }
+          _pairedPeerId.value = req.peer.id
+          _pairedPeerName.value = req.peer.name
+          _incomingPairRequest.value = null
+          _statusMessage.value = "Paired with ${req.peer.name}"
+          appendSyncLog("Paired with ${req.peer.name}")
+        } else {
+          val err =
+            resp?.optString("error")?.takeIf { it.isNotBlank() } ?: "Invalid or expired code"
+          _incomingPairRequest.value = req.copy(busy = false, error = err)
+        }
+      } catch (e: Exception) {
+        _incomingPairRequest.value = req.copy(busy = false, error = e.message ?: "Pairing failed")
+      }
+    }
+  }
+
+  fun unpair(peer: LanPeer?) {
+    val target = peer ?: _peers.value.firstOrNull { it.id == _pairedPeerId.value }
+    clearPairingStorage("Unpaired")
+    if (target != null) {
+      scope.launch {
+        try {
+          executePostWithFallback(
+            target,
+            "/v1/pair/unpair",
+            JSONObject().put("deviceId", deviceId).toString(),
+          )
+        } catch (_: Exception) {}
+      }
+    }
+  }
+
+  private fun clearPairingStorage(reason: String) {
+    prefs.edit {
+      remove(KEY_PAIRED_PEER_ID)
+      remove(KEY_PAIRED_PEER_NAME)
+      remove(KEY_PAIR_TOKEN)
+    }
+    _pairedPeerId.value = null
+    _pairedPeerName.value = null
+    cancelPairing()
+    _statusMessage.value = reason
+    appendSyncLog(reason)
+  }
+
+  private fun handlePairVerify(peerId: String, peerName: String, code: String): JSONObject {
+    val session = _pairingSession.value
+    val now = System.currentTimeMillis()
+    if (session == null || now > session.expiresAtMs) {
+      return JSONObject()
+        .put("ok", false)
+        .put("error", "Code expired. Check your phone for the new code.")
+    }
+    if (code.trim() != session.code) {
+      return JSONObject().put("ok", false).put("error", "Incorrect 6-digit code.")
+    }
+    val token = UUID.randomUUID().toString().replace("-", "")
+    val boundId = peerId.ifBlank { session.peer.id }
+    val boundName = peerName.ifBlank { session.peer.name }
+    prefs.edit {
+      putString(KEY_PAIRED_PEER_ID, boundId)
+      putString(KEY_PAIRED_PEER_NAME, boundName)
+      putString(KEY_PAIR_TOKEN, token)
+    }
+    _pairedPeerId.value = boundId
+    _pairedPeerName.value = boundName
+    cancelPairing()
+    _statusMessage.value = "Paired with $boundName"
+    appendSyncLog("Paired with $boundName")
+    return JSONObject().put("ok", true).put("pairToken", token)
+  }
+
+  fun forceSyncNow(peerOverride: LanPeer? = null) {
+    val target = peerOverride ?: _peers.value.firstOrNull { it.id == _pairedPeerId.value } ?: return
+    if (_syncBusy.value) return
+    _syncBusy.value = true
+    scope.launch {
+      try {
+        val bundle = buildLocalSyncBundle()
+        val body = executePostWithFallback(target, "/v1/sync", bundle.toString())
+        if (body != null) {
+          applyIncomingSyncBundle(JSONObject(body))
+          _statusMessage.value = "Sync complete with ${target.name}"
+        } else {
+          _statusMessage.value = "Sync failed: empty response"
+        }
+      } catch (e: Exception) {
+        _statusMessage.value = "Sync failed: ${e.message}"
+        appendSyncLog("Sync failed: ${e.message}")
+      } finally {
+        _syncBusy.value = false
+      }
+    }
+  }
+
+  private suspend fun buildLocalSyncBundle(): JSONObject {
+    val now = System.currentTimeMillis()
+    val prefsData = appContext.dataStore.data.first()
+
+    // 1. Google Account
+    val cookie = prefsData[InnerTubeCookieKey].orEmpty()
+    val acctName = prefsData[AccountNameKey].orEmpty()
+    val acctEmail = prefsData[AccountEmailKey].orEmpty()
+    val acctHandle = prefsData[AccountChannelHandleKey].orEmpty()
+    val accountJson =
+      if (cookie.isNotBlank()) {
+        JSONObject().apply {
+          put("cookie", cookie)
+          put("name", acctName)
+          put("email", acctEmail)
+          put("channelHandle", acctHandle)
+          put("updatedAtMs", now)
+        }
+      } else null
+
+    // 2. Local Playlists from Room DB (non-YouTube / local-only, excluding system playlists)
+    val localPlaylistsArr = JSONArray()
+    val db = database
+    var localCount = 0
+    if (db != null) {
+      val allPlaylists = runCatching {
+        db.playlistsByCreateDateAsc().first()
+      }
+        .getOrDefault(emptyList())
+      for (pl in allPlaylists) {
+        val e = pl.playlist
+        if (
+          e.id == PlaylistEntity.LIKED_PLAYLIST_ID || e.id == PlaylistEntity.DOWNLOADED_PLAYLIST_ID
+        ) {
+          continue
+        }
+        if (!e.isLocal && !e.browseId.isNullOrBlank()) continue
+        val songs = runCatching { db.playlistSongs(e.id).first() }.getOrDefault(emptyList())
+        val tracksArr = JSONArray()
+        for (ps in songs) {
+          val s = ps.song.song
+          tracksArr.put(
+            trackToJson(
+              LanTrackDto(
+                videoId = s.id,
+                title = s.title,
+                artist = ps.song.artists.joinToString(", ") { it.name },
+                album = ps.song.album?.title,
+                durationSec = s.duration,
+                thumbnail = s.thumbnailUrl,
+              ),
+            ),
+          )
+        }
+        localPlaylistsArr.put(
+          JSONObject().apply {
+            put("syncId", "local:${e.id}")
+            put("title", e.name)
+            e.thumbnailUrl?.let { put("thumbnail", it) }
+            put("isSpotify", false)
+            put("updatedAtMs", now)
+            put("tracks", tracksArr)
+          },
+        )
+        localCount++
+      }
+    }
+
+    // 3. Spotify Playlists (if user is signed into Spotify)
+    val spotifyPlaylistsArr = JSONArray()
+    var spotifyCount = 0
+    val spDc = prefsData[SpotifySpDcKey].orEmpty()
+    val spKey = prefsData[SpotifySpKeyKey].orEmpty()
+    var spToken = prefsData[SpotifyAccessTokenKey].orEmpty()
+    if (spToken.isBlank() && spDc.isNotBlank()) {
+      spToken = SpotifyAuth.fetchAccessToken(spDc, spKey).getOrNull()?.accessToken.orEmpty()
+    }
+    if (spToken.isNotBlank()) {
+      Spotify.accessToken = spToken
+      val myPlaylists = runCatching {
+        Spotify.myPlaylists(limit = 50, offset = 0).getOrNull()?.items
+      }
+        .getOrNull()
+        .orEmpty()
+      for (sp in myPlaylists) {
+        val spTracks = runCatching {
+          Spotify.playlistTracks(sp.id, limit = 100, offset = 0).getOrNull()?.items
+        }
+          .getOrNull()
+          .orEmpty()
+        val tracksArr = JSONArray()
+        for (item in spTracks) {
+          val tr = item.track ?: continue
+          tracksArr.put(
+            trackToJson(
+              LanTrackDto(
+                videoId = "",
+                title = tr.name,
+                artist = tr.artists.joinToString(", ") { it.name },
+                album = tr.album?.name,
+                durationSec = (tr.durationMs / 1000L).toInt(),
+                thumbnail = tr.album?.images?.firstOrNull()?.url,
+              ),
+            ),
+          )
+        }
+        spotifyPlaylistsArr.put(
+          JSONObject().apply {
+            put("syncId", "spotify:${sp.id}")
+            put("title", sp.name)
+            sp.images.firstOrNull()?.url?.let { put("thumbnail", it) }
+            put("isSpotify", true)
+            put("updatedAtMs", now)
+            put("tracks", tracksArr)
+          },
+        )
+        spotifyCount++
+      }
+    }
+
+    val eps = localEpisodes()
+    _syncDetails.value =
+      _syncDetails.value.copy(
+        lastSyncAtMs = now,
+        accountStatus =
+          if (cookie.isNotBlank())
+            "Synced (${acctName.ifBlank { acctEmail.ifBlank { "Signed in" } }})"
+          else "Not signed in",
+        localPlaylistsStatus = "$localCount playlists sent",
+        spotifyPlaylistsStatus =
+          if (spToken.isNotBlank()) "$spotifyCount playlists sent" else "Spotify not connected",
+        episodesStatus = "${eps.size} episodes",
+      )
+
+    return JSONObject().apply {
+      put("senderId", deviceId)
+      put("senderName", deviceName)
+      put("sentAtMs", now)
+      accountJson?.let { put("googleAccount", it) }
+      put("localPlaylists", localPlaylistsArr)
+      put("spotifyPlaylists", spotifyPlaylistsArr)
+      put("episodes", JSONArray().apply { eps.forEach { put(episodeToJson(it)) } })
+    }
+  }
+
+  private suspend fun applyIncomingSyncBundle(obj: JSONObject) {
+    val now = System.currentTimeMillis()
+    val acctObj = obj.optJSONObject("googleAccount")
+    var acctMsg = _syncDetails.value.accountStatus
+    if (acctObj != null) {
+      val cookie = acctObj.optString("cookie")
+      val name = acctObj.optString("name")
+      val email = acctObj.optString("email")
+      val handle = acctObj.optString("channelHandle")
+      if (cookie.isNotBlank()) {
+        val currentCookie = appContext.dataStore.data.first()[InnerTubeCookieKey].orEmpty()
+        if (currentCookie.isBlank()) {
+          appContext.dataStore.edit { p ->
+            p[InnerTubeCookieKey] = cookie
+            if (name.isNotBlank()) p[AccountNameKey] = name
+            if (email.isNotBlank()) p[AccountEmailKey] = email
+            if (handle.isNotBlank()) p[AccountChannelHandleKey] = handle
+          }
+          acctMsg = "Signed in (${name.ifBlank { email }})"
+          appendSyncLog("Google account signed in from Desktop")
+        } else {
+          acctMsg = "Synced (${name.ifBlank { "Active" }})"
+        }
+      }
+    }
+
+    val localArr = obj.optJSONArray("localPlaylists")
+    var mergedPlaylists = 0
+    val db = database
+    if (localArr != null && db != null) {
+      val existing = runCatching { db.playlistsByCreateDateAsc().first() }.getOrDefault(emptyList())
+      for (i in 0 until localArr.length()) {
+        val plObj = localArr.optJSONObject(i) ?: continue
+        val title = plObj.optString("title").trim()
+        if (title.isBlank()) continue
+        val match = existing.firstOrNull {
+          (it.playlist.isLocal || it.playlist.browseId.isNullOrBlank()) &&
+            it.playlist.name.equals(title, ignoreCase = true)
+        }
+        val playlistId =
+          match?.playlist?.id
+            ?: PlaylistEntity.generatePlaylistId().also { newId ->
+              db.insert(
+                PlaylistEntity(
+                  id = newId,
+                  name = title,
+                  thumbnailUrl = plObj.optString("thumbnail").takeIf { it.isNotBlank() },
+                  isLocal = true,
+                ),
+              )
+            }
+        val tracksArr = plObj.optJSONArray("tracks")
+        if (tracksArr != null) {
+          val curSongs = runCatching {
+            db.playlistSongs(playlistId).first()
+          }
+            .getOrDefault(emptyList())
+          val existingIds = curSongs.map { it.song.song.id }.toMutableSet()
+          var pos = curSongs.size
+          for (j in 0 until tracksArr.length()) {
+            val t = tracksArr.optJSONObject(j) ?: continue
+            val vid = t.optString("videoId")
+            if (vid.isBlank() || existingIds.contains(vid)) continue
+            db.insert(
+              SongEntity(
+                id = vid,
+                title = t.optString("title"),
+                duration = t.optInt("durationSec", 0),
+                thumbnailUrl = t.optString("thumbnail").takeIf { it.isNotBlank() },
+              ),
+            )
+            db.insert(PlaylistSongMap(playlistId = playlistId, songId = vid, position = pos++))
+            existingIds.add(vid)
+          }
+        }
+        mergedPlaylists++
+      }
+    }
+
+    val eps = parseEpisodes(obj.optJSONArray("episodes"))
+    if (eps.isNotEmpty()) {
+      mergeRemoteEpisodes(eps)
+    }
+
+    _syncDetails.value =
+      _syncDetails.value.copy(
+        lastSyncAtMs = now,
+        accountStatus = acctMsg,
+        localPlaylistsStatus =
+          if (mergedPlaylists > 0) "$mergedPlaylists playlists merged"
+          else _syncDetails.value.localPlaylistsStatus,
+        episodesStatus = "${localEpisodes().size} episodes synced",
+      )
+    appendSyncLog("Synced with ${obj.optString("senderName").ifBlank { "Desktop" }}")
+  }
+
+  private fun appendSyncLog(message: String) {
+    val fmt = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    val line = "[${fmt.format(Date())}] $message"
+    _syncLogs.value = (listOf(line) + _syncLogs.value).take(20)
   }
 }
