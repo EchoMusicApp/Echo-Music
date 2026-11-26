@@ -344,7 +344,7 @@ Run tests with:
 
 ## CI
 
-- `.github/workflows/android-build.yml` — assembles `assembleUniversalGmsDebug` and uploads the Universal GMS debug APK; it currently does not run unit tests.
+- `.github/workflows/android-build.yml` — runs `:core:testDebugUnitTest :app:testUniversalGmsDebugUnitTest` unit tests before assembling APK artifacts.
 - `.github/workflows/codeql.yml` — static analysis / security scanning.
 
 ## Local Taste Engine
