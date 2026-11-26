@@ -47,6 +47,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.Cast
+import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.MusicNote
@@ -378,6 +379,8 @@ fun AudioDeviceBottomSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier)
         Spacer(modifier = Modifier.height(24.dp))
       }
 
+      EchoConnectLanSection(onDismiss = onDismiss)
+
       when {
         isLoading -> {
           Box(
@@ -666,15 +669,7 @@ fun AudioDeviceBottomSheet(onDismiss: () -> Unit, modifier: Modifier = Modifier)
             },
           )
 
-          Spacer(modifier = Modifier.height(24.dp))
-
-          AudioQualitySelector(context)
-
-          Spacer(modifier = Modifier.height(24.dp))
-
-          DownloadQualitySelector()
-
-          Spacer(modifier = Modifier.height(24.dp))
+          Spacer(modifier = Modifier.height(20.dp))
 
           Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1380,5 +1375,199 @@ private fun ExtensionAudioSourceSelector(
         }
       }
     }
+  }
+}
+
+@Composable
+private fun EchoConnectLanSection(onDismiss: () -> Unit) {
+  val context = LocalContext.current
+  val (lanSyncEnabled) =
+    rememberPreference(echo.music.iad1tya.constants.LanSyncEnabledKey, defaultValue = true)
+  if (!lanSyncEnabled) return
+
+  val lanManager =
+    remember(context) { echo.music.iad1tya.lansync.LanSyncManager.getInstance(context) }
+  val peers by lanManager.peers.collectAsState()
+  val remoteStates by lanManager.remoteStates.collectAsState()
+  val statusMessage by lanManager.statusMessage.collectAsState()
+  val activeRemotePeer by lanManager.activeRemotePeer.collectAsState()
+
+  LaunchedEffect(peers) {
+    while (true) {
+      peers.forEach { peer -> lanManager.refreshPeerState(peer) }
+      kotlinx.coroutines.delay(1500)
+    }
+  }
+
+  Column(modifier = Modifier.fillMaxWidth()) {
+    Text(
+      text = "Echo Connect",
+      style = MaterialTheme.typography.titleMedium,
+      fontWeight = FontWeight.SemiBold,
+      color = MaterialTheme.colorScheme.onSurface,
+      modifier = Modifier.padding(bottom = 10.dp),
+    )
+
+    if (statusMessage != null) {
+      Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+      ) {
+        Text(
+          text = statusMessage!!,
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSecondaryContainer,
+          modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+        )
+      }
+    }
+
+    if (peers.isEmpty()) {
+      Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        modifier = Modifier.fillMaxWidth(),
+      ) {
+        Row(
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+          modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+        ) {
+          Icon(
+            imageVector = Icons.Filled.Computer,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp),
+          )
+          Text(
+            text = "Searching for Echo Music Desktop on your Wi-Fi...",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+      }
+    } else {
+      Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        peers.forEach { peer ->
+          val st = remoteStates[peer.id]
+          val isLive = activeRemotePeer?.id == peer.id
+          val peerIcon =
+            if (peer.platform.equals("android", ignoreCase = true)) Icons.Filled.PhoneAndroid
+            else Icons.Filled.Computer
+          Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            border =
+              if (isLive) {
+                androidx.compose.foundation.BorderStroke(
+                  1.5.dp,
+                  MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                )
+              } else null,
+            modifier = Modifier.fillMaxWidth(),
+          ) {
+            Column(modifier = Modifier.padding(14.dp)) {
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth(),
+              ) {
+                Surface(
+                  shape = RoundedCornerShape(12.dp),
+                  color =
+                    if (isLive) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                    else MaterialTheme.colorScheme.surfaceContainerHighest,
+                  modifier = Modifier.size(40.dp),
+                ) {
+                  Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                      imageVector = peerIcon,
+                      contentDescription = null,
+                      tint =
+                        if (isLive) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                      modifier = Modifier.size(20.dp),
+                    )
+                  }
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                  Text(
+                    text = peer.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color =
+                      if (isLive) MaterialTheme.colorScheme.primary
+                      else MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                  )
+                  val sub =
+                    st?.current?.let { "${it.title} — ${it.artist}" }
+                      ?: "${peer.platform.replaceFirstChar { c -> c.uppercase() }} • ${peer.host}"
+                  Text(
+                    text = sub,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                  )
+                }
+                androidx.compose.material3.FilledTonalIconButton(
+                  onClick = { lanManager.sendControl(peer, "toggle") },
+                  modifier = Modifier.size(38.dp),
+                ) {
+                  Icon(
+                    painter =
+                      androidx.compose.ui.res.painterResource(
+                        if (st?.playing == true) R.drawable.pause else R.drawable.play,
+                      ),
+                    contentDescription = "Play/Pause",
+                    modifier = Modifier.size(18.dp),
+                  )
+                }
+              }
+
+              Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+              ) {
+                if (isLive) {
+                  androidx.compose.material3.FilledTonalButton(
+                    onClick = {
+                      lanManager.disconnectRemotePeer()
+                      onDismiss()
+                    },
+                    modifier = Modifier.weight(1f),
+                  ) {
+                    Text("Disconnect", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                  }
+                } else {
+                  androidx.compose.material3.FilledTonalButton(
+                    onClick = {
+                      lanManager.handoffToPeer(peer)
+                      onDismiss()
+                    },
+                    modifier = Modifier.weight(1f),
+                  ) {
+                    Text("Play on ${peer.name}", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                  }
+                }
+                androidx.compose.material3.OutlinedButton(
+                  onClick = {
+                    lanManager.continueFromPeer(peer)
+                    onDismiss()
+                  },
+                  modifier = Modifier.weight(1f),
+                ) {
+                  Text("Move to Phone", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    Spacer(modifier = Modifier.height(16.dp))
   }
 }

@@ -78,8 +78,15 @@ fun FloatingMiniPlayer(
   modifier: Modifier = Modifier,
 ) {
   val playerConnection = LocalPlayerConnection.current ?: return
-  val mediaMetadata by playerConnection.mediaMetadata.collectAsStateWithLifecycle()
-  val isPlaying by playerConnection.isPlaying.collectAsStateWithLifecycle()
+  val localMediaMetadata by playerConnection.mediaMetadata.collectAsStateWithLifecycle()
+  val isLanRemote by playerConnection.lanSync.isRemoteControlling.collectAsStateWithLifecycle()
+  val lanRemoteMediaMetadata by
+    playerConnection.lanSync.remoteMediaMetadata.collectAsStateWithLifecycle()
+  val lanRemotePlaying by playerConnection.lanSync.remotePlaying.collectAsStateWithLifecycle()
+  val mediaMetadata =
+    if (isLanRemote) (lanRemoteMediaMetadata ?: localMediaMetadata) else localMediaMetadata
+  val localIsPlaying by playerConnection.isPlaying.collectAsStateWithLifecycle()
+  val isPlaying = if (isLanRemote) lanRemotePlaying else localIsPlaying
 
   val swipeSensitivity by rememberPreference(SwipeSensitivityKey, 0.73f)
   val swipeThumbnailPref by rememberPreference(SwipeThumbnailKey, true)
@@ -198,10 +205,10 @@ fun FloatingMiniPlayer(
                       (abs(currentOffset) > autoSwipeThreshold)
 
                   if (shouldChangeSong) {
-                    if (currentOffset > 0 && canSkipPrevious) {
-                      playerConnection.player.seekToPreviousMediaItem()
-                    } else if (currentOffset <= 0 && canSkipNext) {
-                      playerConnection.player.seekToNext()
+                    if (currentOffset > 0 && (canSkipPrevious || isLanRemote)) {
+                      playerConnection.seekToPrevious()
+                    } else if (currentOffset <= 0 && (canSkipNext || isLanRemote)) {
+                      playerConnection.seekToNext()
                     }
                   }
                   coroutineScope.launch { offsetXAnimatable.animateTo(0f, animationSpec) }
@@ -277,7 +284,7 @@ fun FloatingMiniPlayer(
       }
 
       IconButton(
-        onClick = { playerConnection.player.togglePlayPause() },
+        onClick = { playerConnection.togglePlayPause() },
         modifier = Modifier.size(controlSize),
       ) {
         Icon(
@@ -289,7 +296,7 @@ fun FloatingMiniPlayer(
 
       if (!isInline) {
         IconButton(
-          onClick = { playerConnection.player.seekToNext() },
+          onClick = { playerConnection.seekToNext() },
           modifier = Modifier.size(controlSize),
         ) {
           Icon(
