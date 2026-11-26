@@ -239,6 +239,7 @@ fun LibraryScreen(navController: NavController) {
               HorizontalPager(
                 state = pagerState,
                 beyondViewportPageCount = 1,
+                verticalAlignment = Alignment.Top,
                 modifier = Modifier.weight(1f).fillMaxWidth().clipToBounds(),
               ) { page ->
                 when (LibrarySourceTab.entries[page]) {
@@ -496,7 +497,7 @@ private fun LibrarySourceTabs(
       modifier
         .fillMaxWidth()
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-        .padding(horizontal = 16.dp, vertical = 6.dp),
+        .padding(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 4.dp),
   ) {
     androidx.compose.material3.Surface(
       shape = CircleShape,

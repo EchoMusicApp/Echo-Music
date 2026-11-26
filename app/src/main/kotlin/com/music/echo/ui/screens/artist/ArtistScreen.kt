@@ -330,7 +330,7 @@ fun ArtistScreen(
                             0.55f to androidx.compose.ui.graphics.Color.Transparent,
                             1f to
                               androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(
-                                alpha = 0.7f
+                                alpha = 0.7f,
                               ),
                           ),
                         ),

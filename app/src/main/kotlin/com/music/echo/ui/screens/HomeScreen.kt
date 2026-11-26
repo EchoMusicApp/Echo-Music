@@ -722,7 +722,6 @@ fun HomeScreen(
       // A selected chip shows only that chip's content; the personal sections live on the main
       // Home.
       if (selectedChip == null) {
-        if (showSpeedDial && speedDialItems.isNotEmpty()) list.add(HomeSection.Shortcuts)
         if (showHeroCarousel && heroSongs.isNotEmpty()) list.add(HomeSection.HeroCarousel)
         if (
           dailyDiscover?.isNotEmpty() == true || aiRecommendedPlaylist?.second?.isNotEmpty() == true
@@ -774,8 +773,8 @@ fun HomeScreen(
       // keep loading as you scroll.
       list.sortedByDescending { section ->
         when (section) {
-          HomeSection.Shortcuts -> 20000
-          HomeSection.HeroCarousel -> 19000
+          HomeSection.HeroCarousel -> 20000
+          HomeSection.Shortcuts -> 19000
           is HomeSection.HomePageSection ->
             if (section.index < HomeLeadingYouTubeSections) 10000 - section.index
             else -section.index

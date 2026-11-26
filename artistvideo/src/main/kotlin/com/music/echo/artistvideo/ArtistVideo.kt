@@ -123,7 +123,7 @@ fun ArtistVideo(
             Modifier.background(Color.Black.copy(alpha = 0.3f)).clickable { onClick() }
           } else {
             Modifier
-          }
+          },
         ),
   ) {
     AndroidView(
