@@ -297,7 +297,11 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
     else if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainerHigh
 
   val playbackState by playerConnection.playbackState.collectAsState()
-  val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+  val localMediaMetadata by playerConnection.mediaMetadata.collectAsState()
+  val isLanRemote by playerConnection.lanSync.isRemoteControlling.collectAsState()
+  val lanRemoteMediaMetadata by playerConnection.lanSync.remoteMediaMetadata.collectAsState()
+  val mediaMetadata =
+    if (isLanRemote) (lanRemoteMediaMetadata ?: localMediaMetadata) else localMediaMetadata
   val canSkipNext by playerConnection.canSkipNext.collectAsState()
   val canSkipPrevious by playerConnection.canSkipPrevious.collectAsState()
 
@@ -443,10 +447,10 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
                       (kotlin.math.abs(currentOffset) > autoSwipeThreshold)
 
                   if (shouldChangeSong) {
-                    if (currentOffset > 0 && canSkipPrevious) {
-                      playerConnection.player.seekToPreviousMediaItem()
-                    } else if (currentOffset <= 0 && canSkipNext) {
-                      playerConnection.player.seekToNext()
+                    if (currentOffset > 0 && (canSkipPrevious || isLanRemote)) {
+                      playerConnection.seekToPrevious()
+                    } else if (currentOffset <= 0 && (canSkipNext || isLanRemote)) {
+                      playerConnection.seekToNext()
                     }
                   }
                   coroutineScope.launch { offsetXAnimatable.animateTo(0f, animationSpec) }
@@ -689,7 +693,11 @@ private fun LegacyMiniPlayer(progressState: ProgressState, modifier: Modifier = 
     else if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainerHigh
 
   val playbackState by playerConnection.playbackState.collectAsState()
-  val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+  val localMediaMetadata by playerConnection.mediaMetadata.collectAsState()
+  val isLanRemote by playerConnection.lanSync.isRemoteControlling.collectAsState()
+  val lanRemoteMediaMetadata by playerConnection.lanSync.remoteMediaMetadata.collectAsState()
+  val mediaMetadata =
+    if (isLanRemote) (lanRemoteMediaMetadata ?: localMediaMetadata) else localMediaMetadata
   val canSkipNext by playerConnection.canSkipNext.collectAsState()
   val canSkipPrevious by playerConnection.canSkipPrevious.collectAsState()
 
@@ -794,10 +802,10 @@ private fun LegacyMiniPlayer(progressState: ProgressState, modifier: Modifier = 
                       (kotlin.math.abs(currentOffset) > autoSwipeThreshold)
 
                   if (shouldChangeSong) {
-                    if (currentOffset > 0 && canSkipPrevious) {
-                      playerConnection.player.seekToPreviousMediaItem()
-                    } else if (currentOffset <= 0 && canSkipNext) {
-                      playerConnection.player.seekToNext()
+                    if (currentOffset > 0 && (canSkipPrevious || isLanRemote)) {
+                      playerConnection.seekToPrevious()
+                    } else if (currentOffset <= 0 && (canSkipNext || isLanRemote)) {
+                      playerConnection.seekToNext()
                     }
                   }
                   coroutineScope.launch { offsetXAnimatable.animateTo(0f, animationSpec) }
@@ -884,9 +892,16 @@ private fun LegacyPlayPauseButton(
   tint: Color = androidx.compose.material3.LocalContentColor.current,
 ) {
   val isPlaying by playerConnection.isPlaying.collectAsState()
+  val isLanRemote by playerConnection.lanSync.isRemoteControlling.collectAsState()
+  val lanRemotePlaying by playerConnection.lanSync.remotePlaying.collectAsState()
   val castIsPlaying by
     castHandler?.castIsPlaying?.collectAsState() ?: remember { mutableStateOf(false) }
-  val effectiveIsPlaying = if (isCasting) castIsPlaying else isPlaying
+  val effectiveIsPlaying =
+    when {
+      isCasting -> castIsPlaying
+      isLanRemote -> lanRemotePlaying
+      else -> isPlaying
+    }
   val isListenTogetherGuest = listenTogetherManager?.let { it.isGuestPlaybackRestricted } ?: false
   val isMuted by playerConnection.isMuted.collectAsState()
 
@@ -1259,9 +1274,16 @@ private fun MiniPlayerControls(
 ) {
   val isListenTogetherGuest = listenTogetherManager?.let { it.isGuestPlaybackRestricted } ?: false
   val isPlaying by playerConnection.isPlaying.collectAsState()
+  val isLanRemote by playerConnection.lanSync.isRemoteControlling.collectAsState()
+  val lanRemotePlaying by playerConnection.lanSync.remotePlaying.collectAsState()
   val castIsPlaying by
     castHandler?.castIsPlaying?.collectAsState() ?: remember { mutableStateOf(false) }
-  val effectiveIsPlaying = if (isCasting) castIsPlaying else isPlaying
+  val effectiveIsPlaying =
+    when {
+      isCasting -> castIsPlaying
+      isLanRemote -> lanRemotePlaying
+      else -> isPlaying
+    }
   val isMuted by playerConnection.isMuted.collectAsState()
   val wavyPlayPause by
     echo.music.iad1tya.utils.rememberPreference(

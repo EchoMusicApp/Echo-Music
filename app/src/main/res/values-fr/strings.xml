@@ -314,6 +314,8 @@
     <string name="color_palette">Palette de couleurs</string>
     <string name="use_system_colors">Utiliser les couleurs du système</string>
     <string name="enable_dynamic_theme">Activer le thème dynamique</string>
+    <string name="album_art_theme_recoloring">Recoloration du thème selon la pochette</string>
+    <string name="album_art_theme_recoloring_desc">Recolorer le thème de l\'application à partir de la pochette d\'album pendant une lecture locale ou Cast active</string>
     <string name="dark_theme">Thème sombre</string>
     <string name="dark_theme_on">Activé</string>
     <string name="dark_theme_off">Désactivé</string>

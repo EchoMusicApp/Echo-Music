@@ -227,6 +227,48 @@ object PodcastProgress {
     save(existing.copy(positionMs = 0L, finished = true, updatedAt = System.currentTimeMillis()))
   }
 
+  /** Merges podcast progress received from a LAN peer (e.g. Echo Music Desktop). */
+  fun mergeLanEpisode(
+    id: String,
+    positionMs: Long,
+    durationMs: Long,
+    finished: Boolean,
+    updatedAt: Long,
+    title: String?,
+    show: String?,
+    thumbnailUrl: String?,
+  ): Boolean {
+    if (id.isBlank()) return false
+    val existing = get(id)
+    val shouldReplace =
+      when {
+        existing == null -> positionMs >= MIN_POSITION_MS || finished
+        finished && !existing.finished -> true
+        existing.finished && !finished -> false
+        updatedAt > 0L && existing.updatedAt > 0L && updatedAt != existing.updatedAt ->
+          updatedAt > existing.updatedAt
+        else -> positionMs > existing.positionMs
+      }
+    if (!shouldReplace) return false
+    val resolvedDuration = durationMs.takeIf { it > 0L } ?: existing?.durationMs ?: 0L
+    val isFin = finished || isNearEnd(positionMs, resolvedDuration)
+    save(
+      EpisodeProgress(
+        id = id,
+        positionMs = if (isFin) 0L else positionMs,
+        durationMs = resolvedDuration,
+        finished = isFin,
+        updatedAt = updatedAt.takeIf { it > 0L } ?: System.currentTimeMillis(),
+        title = title?.takeIf { it.isNotBlank() } ?: existing?.title ?: id,
+        show = show?.takeIf { it.isNotBlank() } ?: existing?.show,
+        showBrowseId = existing?.showBrowseId,
+        thumbnailUrl = thumbnailUrl?.takeIf { it.isNotBlank() } ?: existing?.thumbnailUrl,
+        dismissed = existing?.dismissed == true,
+      ),
+    )
+    return true
+  }
+
   @Synchronized
   private fun save(entry: EpisodeProgress) {
     _entries.value = _entries.value + (entry.id to entry)

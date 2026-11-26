@@ -197,6 +197,8 @@ fun PlayerSettings(
     rememberPreference(PreventDuplicateTracksInQueueKey, defaultValue = false)
   val (stopMusicOnTaskClear, onStopMusicOnTaskClearChange) =
     rememberPreference(StopMusicOnTaskClearKey, defaultValue = true)
+  val (lanSyncEnabled, onLanSyncEnabledChange) =
+    rememberPreference(echo.music.iad1tya.constants.LanSyncEnabledKey, defaultValue = true)
   val (pauseOnMute, onPauseOnMuteChange) = rememberPreference(PauseOnMute, defaultValue = false)
   val (screenOffVolumeKeyControls, onScreenOffVolumeKeyControlsChange) =
     rememberPreference(ScreenOffVolumeKeyControlsKey, defaultValue = true)
@@ -1391,6 +1393,32 @@ fun PlayerSettings(
               )
             },
             onClick = { onStopMusicOnTaskClearChange(!stopMusicOnTaskClear) },
+          ),
+          Material3SettingsItem(
+            icon = painterResource(R.drawable.cast_tv),
+            title = { Text("Echo Connect (LAN Sync)") },
+            description = {
+              Text(
+                "Discover Echo Music Desktop on your Wi-Fi for playback handoff, remote control, and podcast sync",
+              )
+            },
+            trailingContent = {
+              Switch(
+                checked = lanSyncEnabled,
+                onCheckedChange = onLanSyncEnabledChange,
+                thumbContent = {
+                  Icon(
+                    painter =
+                      painterResource(
+                        id = if (lanSyncEnabled) R.drawable.check else R.drawable.close,
+                      ),
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                  )
+                },
+              )
+            },
+            onClick = { onLanSyncEnabledChange(!lanSyncEnabled) },
           ),
           Material3SettingsItem(
             isHighlighted =

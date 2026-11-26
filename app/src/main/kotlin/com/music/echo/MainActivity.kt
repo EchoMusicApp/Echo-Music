@@ -1288,6 +1288,17 @@ class MainActivity : ComponentActivity() {
 
         val expandPlayer =
           remember(playerBottomSheetState) { { playerBottomSheetState.expandSoft() } }
+        val (lanSyncEnabled) =
+          rememberPreference(echo.music.iad1tya.constants.LanSyncEnabledKey, defaultValue = true)
+        val lanSyncManager =
+          remember(context) { echo.music.iad1tya.lansync.LanSyncManager.getInstance(context) }
+        LaunchedEffect(playerConnection) {
+          lanSyncManager.attachPlayerConnection(playerConnection)
+        }
+        LaunchedEffect(lanSyncEnabled) {
+          if (lanSyncEnabled) lanSyncManager.start() else lanSyncManager.stop()
+        }
+
         CompositionLocalProvider(
           LocalHapticFeedback provides customHapticFeedback,
           LocalGlassEffectConfig provides glassEffectConfig,

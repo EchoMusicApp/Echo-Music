@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,15 +44,17 @@ fun HomeShortcutTile(
         .height(56.dp)
         .clip(RoundedCornerShape(8.dp))
         .background(
-          if (isActive) MaterialTheme.colorScheme.secondaryContainer
-          else MaterialTheme.colorScheme.surfaceContainerHigh,
+          if (isActive) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
         ),
   ) {
     AsyncImage(
       model = item.thumbnail?.resize(226, 226),
       contentDescription = null,
       contentScale = ContentScale.Crop,
-      modifier = Modifier.size(56.dp).background(MaterialTheme.colorScheme.surfaceVariant),
+      modifier =
+        Modifier.size(56.dp)
+          .clip(RoundedCornerShape(8.dp))
+          .background(MaterialTheme.colorScheme.surfaceVariant),
     )
     Text(
       text = item.title,

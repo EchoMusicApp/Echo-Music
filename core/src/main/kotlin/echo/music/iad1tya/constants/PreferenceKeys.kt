@@ -897,3 +897,5 @@ enum class RecommendationSource {
 }
 
 val RecommendationSourceKey = stringPreferencesKey("recommendation_source")
+val DismissDesktopReleaseBannerKey = booleanPreferencesKey("dismissDesktopReleaseBanner")
+val LanSyncEnabledKey = booleanPreferencesKey("lanSyncEnabled")
