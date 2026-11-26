@@ -291,6 +291,7 @@ dependencies {
   implementation(libs.materialKolor)
 
   implementation(libs.appcompat)
+  implementation(libs.webkit)
 
   implementation(libs.coil)
   implementation(libs.coil.network.okhttp)
