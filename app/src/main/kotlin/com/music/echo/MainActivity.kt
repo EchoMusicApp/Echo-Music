@@ -1839,6 +1839,62 @@ class MainActivity : ComponentActivity() {
             AudioDeviceBottomSheet(onDismiss = { showAudioDeviceBottomSheet = false })
           }
 
+          val incomingPair by lanSyncManager.incomingPairRequest.collectAsState()
+          incomingPair?.let { pairReq ->
+            var codeInput by remember(pairReq.peer.id, pairReq.expiresAtMs) { mutableStateOf("") }
+            androidx.compose.material3.AlertDialog(
+              onDismissRequest = { lanSyncManager.dismissIncomingPairRequest() },
+              title = { Text("Pair with ${pairReq.peer.name}") },
+              text = {
+                Column(
+                  verticalArrangement =
+                    androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                ) {
+                  Text(
+                    "Enter the 6-digit Echo Connect code shown on ${pairReq.peer.name} to bind devices and sync.",
+                  )
+                  androidx.compose.material3.OutlinedTextField(
+                    value = codeInput,
+                    onValueChange = { next ->
+                      if (next.length <= 6 && next.all { it.isDigit() }) {
+                        codeInput = next
+                      }
+                    },
+                    label = { Text("6-digit code") },
+                    singleLine = true,
+                    keyboardOptions =
+                      androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                      ),
+                    modifier = Modifier.fillMaxWidth(),
+                  )
+                  if (!pairReq.error.isNullOrBlank()) {
+                    Text(
+                      text = pairReq.error!!,
+                      color = MaterialTheme.colorScheme.error,
+                      style = MaterialTheme.typography.bodySmall,
+                    )
+                  }
+                }
+              },
+              confirmButton = {
+                androidx.compose.material3.Button(
+                  onClick = { lanSyncManager.submitIncomingPairCode(codeInput) },
+                  enabled = !pairReq.busy && codeInput.length == 6,
+                ) {
+                  Text(if (pairReq.busy) "Pairing..." else "Pair")
+                }
+              },
+              dismissButton = {
+                androidx.compose.material3.TextButton(
+                  onClick = { lanSyncManager.dismissIncomingPairRequest() },
+                ) {
+                  Text("Cancel")
+                }
+              },
+            )
+          }
+
           sharedSong?.let { song ->
             playerConnection?.let {
               Dialog(
