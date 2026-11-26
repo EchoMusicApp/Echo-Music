@@ -3214,11 +3214,16 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
             scope.launch {
               try {
                 delay(likedAutoDownloadRetryBaseDelayMs shl attempts)
-                // Re-check after the wait: the song may have been unliked or deleted meanwhile.
+                // Re-check after the wait: the song may have been unliked or deleted meanwhile,
+                // and the user may have removed the failed download, which must not be recreated.
                 val current = database.song(songId).first()?.song
+                val download = downloadUtil.downloads.value[songId]
                 if (
                   current != null &&
                     current.liked &&
+                    download != null &&
+                    download.state == androidx.media3.exoplayer.offline.Download.STATE_FAILED &&
+                    DownloadUtil.isAutomaticDownload(download) &&
                     dataStore.get(AutoDownloadOnLikeKey, false)
                 ) {
                   if (enqueueAutomaticDownload(songId, current.title)) {
