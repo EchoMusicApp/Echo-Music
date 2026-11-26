@@ -37,6 +37,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 - [Overview](#overview)
 - [Screenshots](#screenshots)
 - [Features](#features)
+- [Echo Connect (Cross-Device Sync & Handoff)](#echo-connect-cross-device-sync--handoff)
 - [320 kbps Audio Extension](#320-kbps-audio-extension)
 - [Lossless Audio Extension](#lossless-audio-extension)
 - [Installation & Setup](#installation--setup)
@@ -162,6 +163,22 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 - **Hide YouTube Shorts** — Keep Shorts out of your music browsing.
 
 </details>
+
+---
+
+## Echo Connect (Cross-Device Sync & Handoff)
+
+**Echo Connect** links **Echo Music (Android)** with **[Echo Music Desktop](https://github.com/EchoMusicApp/Desktop)** over your local Wi-Fi network — with zero cloud servers.
+
+### Key Capabilities
+- **6-Digit Device Pairing**: Open **Settings → Echo Connect** (right below **Account**) and tap your Desktop to generate a 6-digit code (auto-refreshes every 60s), or initiate pairing from Desktop and enter the code in the Android popup.
+- **Automatic Google Account Login**: Automatically signs Desktop into your YouTube Music Google account upon binding.
+- **Bidirectional Local & Spotify Playlist Sync**: Keeps locally created playlists synced between Android and Desktop with zero overlap/duplicates, and syncs your connected Spotify playlists to Desktop's Library.
+- **Podcast Progress Sync**: Merges episode timestamps and finished status across devices.
+- **5-Minute Auto-Sync & Force Sync**: Automatically syncs every 5 minutes in the background, with a **Force Sync** button and timestamped sync history log showing what synced and when.
+- **Seamless Playback Handoff & Remote Control**: Switch playback between **This Phone** and your paired Desktop from the player's audio output sheet or **Settings → Echo Connect**. Control play/pause, exact seek position, next/previous, volume, shuffle, and repeat from either device.
+
+📖 **Full Guide**: See [docs/ECHO_CONNECT.md](./docs/ECHO_CONNECT.md) for step-by-step setup, pairing, sync details, and troubleshooting.
 
 ---
 
