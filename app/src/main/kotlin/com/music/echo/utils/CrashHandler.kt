@@ -46,6 +46,14 @@ class CrashHandler private constructor(private val applicationContext: Context) 
       return
     }
 
+    if (thread != android.os.Looper.getMainLooper().thread && isNetworkFailure(throwable)) {
+      // A connection dropped mid-request on a background thread (e.g. Wi-Fi/data switch, or the
+      // system cutting background network). The request has already failed; that thread or
+      // coroutine is finished and the rest of the app is unaffected, so don't kill the process.
+      Timber.w(throwable, "Suppressed uncaught network failure on thread ${thread.name}")
+      return
+    }
+
     try {
       val crashLog = buildCrashLog(throwable)
       Timber.e(throwable, "App crashed")
@@ -65,6 +73,17 @@ class CrashHandler private constructor(private val applicationContext: Context) 
       defaultHandler?.uncaughtException(thread, throwable)
     }
   }
+
+  /** True if [throwable] or one of its causes is a connection-level network error. */
+  private fun isNetworkFailure(throwable: Throwable): Boolean =
+    generateSequence(throwable) { it.cause?.takeIf { cause -> cause !== it } }
+      .take(10)
+      .any {
+        it is java.net.SocketException ||
+          it is java.net.SocketTimeoutException ||
+          it is java.net.UnknownHostException ||
+          it is javax.net.ssl.SSLException
+      }
 
   private fun buildCrashLog(throwable: Throwable): String {
     val stackTrace =
