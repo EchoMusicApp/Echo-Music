@@ -272,6 +272,13 @@ fun PlayerMenu(
     )
   }
 
+  var showAudioDeviceBottomSheet by rememberSaveable { mutableStateOf(false) }
+  if (showAudioDeviceBottomSheet) {
+    echo.music.iad1tya.echomusic.AudioDeviceBottomSheet(
+      onDismiss = { showAudioDeviceBottomSheet = false },
+    )
+  }
+
   var showClearQueueDialog by rememberSaveable { mutableStateOf(false) }
   if (showClearQueueDialog) {
     DefaultDialog(
@@ -585,6 +592,19 @@ fun PlayerMenu(
                 onClick = {
                   showSongDnaDialog = true
                 },
+              ),
+            )
+            add(
+              Material3MenuItemData(
+                title = { Text(text = "Echo Connect") },
+                icon = {
+                  Icon(
+                    painter = painterResource(R.drawable.ic_echo_connect),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                  )
+                },
+                onClick = { showAudioDeviceBottomSheet = true },
               ),
             )
             add(
