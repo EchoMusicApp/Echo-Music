@@ -32,6 +32,25 @@ jobs:
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;28.2.13676358" || true
 
+    - name: Cache Robolectric Android Runtime
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository/org/robolectric
+        key: robolectric-runtime-4.14.1
+
+    - name: Pre-fetch Robolectric Runtime
+      run: |
+        for ver in "13-robolectric-9030017-i7" "15-robolectric-12650502-i7"; do
+          dir="$HOME/.m2/repository/org/robolectric/android-all-instrumented/$ver"
+          jar="$dir/android-all-instrumented-$ver.jar"
+          if [ ! -f "$jar" ]; then
+            mkdir -p "$dir"
+            curl -fsSL --retry 5 --retry-delay 3 \
+              "https://repo1.maven.org/maven2/org/robolectric/android-all-instrumented/$ver/android-all-instrumented-$ver.jar" \
+              -o "$jar" || true
+          fi
+        done
+
     - name: Run Unit Tests
       run: |
         chmod +x gradlew

@@ -83,7 +83,8 @@ constructor(
           }
         when (sortType) {
           PlaylistSongSortType.CUSTOM -> filteredSongs
-          PlaylistSongSortType.CREATE_DATE -> filteredSongs.sortedBy { it.map.id }
+          PlaylistSongSortType.CREATE_DATE ->
+            filteredSongs.sortedWith(compareBy({ it.map.position }, { it.map.id }))
           PlaylistSongSortType.NAME -> {
             val collator = Collator.getInstance(Locale.getDefault())
             collator.strength = Collator.PRIMARY

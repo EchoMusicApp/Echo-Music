@@ -292,6 +292,7 @@ fun rememberBottomSheetState(
   expandedBound: Dp,
   collapsedBound: Dp = dismissedBound,
   initialAnchor: Int = dismissedAnchor,
+  collapsedBoundAnimationSpec: AnimationSpec<Dp> = NavigationBarAnimationSpec,
 ): BottomSheetState {
   val density = LocalDensity.current
   val coroutineScope = rememberCoroutineScope()
@@ -309,7 +310,7 @@ fun rememberBottomSheetState(
       }
 
     animatable.updateBounds(dismissedBound.coerceAtMost(expandedBound), expandedBound)
-    coroutineScope.launch { animatable.animateTo(initialValue, NavigationBarAnimationSpec) }
+    coroutineScope.launch { animatable.animateTo(initialValue, collapsedBoundAnimationSpec) }
 
     BottomSheetState(
       draggableState =

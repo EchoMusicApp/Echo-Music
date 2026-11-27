@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -14,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import com.music.innertube.models.Artist
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
+import echo.music.iad1tya.LocalDatabase
 import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.extensions.toMediaItem
@@ -27,7 +29,15 @@ import echo.music.iad1tya.utils.listItemShape
 @Composable
 fun rememberEpisodesInProgress(limit: Int = Int.MAX_VALUE): List<EpisodeProgress> {
   val entries by PodcastProgress.entries.collectAsState()
-  return PodcastProgress.inProgress(entries).take(limit)
+  val database = LocalDatabase.current
+  val inProgress = PodcastProgress.inProgress(entries).take(limit)
+  val missingIds = inProgress.filter { it.needsMetadata }.map { it.id }
+  LaunchedEffect(missingIds) {
+    if (missingIds.isNotEmpty()) {
+      PodcastProgress.hydrateMissingMetadata(missingIds, database)
+    }
+  }
+  return inProgress
 }
 
 /** An episode as a [SongItem], so it is drawn and played like the episodes of a show. */
