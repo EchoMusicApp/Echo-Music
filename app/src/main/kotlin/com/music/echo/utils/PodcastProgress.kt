@@ -2,14 +2,19 @@ package echo.music.iad1tya.utils
 
 import android.content.Context
 import androidx.core.content.edit
+import com.music.innertube.YouTube
 import com.music.innertube.models.PODCAST_BROWSE_PREFIX
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint.WatchEndpointMusicSupportedConfigs.WatchEndpointMusicConfig.Companion.MUSIC_VIDEO_TYPE_PODCAST_EPISODE
 import com.music.innertube.pages.HomePage
+import echo.music.iad1tya.db.MusicDatabase
 import echo.music.iad1tya.models.MediaMetadata
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 /** How far an episode was listened, plus what is needed to show it without loading it again. */
@@ -48,6 +53,9 @@ data class EpisodeProgress(
     get() =
       durationMs in 1 until PodcastProgress.MIN_UNLINKED_EPISODE_MS &&
         showBrowseId?.startsWith(PODCAST_BROWSE_PREFIX) != true
+
+  val needsMetadata: Boolean
+    get() = title.isBlank() || title == id || thumbnailUrl.isNullOrBlank()
 }
 
 /**
@@ -174,9 +182,39 @@ object PodcastProgress {
             thumbnailUrl = episode.thumbnail,
           ),
         )
-      existing.finished -> Unit
+      existing.finished ->
+        if (existing.needsMetadata && episode.title.isNotBlank()) {
+          save(
+            existing.copy(
+              title = episode.title,
+              show = episode.artists.firstOrNull()?.name ?: existing.show,
+              showBrowseId = episode.artists.firstOrNull()?.id ?: existing.showBrowseId,
+              thumbnailUrl = episode.thumbnail.takeIf { it.isNotBlank() } ?: existing.thumbnailUrl,
+            ),
+          )
+        }
       finished || positionMs > existing.positionMs + REMOTE_AHEAD_MARGIN_MS ->
-        save(existing.copy(positionMs = positionMs, finished = finished))
+        save(
+          existing.copy(
+            positionMs = positionMs,
+            finished = finished,
+            title =
+              if (existing.needsMetadata && episode.title.isNotBlank()) episode.title
+              else existing.title,
+            show = episode.artists.firstOrNull()?.name ?: existing.show,
+            showBrowseId = episode.artists.firstOrNull()?.id ?: existing.showBrowseId,
+            thumbnailUrl = episode.thumbnail.takeIf { it.isNotBlank() } ?: existing.thumbnailUrl,
+          ),
+        )
+      existing.needsMetadata && episode.title.isNotBlank() ->
+        save(
+          existing.copy(
+            title = episode.title,
+            show = episode.artists.firstOrNull()?.name ?: existing.show,
+            showBrowseId = episode.artists.firstOrNull()?.id ?: existing.showBrowseId,
+            thumbnailUrl = episode.thumbnail.takeIf { it.isNotBlank() } ?: existing.thumbnailUrl,
+          ),
+        )
     }
     return true
   }
@@ -267,6 +305,71 @@ object PodcastProgress {
       ),
     )
     return true
+  }
+
+  /** Hydrates missing title, show, thumbnail, and duration for older/LAN-synced entries. */
+  suspend fun hydrateMissingMetadata(ids: List<String>, database: MusicDatabase) =
+    withContext(Dispatchers.IO) {
+      val remainingIds = mutableListOf<String>()
+      for (id in ids.distinct()) {
+        val existing = get(id) ?: continue
+        if (!existing.needsMetadata) continue
+        val dbSong = database.song(id).firstOrNull()
+        if (dbSong != null && dbSong.song.title.isNotBlank()) {
+          val resolvedDuration =
+            existing.durationMs.takeIf { it > 0L }
+              ?: dbSong.song.duration.takeIf { it > 0 }?.times(1000L)
+              ?: 0L
+          val updated =
+            existing.copy(
+              title = dbSong.song.title,
+              show = dbSong.artists.firstOrNull()?.name ?: existing.show,
+              showBrowseId = dbSong.artists.firstOrNull()?.id ?: existing.showBrowseId,
+              thumbnailUrl =
+                dbSong.song.thumbnailUrl?.takeIf { it.isNotBlank() } ?: existing.thumbnailUrl,
+              durationMs = resolvedDuration,
+            )
+          if (updated.isMislabelled) {
+            removeEntry(id)
+          } else {
+            save(updated)
+          }
+        } else {
+          remainingIds += id
+        }
+      }
+
+      if (remainingIds.isEmpty()) return@withContext
+
+      remainingIds.chunked(25).forEach { chunk ->
+        val fetched = YouTube.queue(videoIds = chunk).getOrNull().orEmpty()
+        fetched.forEach { song ->
+          val existing = get(song.id) ?: return@forEach
+          val resolvedDuration =
+            existing.durationMs.takeIf { it > 0L }
+              ?: song.duration?.takeIf { it > 0 }?.times(1000L)
+              ?: 0L
+          val updated =
+            existing.copy(
+              title = song.title.takeIf { it.isNotBlank() } ?: existing.title,
+              show = song.artists.firstOrNull()?.name ?: existing.show,
+              showBrowseId = song.artists.firstOrNull()?.id ?: existing.showBrowseId,
+              thumbnailUrl = song.thumbnail.takeIf { it.isNotBlank() } ?: existing.thumbnailUrl,
+              durationMs = resolvedDuration,
+            )
+          if (updated.isMislabelled) {
+            removeEntry(song.id)
+          } else {
+            save(updated)
+          }
+        }
+      }
+    }
+
+  @Synchronized
+  private fun removeEntry(id: String) {
+    _entries.value = _entries.value - id
+    prefs.edit { remove(id) }
   }
 
   @Synchronized
