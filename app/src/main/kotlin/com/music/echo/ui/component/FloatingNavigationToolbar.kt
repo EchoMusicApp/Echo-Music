@@ -5,12 +5,14 @@ package echo.music.iad1tya.ui.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -25,18 +27,22 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,6 +69,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
@@ -74,8 +81,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
 import echo.music.iad1tya.R
+import echo.music.iad1tya.constants.MiniPlayerHeight
+import echo.music.iad1tya.constants.NavigationBarHeight
 import echo.music.iad1tya.ui.screens.Screens
 import kotlinx.coroutines.launch
 
@@ -103,6 +113,8 @@ fun FloatingNavigationToolbar(
   onWrappedClick: (() -> Unit)? = null,
   scrollBehavior: FloatingToolbarScrollBehavior? = null,
   onSearchLongClick: (() -> Unit)? = null,
+  isCollapsed: Boolean = false,
+  onExpandClick: () -> Unit = {},
   isSelected: (Screens) -> Boolean,
   onItemClick: (Screens, Boolean) -> Unit,
 ) {
@@ -148,43 +160,142 @@ fun FloatingNavigationToolbar(
       onMusicRecognitionClick != null
   val hasFabAction = onFabClick != null && fabIconRes != null
 
-  Box(
+  val activeScreen = items.find { isSelected(it) } ?: items.firstOrNull()
+  val density = LocalDensity.current
+  var measuredFullWidth by remember { mutableStateOf(0.dp) }
+  val collapseProgress by
+    animateFloatAsState(
+      targetValue = if (isCollapsed && activeScreen != null) 1f else 0f,
+      animationSpec =
+        tween(
+          durationMillis = if (isCollapsed) 190 else 230,
+          delayMillis = if (isCollapsed) 0 else 20,
+          easing = FastOutSlowInEasing,
+        ),
+      label = "navCollapseProgress",
+    )
+
+  BoxWithConstraints(
     modifier = modifier.fillMaxWidth(),
-    contentAlignment = Alignment.Center,
+    contentAlignment = Alignment.BottomStart,
   ) {
     val showSelectedLabels = true
+    val maxAvailableWidth = maxWidth.coerceAtMost(480.dp)
+    val effectiveFullWidth =
+      if (measuredFullWidth > 0.dp) measuredFullWidth.coerceAtMost(maxAvailableWidth)
+      else maxAvailableWidth
 
-    HorizontalFloatingToolbar(
-      expanded = true,
-      modifier = Modifier.widthIn(max = 480.dp).then(toolbarModifier),
-      colors = toolbarColors,
-      scrollBehavior = scrollBehavior,
+    val isMorphing = collapseProgress > 0f
+    val pillShape = RoundedCornerShape(percent = 50)
+    val morphedToolbarModifier =
+      if (useGlass) {
+          Modifier.clip(pillShape).liquidGlass(config = glassConfig, shape = pillShape)
+        } else {
+          Modifier.clip(pillShape).background(toolbarContainerColor)
+        }
+        .border(1.dp, outlineColor.copy(alpha = 0.3f), pillShape)
+
+    val currentWidth = lerp(effectiveFullWidth, MiniPlayerHeight, collapseProgress)
+    val currentHeight = lerp(NavigationBarHeight, MiniPlayerHeight, collapseProgress)
+    val expandedXOffset = ((maxWidth - effectiveFullWidth) / 2f).coerceAtLeast(0.dp)
+    val currentXOffset = lerp(expandedXOffset, 0.dp, collapseProgress)
+
+    Box(
+      modifier = Modifier.fillMaxSize(),
+      contentAlignment = if (isMorphing) Alignment.BottomStart else Alignment.Center,
     ) {
-      ToolbarItemsContainer(
-        items = items,
-        pureBlack = pureBlack,
-        showSelectedLabels = showSelectedLabels,
-        onMusicRecognitionClick = onMusicRecognitionClick,
-        musicRecognitionContentDescription = musicRecognitionContentDescription,
-        isSelected = isSelected,
-        onItemClick = onItemClick,
-        hasOverflowMenu = hasOverflowMenu,
-        onMusicFlowClick = onMusicFlowClick,
-        musicFlowIconRes = musicFlowIconRes,
-        musicFlowContentDescription = musicFlowContentDescription,
-        onShuffleClick = onShuffleClick,
-        shuffleEnabled = shuffleEnabled,
-        shuffleIconRes = shuffleIconRes,
-        onAiHubClick = onAiHubClick,
-        aiHubIconRes = aiHubIconRes,
-        aiHubContentDescription = aiHubContentDescription,
-        onWrappedClick = onWrappedClick,
-        hasFabAction = hasFabAction,
-        onFabClick = onFabClick,
-        fabIconRes = fabIconRes,
-        fabContentDescription = fabContentDescription,
-        onSearchLongClick = onSearchLongClick,
-      )
+      Box(
+        modifier =
+          if (isMorphing) {
+            Modifier.offset(x = currentXOffset)
+              .width(currentWidth)
+              .height(currentHeight)
+              .then(morphedToolbarModifier)
+          } else {
+            Modifier.widthIn(max = 480.dp).then(toolbarModifier)
+          },
+        contentAlignment = Alignment.CenterStart,
+      ) {
+        val expandedAlpha = (1f - collapseProgress * 2.2f).coerceIn(0f, 1f)
+        HorizontalFloatingToolbar(
+          expanded = true,
+          modifier =
+            (if (isMorphing && measuredFullWidth > 0.dp) {
+                Modifier.requiredWidth(effectiveFullWidth)
+              } else {
+                Modifier.widthIn(max = 480.dp)
+              })
+              .onGloballyPositioned { coordinates ->
+                val widthDp = with(density) { coordinates.size.width.toDp() }
+                if (!isMorphing && widthDp > MiniPlayerHeight) {
+                  measuredFullWidth = widthDp
+                }
+              }
+              .graphicsLayer { alpha = expandedAlpha },
+          colors = toolbarColors,
+          scrollBehavior = scrollBehavior,
+        ) {
+          ToolbarItemsContainer(
+            items = items,
+            pureBlack = pureBlack,
+            showSelectedLabels = showSelectedLabels,
+            onMusicRecognitionClick = onMusicRecognitionClick,
+            musicRecognitionContentDescription = musicRecognitionContentDescription,
+            isSelected = isSelected,
+            onItemClick = onItemClick,
+            hasOverflowMenu = hasOverflowMenu,
+            onMusicFlowClick = onMusicFlowClick,
+            musicFlowIconRes = musicFlowIconRes,
+            musicFlowContentDescription = musicFlowContentDescription,
+            onShuffleClick = onShuffleClick,
+            shuffleEnabled = shuffleEnabled,
+            shuffleIconRes = shuffleIconRes,
+            onAiHubClick = onAiHubClick,
+            aiHubIconRes = aiHubIconRes,
+            aiHubContentDescription = aiHubContentDescription,
+            onWrappedClick = onWrappedClick,
+            hasFabAction = hasFabAction,
+            onFabClick = onFabClick,
+            fabIconRes = fabIconRes,
+            fabContentDescription = fabContentDescription,
+            onSearchLongClick = onSearchLongClick,
+          )
+        }
+
+        val collapsedAlpha = ((collapseProgress - 0.35f) / 0.65f).coerceIn(0f, 1f)
+        if (activeScreen != null && collapsedAlpha > 0.01f) {
+          Box(
+            modifier =
+              Modifier.fillMaxSize()
+                .then(
+                  if (isCollapsed) {
+                    Modifier.clickable(
+                      interactionSource = remember { MutableInteractionSource() },
+                      indication = LocalIndication.current,
+                      role = Role.Button,
+                      onClick = onExpandClick,
+                    )
+                  } else {
+                    Modifier
+                  },
+                )
+                .graphicsLayer {
+                  alpha = collapsedAlpha
+                  val s = 0.78f + 0.22f * collapsedAlpha
+                  scaleX = s
+                  scaleY = s
+                },
+            contentAlignment = Alignment.Center,
+          ) {
+            Icon(
+              painter = painterResource(activeScreen.iconIdActive),
+              contentDescription = stringResource(activeScreen.titleId),
+              tint = floatingToolbarSelectedItemContentColor(pureBlack),
+              modifier = Modifier.size(24.dp),
+            )
+          }
+        }
+      }
     }
   }
 }

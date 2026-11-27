@@ -302,6 +302,7 @@ fun BottomSheetPlayer(
   onPlayerMenuShown: () -> Unit = {},
   showLyricsRequested: Boolean = false,
   onLyricsShown: () -> Unit = {},
+  isInlineWithNav: Boolean = false,
 ) {
   val context = LocalContext.current
   val database = LocalDatabase.current
@@ -1653,6 +1654,7 @@ fun BottomSheetPlayer(
       MiniPlayer(
         positionState = positionState,
         durationState = durationState,
+        isInlineWithNav = isInlineWithNav,
         onClick = { state.expandSoft() },
       )
     },

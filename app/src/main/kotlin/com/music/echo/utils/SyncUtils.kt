@@ -358,7 +358,7 @@ constructor(
 
       try {
 
-        executeSyncLikedSongs()
+        val likedSongsSynced = executeSyncLikedSongs()
         delay(DB_OPERATION_DELAY_MS)
 
         executeSyncLibrarySongs()
@@ -381,8 +381,10 @@ constructor(
 
         executeSyncAutoSyncPlaylists()
 
-        context.dataStore.edit { settings ->
-          settings[LastFullSyncKey] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+        if (likedSongsSynced) {
+          context.dataStore.edit { settings ->
+            settings[LastFullSyncKey] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+          }
         }
 
         updateState { copy(overallStatus = SyncStatus.Completed, currentOperation = "") }
@@ -411,16 +413,18 @@ constructor(
         .onFailure { e -> Timber.e(e, "Failed to like song on YouTube: ${s.id}") }
     }
 
-  private suspend fun executeSyncLikedSongs() =
+  private suspend fun executeSyncLikedSongs(): Boolean =
     withContext(Dispatchers.IO) {
       if (!isLoggedIn()) {
         Timber.w("Skipping syncLikedSongs - user not logged in")
-        return@withContext
+        return@withContext false
       }
 
       updateState {
         copy(likedSongs = SyncStatus.Syncing, currentOperation = "Syncing liked songs")
       }
+
+      var allLikesPushed = true
 
       withRetry { YouTube.playlist("LM").completed() }
         .onSuccess { result ->
@@ -433,25 +437,39 @@ constructor(
 
                 val lastSync = context.dataStore.get(LastFullSyncKey, 0L)
 
-                localSongs
-                  .filterNot { it.id in remoteIds || it.song.isLocal }
-                  .forEach { song ->
-                    try {
-                      val likedDate = song.song.likedDate
-                      if (likedDate == null || likedDate.toEpochSecond(ZoneOffset.UTC) > lastSync) {
-                        // Schedule a migration/backfill job for songs with null likedDate
-                        withRetry { YouTube.likeVideo(song.id, true) }
-                          .onFailure { e ->
-                            Timber.e(e, "Failed to like song on YouTube: ${song.id}")
+                if (remoteSongs.isEmpty() && localSongs.isNotEmpty()) {
+                  Timber.w(
+                    "syncLikedSongs: Remote LM returned empty with ${localSongs.size} local liked songs; skipping removal to preserve local likes",
+                  )
+                } else {
+                  localSongs
+                    .filterNot { it.id in remoteIds || it.song.isLocal }
+                    .forEach { song ->
+                      try {
+                        val likedDate = song.song.likedDate
+                        if (
+                          lastSync == 0L ||
+                            likedDate == null ||
+                            likedDate.toEpochSecond(ZoneOffset.UTC) > lastSync
+                        ) {
+                          withRetry { YouTube.likeVideo(song.id, true) }
+                            .onFailure { e ->
+                              allLikesPushed = false
+                              Timber.e(e, "Failed to like song on YouTube: ${song.id}")
+                            }
+                          if (likedDate == null) {
+                            database.update(song.song.copy(likedDate = LocalDateTime.now()))
                           }
-                      } else {
-                        database.update(song.song.localToggleLike())
+                        } else {
+                          database.update(song.song.localToggleLike())
+                        }
+                        delay(DB_OPERATION_DELAY_MS)
+                      } catch (e: Exception) {
+                        allLikesPushed = false
+                        Timber.e(e, "Failed to update song: ${song.id}")
                       }
-                      delay(DB_OPERATION_DELAY_MS)
-                    } catch (e: Exception) {
-                      Timber.e(e, "Failed to update song: ${song.id}")
                     }
-                  }
+                }
 
                 val now = LocalDateTime.now()
                 remoteSongs.forEachIndexed { index, song ->
@@ -465,13 +483,15 @@ constructor(
                         insert(song.toMediaMetadata()) {
                           it.copy(liked = true, likedDate = timestamp, isVideo = isVideoSong)
                         }
-                      } else if (!dbSong.song.liked || dbSong.song.isVideo != isVideoSong) {
-                        val newLikedDate =
-                          if (!dbSong.song.liked) timestamp else dbSong.song.likedDate
+                      } else if (
+                        !dbSong.song.liked ||
+                          dbSong.song.likedDate != timestamp ||
+                          dbSong.song.isVideo != isVideoSong
+                      ) {
                         update(
                           dbSong.song.copy(
                             liked = true,
-                            likedDate = newLikedDate,
+                            likedDate = timestamp,
                             isVideo = isVideoSong,
                           ),
                         )
@@ -486,19 +506,24 @@ constructor(
                 updateState { copy(likedSongs = SyncStatus.Completed) }
                 Timber.d("Synced ${remoteSongs.size} liked songs")
               } catch (e: Exception) {
+                allLikesPushed = false
                 Timber.e(e, "Error processing liked songs")
                 updateState { copy(likedSongs = SyncStatus.Error(e.message ?: "Unknown error")) }
               }
             }
             .onFailure { e ->
+              allLikesPushed = false
               Timber.e(e, "Failed to fetch liked songs from YouTube")
               updateState { copy(likedSongs = SyncStatus.Error(e.message ?: "Unknown error")) }
             }
         }
         .onFailure { e ->
+          allLikesPushed = false
           Timber.e(e, "Failed to sync liked songs after retries")
           updateState { copy(likedSongs = SyncStatus.Error(e.message ?: "Unknown error")) }
         }
+
+      allLikesPushed
     }
 
   private suspend fun executeSyncLibrarySongs() =
@@ -925,17 +950,19 @@ constructor(
                 val remoteIds = remotePlaylists.map { it.id }.toSet()
 
                 val localPlaylists = database.playlistsByNameAsc().first()
-                localPlaylists
-                  .filterNot { it.playlist.browseId in remoteIds }
-                  .filterNot { it.playlist.browseId == null }
-                  .forEach { playlist ->
-                    try {
-                      database.update(playlist.playlist.localToggleLike())
-                      delay(DB_OPERATION_DELAY_MS)
-                    } catch (e: Exception) {
-                      Timber.e(e, "Failed to update playlist: ${playlist.id}")
+                if (remotePlaylists.isNotEmpty()) {
+                  localPlaylists
+                    .filterNot { it.playlist.browseId in remoteIds }
+                    .filterNot { it.playlist.browseId == null }
+                    .forEach { playlist ->
+                      try {
+                        database.update(playlist.playlist.localToggleLike())
+                        delay(DB_OPERATION_DELAY_MS)
+                      } catch (e: Exception) {
+                        Timber.e(e, "Failed to update playlist: ${playlist.id}")
+                      }
                     }
-                  }
+                }
 
                 for (playlist in remotePlaylists) {
                   try {

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -181,6 +182,7 @@ fun MiniPlayer(
   positionState: MutableLongState,
   durationState: MutableLongState,
   modifier: Modifier = Modifier,
+  isInlineWithNav: Boolean = false,
   onClick: () -> Unit = {},
 ) {
   val useNewMiniPlayerDesign by rememberPreference(UseNewMiniPlayerDesignKey, true)
@@ -256,16 +258,40 @@ fun MiniPlayer(
       )
     }
   } else if (useNewMiniPlayerDesign) {
-    NewMiniPlayer(progressState = progressState, modifier = modifier)
+    NewMiniPlayer(
+      progressState = progressState,
+      isInlineWithNav = isInlineWithNav,
+      modifier = modifier,
+    )
   } else {
-    Box(modifier = modifier.fillMaxWidth()) {
+    val legacyInlineStartPadding by
+      animateDpAsState(
+        targetValue =
+          if (isInlineWithNav) {
+            echo.music.iad1tya.constants.FloatingToolbarHorizontalPadding + MiniPlayerHeight + 8.dp
+          } else {
+            0.dp
+          },
+        animationSpec =
+          tween(
+            durationMillis = 220,
+            delayMillis = if (isInlineWithNav) 25 else 0,
+            easing = androidx.compose.animation.core.FastOutSlowInEasing,
+          ),
+        label = "legacyMiniPlayerInlineStartPadding",
+      )
+    Box(modifier = modifier.fillMaxWidth().padding(start = legacyInlineStartPadding)) {
       LegacyMiniPlayer(progressState = progressState, modifier = Modifier.align(Alignment.Center))
     }
   }
 }
 
 @Composable
-private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Modifier) {
+private fun NewMiniPlayer(
+  progressState: ProgressState,
+  isInlineWithNav: Boolean = false,
+  modifier: Modifier = Modifier,
+) {
   val playerConnection = LocalPlayerConnection.current ?: return
 
   val pureBlackMini by rememberPreference(PureBlackMiniPlayerKey, defaultValue = false)
@@ -393,15 +419,32 @@ private fun NewMiniPlayer(progressState: ProgressState, modifier: Modifier = Mod
     else androidx.compose.material3.MaterialTheme.colorScheme.onSurface
   val errorColor = MaterialTheme.colorScheme.error
 
+  val animatedStartPadding by
+    animateDpAsState(
+      targetValue =
+        if (isInlineWithNav) {
+          echo.music.iad1tya.constants.FloatingToolbarHorizontalPadding + MiniPlayerHeight + 8.dp
+        } else {
+          12.dp
+        },
+      animationSpec =
+        tween(
+          durationMillis = 220,
+          delayMillis = if (isInlineWithNav) 25 else 0,
+          easing = androidx.compose.animation.core.FastOutSlowInEasing,
+        ),
+      label = "miniPlayerInlineStartPadding",
+    )
+
   Box(
     modifier =
       modifier
         .fillMaxWidth()
+        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
+        .padding(start = animatedStartPadding, end = 12.dp)
         .wrapContentWidth(Alignment.CenterHorizontally)
         .widthIn(max = 340.dp)
         .height(MiniPlayerHeight)
-        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
-        .padding(horizontal = 12.dp)
         .let { baseModifier ->
           if (swipeThumbnail) {
             baseModifier.pointerInput(Unit) {
