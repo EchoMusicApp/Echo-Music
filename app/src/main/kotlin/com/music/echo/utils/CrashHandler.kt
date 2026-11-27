@@ -74,16 +74,26 @@ class CrashHandler private constructor(private val applicationContext: Context) 
     }
   }
 
-  /** True if [throwable] or one of its causes is a connection-level network error. */
-  private fun isNetworkFailure(throwable: Throwable): Boolean =
-    generateSequence(throwable) { it.cause?.takeIf { cause -> cause !== it } }
-      .take(10)
-      .any {
-        it is java.net.SocketException ||
-          it is java.net.SocketTimeoutException ||
-          it is java.net.UnknownHostException ||
-          it is javax.net.ssl.SSLException
+  /**
+   * True if [throwable] or one of its causes is a connection-level network error. Walks the whole
+   * cause chain, stopping only when a throwable repeats, so cyclic chains can't loop forever.
+   */
+  private fun isNetworkFailure(throwable: Throwable): Boolean {
+    val visited = java.util.Collections.newSetFromMap(java.util.IdentityHashMap<Throwable, Boolean>())
+    var current: Throwable? = throwable
+    while (current != null && visited.add(current)) {
+      if (
+        current is java.net.SocketException ||
+          current is java.net.SocketTimeoutException ||
+          current is java.net.UnknownHostException ||
+          current is javax.net.ssl.SSLException
+      ) {
+        return true
       }
+      current = current.cause
+    }
+    return false
+  }
 
   private fun buildCrashLog(throwable: Throwable): String {
     val stackTrace =
