@@ -211,18 +211,6 @@ fun FloatingNavigationToolbar(
               .width(currentWidth)
               .height(currentHeight)
               .then(morphedToolbarModifier)
-              .then(
-                if (isCollapsed && activeScreen != null) {
-                  Modifier.clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = LocalIndication.current,
-                    role = Role.Button,
-                    onClick = onExpandClick,
-                  )
-                } else {
-                  Modifier
-                },
-              )
           } else {
             Modifier.widthIn(max = 480.dp).then(toolbarModifier)
           },
@@ -278,12 +266,25 @@ fun FloatingNavigationToolbar(
         if (activeScreen != null && collapsedAlpha > 0.01f) {
           Box(
             modifier =
-              Modifier.fillMaxSize().graphicsLayer {
-                alpha = collapsedAlpha
-                val s = 0.78f + 0.22f * collapsedAlpha
-                scaleX = s
-                scaleY = s
-              },
+              Modifier.fillMaxSize()
+                .then(
+                  if (isCollapsed) {
+                    Modifier.clickable(
+                      interactionSource = remember { MutableInteractionSource() },
+                      indication = LocalIndication.current,
+                      role = Role.Button,
+                      onClick = onExpandClick,
+                    )
+                  } else {
+                    Modifier
+                  },
+                )
+                .graphicsLayer {
+                  alpha = collapsedAlpha
+                  val s = 0.78f + 0.22f * collapsedAlpha
+                  scaleX = s
+                  scaleY = s
+                },
             contentAlignment = Alignment.Center,
           ) {
             Icon(
