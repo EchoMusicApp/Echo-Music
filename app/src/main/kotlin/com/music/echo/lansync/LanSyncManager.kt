@@ -571,9 +571,12 @@ class LanSyncManager private constructor(private val appContext: Context) {
           as? android.net.ConnectivityManager
       cm?.allNetworks?.firstNotNullOfOrNull { network ->
         val caps = cm.getNetworkCapabilities(network) ?: return@firstNotNullOfOrNull null
+        // A VPN network also reports its underlying transport (e.g. Wi-Fi), so reject it
+        // explicitly: its tunnel address is not reachable from the LAN.
         val isLan =
-          caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) ||
-            caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET)
+          !caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_VPN) &&
+            (caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) ||
+              caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET))
         if (!isLan) return@firstNotNullOfOrNull null
         cm.getLinkProperties(network)
           ?.linkAddresses
