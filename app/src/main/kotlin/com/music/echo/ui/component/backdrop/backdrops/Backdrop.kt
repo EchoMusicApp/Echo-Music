@@ -21,7 +21,7 @@ import echo.music.iad1tya.ui.component.backdrop.Backdrop
 @Composable
 fun rememberBackdrop(
   backdrop: Backdrop,
-  onDraw: DrawScope.(drawBackdrop: DrawScope.() -> Unit) -> Unit
+  onDraw: DrawScope.(drawBackdrop: DrawScope.() -> Unit) -> Unit,
 ): Backdrop {
   return remember(backdrop, onDraw) { Backdrop(backdrop, onDraw) }
 }
@@ -29,7 +29,7 @@ fun rememberBackdrop(
 @Immutable
 private class Backdrop(
   val backdrop: Backdrop,
-  val onDraw: DrawScope.(drawBackdrop: DrawScope.() -> Unit) -> Unit
+  val onDraw: DrawScope.(drawBackdrop: DrawScope.() -> Unit) -> Unit,
 ) : Backdrop {
 
   override val isCoordinatesDependent: Boolean = backdrop.isCoordinatesDependent
@@ -37,7 +37,7 @@ private class Backdrop(
   override fun DrawScope.drawBackdrop(
     density: Density,
     coordinates: LayoutCoordinates?,
-    layerBlock: (GraphicsLayerScope.() -> Unit)?
+    layerBlock: (GraphicsLayerScope.() -> Unit)?,
   ) {
     onDraw { with(backdrop) { drawBackdrop(density, coordinates, layerBlock) } }
   }

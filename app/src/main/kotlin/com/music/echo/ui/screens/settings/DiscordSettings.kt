@@ -2,8 +2,6 @@
 
 package echo.music.iad1tya.ui.screens.settings
 
-import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -51,6 +49,7 @@ import echo.music.iad1tya.ui.component.SwitchPreference
 import echo.music.iad1tya.ui.theme.PlayerColorExtractor
 import echo.music.iad1tya.ui.theme.extractThemeColor
 import echo.music.iad1tya.ui.utils.backToMain
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import echo.music.iad1tya.utils.makeTimeString
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
@@ -61,14 +60,14 @@ enum class ActivitySource {
   ARTIST,
   ALBUM,
   SONG,
-  APP
+  APP,
 }
 
 private enum class DiscordAuthorizationUiMode {
   Idle,
   Waiting,
   Success,
-  Failure
+  Failure,
 }
 
 private val DiscordImageOptions = listOf("thumbnail", "artist", "appicon", "custom")
@@ -332,8 +331,8 @@ fun DiscordSettings(
       button2UrlSource,
       button2CustomUrl,
       activityType,
-      showWhenPaused
-    )
+      showWhenPaused,
+    ),
   ) {
     if (discordRPC && discordToken.isNotBlank() && DiscordPresenceManager.isRunning()) {
       delay(500)
@@ -681,7 +680,7 @@ fun DiscordSettings(
           authorizationUiModeName = DiscordAuthorizationUiMode.Idle.name
           authorizationMessage = null
         },
-        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
       ) {
         Surface(modifier = Modifier.fillMaxSize()) {
           DiscordTokenWebView(
@@ -691,7 +690,7 @@ fun DiscordSettings(
               authorizationMessage = context.getString(R.string.discord_authorization_success)
               authorizationUiModeName = DiscordAuthorizationUiMode.Success.name
               // Account details are fetched in LaunchedEffect(discordToken) automatically
-            }
+            },
           )
         }
       }
@@ -735,23 +734,22 @@ private fun DiscordAccountGroupCard(
       return@LaunchedEffect
     }
 
-    val bitmap =
-      runCatching {
-          context.imageLoader
-            .execute(
-              ImageRequest.Builder(context)
-                .data(avatarUrl)
-                .size(
-                  PlayerColorExtractor.Config.IMAGE_SIZE,
-                  PlayerColorExtractor.Config.IMAGE_SIZE
-                )
-                .allowHardware(false)
-                .build(),
+    val bitmap = runCatching {
+      context.imageLoader
+        .execute(
+          ImageRequest.Builder(context)
+            .data(avatarUrl)
+            .size(
+              PlayerColorExtractor.Config.IMAGE_SIZE,
+              PlayerColorExtractor.Config.IMAGE_SIZE,
             )
-            .image
-            ?.toBitmap()
-        }
-        .getOrNull()
+            .allowHardware(false)
+            .build(),
+        )
+        .image
+        ?.toBitmap()
+    }
+      .getOrNull()
 
     extractedGlowColor =
       if (bitmap != null) {
@@ -801,13 +799,13 @@ private fun DiscordAccountGroupCard(
     modifier = Modifier.fillMaxWidth(),
   ) {
     Column(
-      modifier = Modifier.padding(horizontal = 16.dp),
+      modifier = Modifier.fillMaxWidth(),
       verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(bottom = 8.dp)
+        modifier = Modifier.padding(bottom = 8.dp),
       ) {
         Box(
           modifier = Modifier.size(88.dp),
@@ -900,88 +898,200 @@ private fun DiscordAccountGroupCard(
         }
       }
 
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Surface(
-          modifier = Modifier.weight(1f),
-          shape = androidx.compose.foundation.shape.CircleShape,
-          color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ) {
-          Row(
-            modifier =
-              Modifier.fillMaxWidth()
-                .heightIn(min = 56.dp)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+      BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val isNarrow = maxWidth < 310.dp
+        if (isNarrow) {
+          Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
           ) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(12.dp)
+            Surface(
+              modifier = Modifier.fillMaxWidth(),
+              shape = androidx.compose.foundation.shape.CircleShape,
+              color = MaterialTheme.colorScheme.surfaceContainerHigh,
             ) {
-              Surface(
-                shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.size(36.dp)
+              Row(
+                modifier =
+                  Modifier.fillMaxWidth()
+                    .heightIn(min = 56.dp)
+                    .padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
               ) {
-                Box(contentAlignment = Alignment.Center) {
-                  Icon(
-                    painter = painterResource(R.drawable.info),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp)
+                Row(
+                  modifier = Modifier.weight(1f, fill = false),
+                  verticalAlignment = Alignment.CenterVertically,
+                  horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                  Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.size(32.dp),
+                  ) {
+                    Box(contentAlignment = Alignment.Center) {
+                      Icon(
+                        painter = painterResource(R.drawable.info),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp),
+                      )
+                    }
+                  }
+
+                  Text(
+                    text = "RPC",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                   )
                 }
-              }
 
-              Text(
-                text = "RPC",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-              )
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Switch(
+                  checked = discordRpcEnabled,
+                  onCheckedChange = { isChecked ->
+                    onDiscordRpcEnabledChange(isChecked)
+                    if (isChecked && !isLoggedIn) {
+                      onPrimaryAction()
+                    }
+                  },
+                  modifier = Modifier.scale(0.85f),
+                  enabled = true,
+                  colors =
+                    SwitchDefaults.colors(
+                      checkedThumbColor = MaterialTheme.colorScheme.surface,
+                      checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                      uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                      uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    ),
+                )
+              }
             }
 
-            Switch(
-              checked = discordRpcEnabled,
-              onCheckedChange = { isChecked ->
-                onDiscordRpcEnabledChange(isChecked)
-                if (isChecked && !isLoggedIn) {
-                  onPrimaryAction()
-                }
-              },
-              modifier = Modifier.scale(0.8f),
-              enabled = true,
-              colors =
-                SwitchDefaults.colors(
-                  checkedThumbColor = MaterialTheme.colorScheme.surface,
-                  checkedTrackColor = MaterialTheme.colorScheme.onSurface,
-                  uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                  uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                )
-            )
-          }
-        }
-
-        if (isLoggedIn) {
-          OutlinedButton(
-            onClick = onPrimaryAction,
-            enabled = primaryActionEnabled,
-            modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-            shape = androidx.compose.foundation.shape.CircleShape,
-          ) {
-            Text(stringResource(R.string.action_logout))
+            if (isLoggedIn) {
+              OutlinedButton(
+                onClick = onPrimaryAction,
+                enabled = primaryActionEnabled,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+              ) {
+                Text(stringResource(R.string.action_logout))
+              }
+            } else {
+              Button(
+                onClick = onPrimaryAction,
+                enabled = primaryActionEnabled,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+              ) {
+                Text(stringResource(R.string.discord_open_authorization))
+              }
+            }
           }
         } else {
-          Button(
-            onClick = onPrimaryAction,
-            enabled = primaryActionEnabled,
-            modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-            shape = androidx.compose.foundation.shape.CircleShape,
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
           ) {
-            Text(stringResource(R.string.discord_open_authorization))
+            Surface(
+              modifier = Modifier.weight(1f),
+              shape = androidx.compose.foundation.shape.CircleShape,
+              color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ) {
+              Row(
+                modifier =
+                  Modifier.fillMaxWidth()
+                    .heightIn(min = 56.dp)
+                    .padding(start = 12.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+              ) {
+                Row(
+                  modifier = Modifier.weight(1f, fill = false),
+                  verticalAlignment = Alignment.CenterVertically,
+                  horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                  Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.size(30.dp),
+                  ) {
+                    Box(contentAlignment = Alignment.Center) {
+                      Icon(
+                        painter = painterResource(R.drawable.info),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp),
+                      )
+                    }
+                  }
+
+                  Text(
+                    text = "RPC",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                  )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Switch(
+                  checked = discordRpcEnabled,
+                  onCheckedChange = { isChecked ->
+                    onDiscordRpcEnabledChange(isChecked)
+                    if (isChecked && !isLoggedIn) {
+                      onPrimaryAction()
+                    }
+                  },
+                  modifier = Modifier.scale(0.85f),
+                  enabled = true,
+                  colors =
+                    SwitchDefaults.colors(
+                      checkedThumbColor = MaterialTheme.colorScheme.surface,
+                      checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                      uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                      uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    ),
+                )
+              }
+            }
+
+            if (isLoggedIn) {
+              OutlinedButton(
+                onClick = onPrimaryAction,
+                enabled = primaryActionEnabled,
+                modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+              ) {
+                Text(
+                  text = stringResource(R.string.action_logout),
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                )
+              }
+            } else {
+              Button(
+                onClick = onPrimaryAction,
+                enabled = primaryActionEnabled,
+                modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp),
+              ) {
+                Text(
+                  text = stringResource(R.string.discord_open_authorization),
+                  textAlign = TextAlign.Center,
+                  style = MaterialTheme.typography.labelLarge,
+                  maxLines = 2,
+                  overflow = TextOverflow.Ellipsis,
+                )
+              }
+            }
           }
         }
       }
@@ -1133,7 +1243,7 @@ fun EditablePreference(
             onValueChange(if (text.isBlank()) "" else text)
             showDialog = false
           },
-          shapes = ButtonDefaults.shapes()
+          shapes = ButtonDefaults.shapes(),
         ) {
           Text("Save")
         }
@@ -1220,8 +1330,9 @@ fun RichPresence(
   val previewDetails = previewSourceValue(detailsSource)
   val previewState = previewSourceValue(stateSource)
   val visiblePreviewDetails = previewDetails.takeUnless { it == previewName }
-  val visiblePreviewState =
-    previewState.takeUnless { it == previewName || it == visiblePreviewDetails }
+  val visiblePreviewState = previewState.takeUnless {
+    it == previewName || it == visiblePreviewDetails
+  }
   val visiblePreviewLargeText =
     previewSourceValue(ActivitySource.ALBUM).takeUnless {
       it == previewName || it == visiblePreviewDetails || it == visiblePreviewState
@@ -1376,7 +1487,7 @@ fun RichPresence(
               enabled = !resolvedButton1Url.isNullOrBlank(),
               onClick = {
                 resolvedButton1Url?.let {
-                  context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+                  context.safeOpenUri(it)
                 }
               },
               modifier = Modifier.fillMaxWidth(),
@@ -1391,7 +1502,7 @@ fun RichPresence(
               enabled = !resolvedButton2Url.isNullOrBlank(),
               onClick = {
                 resolvedButton2Url?.let {
-                  context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+                  context.safeOpenUri(it)
                 }
               },
               modifier = Modifier.fillMaxWidth(),
@@ -1483,15 +1594,15 @@ fun PreferenceGroup(
         text = title.uppercase(),
         style =
           androidx.compose.material3.MaterialTheme.typography.labelLarge.copy(
-            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
           ),
         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = androidx.compose.ui.Modifier.padding(bottom = 8.dp, top = 8.dp, start = 8.dp)
+        modifier = androidx.compose.ui.Modifier.padding(bottom = 8.dp, top = 8.dp, start = 8.dp),
       )
     }
     androidx.compose.foundation.layout.Column(
       modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
-      verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp)
+      verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(2.dp),
     ) {
       scope.items.forEachIndexed { index, item ->
         val shape =
@@ -1502,14 +1613,14 @@ fun PreferenceGroup(
                 topStart = 24.dp,
                 topEnd = 24.dp,
                 bottomStart = 4.dp,
-                bottomEnd = 4.dp
+                bottomEnd = 4.dp,
               )
             index == scope.items.size - 1 ->
               androidx.compose.foundation.shape.RoundedCornerShape(
                 topStart = 4.dp,
                 topEnd = 4.dp,
                 bottomStart = 24.dp,
-                bottomEnd = 24.dp
+                bottomEnd = 24.dp,
               )
             else -> androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
           }
@@ -1520,9 +1631,10 @@ fun PreferenceGroup(
           colors =
             androidx.compose.material3.CardDefaults.cardColors(
               containerColor =
-                androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh
+                androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerHigh,
             ),
-          elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp)
+          elevation =
+            androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
           item()
         }

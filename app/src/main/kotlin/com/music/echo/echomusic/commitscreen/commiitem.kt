@@ -36,19 +36,19 @@ fun CommitItem(commit: CommitData, onClick: () -> Unit) {
         .clickable(onClick = onClick)
         .padding(horizontal = 16.dp, vertical = 12.dp),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(12.dp)
+    horizontalArrangement = Arrangement.spacedBy(12.dp),
   ) {
     Box(
       modifier =
         Modifier.size(40.dp)
           .background(color = MaterialTheme.colorScheme.primaryContainer, shape = CircleShape),
-      contentAlignment = Alignment.Center
+      contentAlignment = Alignment.Center,
     ) {
       Icon(
         painter = painterResource(R.drawable.commit),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onPrimaryContainer,
-        modifier = Modifier.size(20.dp)
+        modifier = Modifier.size(20.dp),
       )
     }
 
@@ -59,41 +59,41 @@ fun CommitItem(commit: CommitData, onClick: () -> Unit) {
         fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onSurface,
         maxLines = 2,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
       )
 
       Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
       ) {
         Text(
           text = commit.authorName,
           style = MaterialTheme.typography.labelMedium,
           color = MaterialTheme.colorScheme.primary,
           maxLines = 1,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
         Text(
           text = "·",
           style = MaterialTheme.typography.labelMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
           text = commit.date,
           style = MaterialTheme.typography.labelMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
 
       Surface(
         color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = RoundedCornerShape(4.dp)
+        shape = RoundedCornerShape(4.dp),
       ) {
         Text(
           text = commit.sha.take(7),
           style = MaterialTheme.typography.labelSmall,
           color = MaterialTheme.colorScheme.onSecondaryContainer,
-          modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+          modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
         )
       }
     }
@@ -104,7 +104,7 @@ fun CommitItem(commit: CommitData, onClick: () -> Unit) {
       AsyncImage(
         model = commit.authorAvatarUrl,
         contentDescription = commit.authorName,
-        modifier = Modifier.size(36.dp).clip(CircleShape)
+        modifier = Modifier.size(36.dp).clip(CircleShape),
       )
     } else {
 
@@ -112,13 +112,13 @@ fun CommitItem(commit: CommitData, onClick: () -> Unit) {
         modifier =
           Modifier.size(36.dp)
             .background(color = MaterialTheme.colorScheme.tertiaryContainer, shape = CircleShape),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
       ) {
         Text(
           text = commit.authorName.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
           style = MaterialTheme.typography.labelLarge,
           fontWeight = FontWeight.Bold,
-          color = MaterialTheme.colorScheme.onTertiaryContainer
+          color = MaterialTheme.colorScheme.onTertiaryContainer,
         )
       }
     }

@@ -12,7 +12,7 @@ data class SearchResult(
   val artistName: String? = null,
   val albumName: String? = null,
   val duration: Int? = null,
-  val artwork: String? = null
+  val artwork: String? = null,
 ) {
   val displayName: String
     get() = trackName ?: songName ?: ""
@@ -30,7 +30,7 @@ data class LyricsContent(
   val text: List<LyricText> = emptyList(),
   val background: Boolean = false,
   val backgroundText: List<LyricText> = emptyList(),
-  val oppositeTurn: Boolean = false
+  val oppositeTurn: Boolean = false,
 )
 
 @Serializable
@@ -39,7 +39,7 @@ data class LyricText(
   val timestamp: Long,
   val endtime: Long,
   val duration: Long,
-  val part: Boolean = false
+  val part: Boolean = false,
 )
 
 @Serializable data class LyricsMetadata(val songwriters: List<String> = emptyList())
@@ -52,5 +52,5 @@ data class LyricsResponse(
   val elrc: String? = null,
   val elrcMultiPerson: String? = null,
   val ttmlContent: String? = null,
-  val plain: String? = null
+  val plain: String? = null,
 )

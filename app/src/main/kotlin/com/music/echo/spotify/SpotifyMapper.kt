@@ -46,7 +46,7 @@ object SpotifyMapper {
   private val bigramCache =
     object : LinkedHashMap<String, Set<String>>(NORM_CACHE_MAX_SIZE, 0.75f, true) {
       override fun removeEldestEntry(
-        eldest: MutableMap.MutableEntry<String, Set<String>>?
+        eldest: MutableMap.MutableEntry<String, Set<String>>?,
       ): Boolean = size > NORM_CACHE_MAX_SIZE
     }
 
@@ -191,25 +191,49 @@ object SpotifyMapper {
     }
   }
 
-  /** Normalizes a title for comparison, with LRU caching. */
-  private fun cachedNormalize(title: String): String {
-    normalizeCache[title]?.let {
-      return it
+  /** Returns title similarity score (0.0 to 1.0) between two song titles. */
+  fun titleSimilarity(
+    titleA: String,
+    titleB: String,
+  ): Double {
+    val normA = cachedNormalize(titleA)
+    val normB = cachedNormalize(titleB)
+    if (normA.isEmpty() || normB.isEmpty()) return 0.0
+    if (normA == normB) return 1.0
+    val sim =
+      bigramSimilarity(
+        normA,
+        cachedBigrams(normA),
+        normB,
+        cachedBigrams(normB),
+      )
+    if (normA.contains(normB) || normB.contains(normA)) {
+      return maxOf(sim, 0.6)
     }
-    val normalized = normalizeTitle(title)
-    normalizeCache[title] = normalized
-    return normalized
+    return sim
   }
 
-  /** Returns cached bigrams for a normalized string. */
-  private fun cachedBigrams(normalized: String): Set<String> {
-    bigramCache[normalized]?.let {
-      return it
+  /** Normalizes a title for comparison, with LRU caching. */
+  private fun cachedNormalize(title: String): String =
+    synchronized(normalizeCache) {
+      normalizeCache[title]?.let {
+        return it
+      }
+      val normalized = normalizeTitle(title)
+      normalizeCache[title] = normalized
+      return normalized
     }
-    val bigrams = if (normalized.length < 2) emptySet() else normalized.windowed(2).toSet()
-    bigramCache[normalized] = bigrams
-    return bigrams
-  }
+
+  /** Returns cached bigrams for a normalized string. */
+  private fun cachedBigrams(normalized: String): Set<String> =
+    synchronized(bigramCache) {
+      bigramCache[normalized]?.let {
+        return it
+      }
+      val bigrams = if (normalized.length < 2) emptySet() else normalized.windowed(2).toSet()
+      bigramCache[normalized] = bigrams
+      return bigrams
+    }
 
   private fun normalizeTitle(title: String): String {
     return title

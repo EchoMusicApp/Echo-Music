@@ -15,12 +15,12 @@ data class NextResponse(
 ) {
   @Serializable
   data class EngagementPanel(
-    val engagementPanelSectionListRenderer: EngagementPanelSectionListRenderer? = null
+    val engagementPanelSectionListRenderer: EngagementPanelSectionListRenderer? = null,
   ) {
     @Serializable
     data class EngagementPanelSectionListRenderer(
       val panelIdentifier: String? = null,
-      val content: Content? = null
+      val content: Content? = null,
     ) {
       @Serializable
       data class Content(val sectionListRenderer: SectionListRenderer? = null) {
@@ -28,7 +28,7 @@ data class NextResponse(
         data class SectionListRenderer(
           val contents:
             List<YouTubeDataPage.Contents.TwoColumnWatchNextResults.Results.Results.Content>? =
-            null
+            null,
         )
       }
     }

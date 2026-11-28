@@ -8,6 +8,6 @@ interface IWidgetManager {
     isPlaying: Boolean,
     isLiked: Boolean,
     duration: Long = 0,
-    currentPosition: Long = 0
+    currentPosition: Long = 0,
   )
 }

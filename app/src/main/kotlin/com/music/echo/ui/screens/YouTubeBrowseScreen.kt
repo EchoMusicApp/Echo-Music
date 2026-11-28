@@ -68,7 +68,7 @@ fun YouTubeBrowseScreen(
   LazyVerticalGrid(
     columns =
       GridCells.Adaptive(
-        minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp
+        minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
       ),
     contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
   ) {
@@ -133,9 +133,9 @@ fun YouTubeBrowseScreen(
                       )
                   }
                 }
-              }
+              },
             )
-            .animateItem()
+            .animateItem(),
       )
     }
   }
@@ -146,6 +146,6 @@ fun YouTubeBrowseScreen(
       IconButton(onClick = navController::navigateUp, onLongClick = navController::backToMain) {
         Icon(painterResource(R.drawable.arrow_back), contentDescription = null)
       }
-    }
+    },
   )
 }

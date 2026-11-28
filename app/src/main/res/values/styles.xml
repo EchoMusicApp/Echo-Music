@@ -33,45 +33,47 @@
         <item name="android:layout_weight">1</item>
         <item name="android:orientation">vertical</item>
         <item name="android:gravity">center_horizontal</item>
+        <item name="android:paddingHorizontal">2dp</item>
     </style>
 
     <style name="MetrolistPlaylistWidgetArtworkFrame">
-        <item name="android:layout_width">64dp</item>
-        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_gravity">center_horizontal</item>
     </style>
 
     <style name="MetrolistPlaylistWidgetArtwork">
-        <item name="android:layout_width">64dp</item>
-        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:scaleType">centerCrop</item>
         <item name="android:src">@mipmap/ic_launcher</item>
         <item name="android:contentDescription">@string/widget_playlists</item>
     </style>
 
     <style name="MetrolistPlaylistWidgetCardPlayButton">
-        <item name="android:layout_width">26dp</item>
-        <item name="android:layout_height">26dp</item>
+        <item name="android:layout_width">17dp</item>
+        <item name="android:layout_height">17dp</item>
         <item name="android:layout_gravity">bottom|end</item>
-        <item name="android:layout_marginEnd">3dp</item>
-        <item name="android:layout_marginBottom">3dp</item>
-        <item name="android:background">@drawable/widget_play_button_circular</item>
+        <item name="android:layout_marginEnd">0dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:background">@drawable/widget_circle_play_accent_bg</item>
     </style>
 
     <style name="MetrolistPlaylistWidgetCardPlayIcon">
-        <item name="android:layout_width">15dp</item>
-        <item name="android:layout_height">15dp</item>
+        <item name="android:layout_width">9dp</item>
+        <item name="android:layout_height">9dp</item>
         <item name="android:layout_gravity">center</item>
-        <item name="android:src">@drawable/ic_widget_play_low</item>
+        <item name="android:src">@drawable/ic_widget_play_bold_white</item>
         <item name="android:contentDescription">@string/play</item>
     </style>
 
     <style name="MetrolistPlaylistWidgetCardTitle">
-        <item name="android:layout_width">68dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">5dp</item>
-        <item name="android:textSize">10sp</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textSize">9.5sp</item>
         <item name="android:textColor">@color/widget_text_primary</item>
-        <item name="android:maxLines">2</item>
+        <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:gravity">center</item>
         <item name="android:includeFontPadding">false</item>

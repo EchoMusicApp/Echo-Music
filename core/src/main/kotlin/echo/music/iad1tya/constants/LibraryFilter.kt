@@ -8,5 +8,5 @@ enum class LibraryFilter {
   LIBRARY,
   LOCAL,
   SPOTIFY,
+  PODCASTS,
 }
-

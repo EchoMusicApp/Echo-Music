@@ -1,3 +1,13 @@
+/*
+ * EchoMusic (2026)
+ * © Chartreux Westia — github.com/koiverse
+ * GPL-3.0 License | Contributors: see git history
+ * Do not remove or alter this notice. - Per GPL-3.0 Section 4 & Section 5
+ *
+ * WebView authentication handling adapted from Vivi Music (vivimusic Project (C) 2026, GPL-3.0)
+ * https://github.com/vivizzz007/vivi-music
+ */
+
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package echo.music.iad1tya.ui.screens
@@ -66,26 +76,26 @@ fun SpotifyImportScreen(
             Icon(painterResource(R.drawable.arrow_back), null)
           }
         },
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
       )
-    }
+    },
   ) { innerPadding ->
     LazyColumn(
       modifier =
         Modifier.fillMaxSize()
           .windowInsetsPadding(
             LocalPlayerAwareWindowInsets.current.only(
-              WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
-            )
+              WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
+            ),
           ),
       contentPadding =
         PaddingValues(
           top = innerPadding.calculateTopPadding(),
           bottom = innerPadding.calculateBottomPadding() + 32.dp,
           start = 16.dp,
-          end = 16.dp
+          end = 16.dp,
         ),
-      verticalArrangement = Arrangement.spacedBy(16.dp)
+      verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       item {
         Spacer(modifier = Modifier.height(16.dp))
@@ -96,7 +106,7 @@ fun SpotifyImportScreen(
             spotifyImportItems(
               state = state,
               viewModel = spotifyImportViewModel,
-              onConnect = { showSpotifyLogin = true },
+              onConnect = { navController.navigate("settings/spotify_login") },
               onSelectSources = { showSpotifySources = true },
               onAddByLink = { showAddByLink = true },
             ),
@@ -151,7 +161,7 @@ private fun spotifyImportItems(
         Text(
           if (state.accountName.isNotBlank())
             stringResource(R.string.spotify_connected_as, state.accountName)
-          else stringResource(R.string.spotify_account)
+          else stringResource(R.string.spotify_account),
         )
       },
       description =
@@ -167,7 +177,7 @@ private fun spotifyImportItems(
       description = {
         Text(
           if (state.hasSources) stringResource(R.string.spotify_available_count, state.sources.size)
-          else stringResource(R.string.spotify_no_sources)
+          else stringResource(R.string.spotify_no_sources),
         )
       },
       icon = painterResource(R.drawable.playlist_play),
@@ -293,8 +303,8 @@ private fun SpotifyImportProgressDialog(
           progress.completedSources,
           progress.totalSources,
           progress.matchedTracks,
-          progress.totalTracks
-        )
+          progress.totalTracks,
+        ),
       )
       LinearProgressIndicator(
         progress = { progress.percent.toFloat() / 100f },
@@ -376,7 +386,7 @@ private fun SpotifyLoginSheet(
                     shouldOverrideSpotifyLoginUrl(
                       view = view,
                       url = request.url?.toString(),
-                      captureCookies = { url -> captureCookies(url) }
+                      captureCookies = { url -> captureCookies(url) },
                     )
 
                   @Deprecated("Deprecated in Java")
@@ -387,7 +397,7 @@ private fun SpotifyLoginSheet(
                     shouldOverrideSpotifyLoginUrl(
                       view = view,
                       url = url,
-                      captureCookies = { targetUrl -> captureCookies(targetUrl) }
+                      captureCookies = { targetUrl -> captureCookies(targetUrl) },
                     )
 
                   override fun onPageStarted(
@@ -411,7 +421,7 @@ private fun SpotifyLoginSheet(
                   container = container,
                   parentWebView = this,
                   captureCookies = { url -> captureCookies(url) },
-                  onActiveWebViewChanged = { activeWebView -> webView = activeWebView }
+                  onActiveWebViewChanged = { activeWebView -> webView = activeWebView },
                 )
 
               webView = this
@@ -424,8 +434,8 @@ private fun SpotifyLoginSheet(
             spotifyWebView,
             android.widget.FrameLayout.LayoutParams(
               android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-              android.view.ViewGroup.LayoutParams.MATCH_PARENT
-            )
+              android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            ),
           )
           container
         },
@@ -438,7 +448,7 @@ private fun SpotifyLoginSheet(
 }
 
 private const val SpotifyLoginUserAgent =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+  "Mozilla/5.0 (Linux; Android 14; SM-S921U; Build/UP1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36"
 
 private fun WebView.destroySpotifyLoginWebView() {
   stopLoading()
@@ -493,7 +503,7 @@ private class SpotifyLoginWebChromeClient(
               shouldOverrideSpotifyLoginUrl(
                 view = view,
                 url = request.url?.toString(),
-                captureCookies = captureCookies
+                captureCookies = captureCookies,
               )
 
             @Deprecated("Deprecated in Java")
@@ -525,8 +535,8 @@ private class SpotifyLoginWebChromeClient(
       popupWebView,
       android.widget.FrameLayout.LayoutParams(
         android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-        android.view.ViewGroup.LayoutParams.MATCH_PARENT
-      )
+        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+      ),
     )
     popupWebView.bringToFront()
     popupWebView.requestFocus()
@@ -557,7 +567,7 @@ private fun shouldOverrideSpotifyLoginUrl(
   url: String?,
   captureCookies: (String?) -> Boolean,
 ): Boolean {
-  if (captureCookies(url)) return true
+  captureCookies(url)
 
   val targetUrl = url?.takeIf(String::isNotBlank) ?: return false
   if (targetUrl.isWebViewLoadableUrl()) return false
@@ -571,11 +581,12 @@ private fun String.isWebViewLoadableUrl(): Boolean {
   return scheme == "https" || scheme == "http"
 }
 
-private fun String.intentBrowserFallbackUrl(): String? =
-  runCatching { android.content.Intent.parseUri(this, android.content.Intent.URI_INTENT_SCHEME) }
-    .getOrNull()
-    ?.getStringExtra("browser_fallback_url")
-    ?.takeIf { it.isWebViewLoadableUrl() }
+private fun String.intentBrowserFallbackUrl(): String? = runCatching {
+  android.content.Intent.parseUri(this, android.content.Intent.URI_INTENT_SCHEME)
+}
+  .getOrNull()
+  ?.getStringExtra("browser_fallback_url")
+  ?.takeIf { it.isWebViewLoadableUrl() }
 
 private fun readSpotifyCookies(
   cookieManager: CookieManager,
@@ -637,7 +648,7 @@ private fun SpotifyAddByLinkDialog(
           text = stringResource(R.string.spotify_import_by_link_desc),
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
-          modifier = Modifier.padding(top = 4.dp)
+          modifier = Modifier.padding(top = 4.dp),
         )
       }
     },
@@ -649,7 +660,7 @@ private fun SpotifyAddByLinkDialog(
       if (enabled && finalUrl.isNotBlank()) {
         onAdd(finalUrl)
       }
-    }
+    },
   )
 }
 

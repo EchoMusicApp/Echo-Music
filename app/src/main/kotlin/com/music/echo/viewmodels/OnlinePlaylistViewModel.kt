@@ -5,14 +5,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.music.innertube.YouTube
+import com.music.innertube.models.Artist
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.filterVideoSongs
+import com.music.innertube.pages.PodcastPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.db.MusicDatabase
+import echo.music.iad1tya.utils.PodcastProgress
+import echo.music.iad1tya.utils.PodcastShowStore
 import echo.music.iad1tya.utils.dataStore
 import echo.music.iad1tya.utils.get
 import echo.music.iad1tya.utils.reportException
@@ -34,7 +38,8 @@ class OnlinePlaylistViewModel
 constructor(
   @ApplicationContext private val context: Context,
   savedStateHandle: SavedStateHandle,
-  database: MusicDatabase
+  database: MusicDatabase,
+  private val podcastShows: PodcastShowStore,
 ) : ViewModel() {
   private val playlistId = savedStateHandle.get<String>("playlistId")!!
 
@@ -73,6 +78,7 @@ constructor(
       YouTube.playlist(playlistId)
         .onSuccess { playlistPage ->
           playlist.value = playlistPage.playlist
+          if (playlistPage.playlist.isPodcast) podcastShows.add(playlistId)
           playlistSongs.value = applySongFilters(playlistPage.songs)
           relatedItems.value = playlistPage.related ?: emptyList()
           continuation = playlistPage.songsContinuation
@@ -93,17 +99,21 @@ constructor(
   }
 
   /**
-   * Loads further pages in the background, but only up to [PROACTIVE_LOAD_LIMIT]
-   * songs: personal mixes are practically endless, and loading them whole made
-   * the list (and any queue started from it) grow to thousands of songs. Beyond
-   * the limit, pages load as the list is scrolled ([loadMoreSongs]).
+   * Loads further pages in the background, but only up to [PROACTIVE_LOAD_LIMIT] songs: personal
+   * mixes are practically endless, and loading them whole made the list (and any queue started from
+   * it) grow to thousands of songs. Beyond the limit, pages load as the list is scrolled
+   * ([loadMoreSongs]).
    */
   private fun startProactiveBackgroundLoading() {
     proactiveLoadJob?.cancel()
     proactiveLoadJob =
       viewModelScope.launch(Dispatchers.IO) {
         var currentProactiveToken = continuation
-        while (currentProactiveToken != null && isActive && playlistSongs.value.size < PROACTIVE_LOAD_LIMIT) {
+        while (
+          currentProactiveToken != null &&
+            isActive &&
+            playlistSongs.value.size < PROACTIVE_LOAD_LIMIT
+        ) {
 
           if (_isLoadingMore.value) {
 
@@ -155,8 +165,8 @@ constructor(
   }
 
   /**
-   * Loads the remaining pages, up to [FULL_LOAD_LIMIT] songs, for what needs the
-   * whole playlist rather than the part loaded so far: search, save, download.
+   * Loads the remaining pages, up to [FULL_LOAD_LIMIT] songs, for what needs the whole playlist
+   * rather than the part loaded so far: search, save, download.
    */
   suspend fun loadAllSongs(): List<SongItem> =
     withContext(Dispatchers.IO) {
@@ -183,12 +193,21 @@ constructor(
 
   private fun applySongFilters(songs: List<SongItem>): List<SongItem> {
     val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
-    val uniqueSongs = songs.distinctBy { it.id }
+    val uniqueSongs = songs.distinctBy { it.id }.withPodcastShow()
     if (!hideVideoSongs) return uniqueSongs
 
     val filtered = uniqueSongs.filterVideoSongs(true)
     // If filtering hides everything, keep original list to avoid false "empty playlist" UX.
     return if (filtered.isEmpty() && uniqueSongs.isNotEmpty()) uniqueSongs else filtered
+  }
+
+  /** Episodes on later show pages do not name their show; credit it to this one. */
+  private fun List<SongItem>.withPodcastShow(): List<SongItem> {
+    val show = playlist.value?.takeIf { it.isPodcast } ?: return this
+    val showArtist = Artist(name = show.title, id = PodcastPage.showBrowseId(show.id))
+    val attributed = map { if (it.artists.isEmpty()) it.copy(artists = listOf(showArtist)) else it }
+    attributed.forEach(PodcastProgress::mergeRemote)
+    return attributed
   }
 
   override fun onCleared() {

@@ -11,14 +11,14 @@ enum class PlaybackLogLevel {
   WARNING,
   ERROR,
   DEBUG,
-  BOT
+  BOT,
 }
 
 data class PlaybackLogEntry(
   val timestamp: String,
   val level: PlaybackLogLevel,
   val message: String,
-  val details: String? = null
+  val details: String? = null,
 )
 
 object PlaybackLogManager {

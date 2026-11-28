@@ -2,6 +2,7 @@
 package echo.music.iad1tya.widget
 
 /**
- * AppWidgetProvider for Design 5: Slim Pill Strip (4x1 compact strip with live progress and playback controls).
+ * AppWidgetProvider for Design 5: Slim Pill Strip (4x1 compact strip with live progress and
+ * playback controls).
  */
 class EchoSlimWidgetReceiver : MusicWidgetReceiver()

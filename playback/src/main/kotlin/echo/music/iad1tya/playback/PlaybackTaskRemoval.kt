@@ -7,5 +7,7 @@ fun shouldStopPlaybackOnTaskRemoval(
   playWhenReady: Boolean,
   playbackState: Int,
 ): Boolean =
-  stopOnTaskClear || !playWhenReady ||
-    playbackState == Player.STATE_IDLE || playbackState == Player.STATE_ENDED
+  stopOnTaskClear ||
+    !playWhenReady ||
+    playbackState == Player.STATE_IDLE ||
+    playbackState == Player.STATE_ENDED

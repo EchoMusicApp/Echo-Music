@@ -12,6 +12,7 @@ import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.clean
 import com.music.innertube.models.filterBlockedArtists
+import com.music.innertube.models.filterDislikedSongs
 import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.models.filterYoutubeShorts
@@ -26,6 +27,8 @@ data class SearchSummary(
 
 data class SearchSummaryPage(
   val summaries: List<SearchSummary>,
+  /** Every result in the order YouTube ranks them, top result first, not grouped by kind. */
+  val ranked: List<YTItem> = emptyList(),
 ) {
   fun filterBlockedArtists() =
     SearchSummaryPage(
@@ -35,9 +38,22 @@ data class SearchSummaryPage(
           items =
             s.items.filterBlockedArtists().ifEmpty {
               return@mapNotNull null
-            }
+            },
         )
-      }
+      },
+    )
+
+  fun filterDislikedSongs() =
+    SearchSummaryPage(
+      summaries.mapNotNull { s ->
+        SearchSummary(
+          title = s.title,
+          items =
+            s.items.filterDislikedSongs().ifEmpty {
+              return@mapNotNull null
+            },
+        )
+      },
     )
 
   fun filterExplicit(enabled: Boolean) =
@@ -69,7 +85,7 @@ data class SearchSummaryPage(
               }
             s.copy(items = filteredItems)
           }
-        }
+        },
       )
     } else {
       this
@@ -173,14 +189,15 @@ data class SearchSummaryPage(
             id = renderer.onTap.browseEndpoint.browseId.removePrefix("VL"),
             title =
               renderer.header?.musicCardShelfHeaderBasicRenderer?.title?.runs?.joinToString(
-                separator = ""
+                separator = "",
               ) {
                 ApiText.clean(it.text)
               } ?: return null,
             author =
               Artist(
                 id = null,
-                name = renderer.subtitle.runs?.joinToString { ApiText.clean(it.text) } ?: return null,
+                name =
+                  renderer.subtitle.runs?.joinToString { ApiText.clean(it.text) } ?: return null,
               ),
             songCountText = null,
             thumbnail = renderer.thumbnail.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
@@ -204,6 +221,12 @@ data class SearchSummaryPage(
     }
 
     fun fromMusicResponsiveListItemRenderer(renderer: MusicResponsiveListItemRenderer): YTItem? {
+      PodcastPage.show(renderer)?.let {
+        return it
+      }
+      PodcastPage.episode(renderer)?.let {
+        return it
+      }
       val secondaryLine =
         renderer.flexColumns
           .getOrNull(1)
@@ -253,10 +276,14 @@ data class SearchSummaryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text?.let(ApiText::clean) ?: return null,
+                ?.text
+                ?.let(ApiText::clean) ?: return null,
             artists =
               listRun.getOrNull(0)?.oddElements()?.map {
-                Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                Artist(
+                  name = ApiText.clean(it.text),
+                  id = it.navigationEndpoint?.browseEndpoint?.browseId,
+                )
               } ?: return null,
             album =
               listRun
@@ -264,7 +291,10 @@ data class SearchSummaryPage(
                 ?.firstOrNull()
                 ?.takeIf { it.navigationEndpoint?.browseEndpoint != null }
                 ?.let {
-                  Album(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId!!)
+                  Album(
+                    name = ApiText.clean(it.text),
+                    id = it.navigationEndpoint?.browseEndpoint?.browseId!!,
+                  )
                 },
             duration = secondaryLine.lastOrNull()?.firstOrNull()?.text?.parseTime(),
             musicVideoType = renderer.musicVideoType,
@@ -275,7 +305,7 @@ data class SearchSummaryPage(
                 it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
               } != null,
             libraryAddToken = libraryTokens.addToken,
-            libraryRemoveToken = libraryTokens.removeToken
+            libraryRemoveToken = libraryTokens.removeToken,
           )
         }
         renderer.isArtist -> {
@@ -288,7 +318,8 @@ data class SearchSummaryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text?.let(ApiText::clean) ?: return null,
+                ?.text
+                ?.let(ApiText::clean) ?: return null,
             thumbnail =
               renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
             shuffleEndpoint =
@@ -325,7 +356,8 @@ data class SearchSummaryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text?.let(ApiText::clean) ?: return null,
+                ?.text
+                ?.let(ApiText::clean) ?: return null,
             artists =
               secondaryLine.getOrNull(1)?.oddElements()?.map {
                 Artist(
@@ -354,7 +386,8 @@ data class SearchSummaryPage(
                 ?.text
                 ?.runs
                 ?.firstOrNull()
-                ?.text?.let(ApiText::clean) ?: return null,
+                ?.text
+                ?.let(ApiText::clean) ?: return null,
             author =
               secondaryLine.getOrNull(1)?.firstOrNull()?.let {
                 Artist(

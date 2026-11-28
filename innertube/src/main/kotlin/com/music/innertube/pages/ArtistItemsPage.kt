@@ -33,7 +33,10 @@ data class ArtistItemsPage(
       // Extract artists from the first segment after splitting
       val artists =
         secondaryLineRuns?.firstOrNull()?.oddElements()?.map {
-          Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+          Artist(
+            name = ApiText.clean(it.text),
+            id = it.navigationEndpoint?.browseEndpoint?.browseId,
+          )
         }
 
       // Extract album from last flexColumn (like SimpMusic does)
@@ -46,7 +49,10 @@ data class ArtistItemsPage(
           ?.firstOrNull()
           ?.let {
             if (it.navigationEndpoint?.browseEndpoint?.browseId != null) {
-              Album(name = ApiText.clean(it.text), id = it.navigationEndpoint.browseEndpoint.browseId)
+              Album(
+                name = ApiText.clean(it.text),
+                id = it.navigationEndpoint.browseEndpoint.browseId,
+              )
             } else null
           }
 
@@ -82,7 +88,8 @@ data class ArtistItemsPage(
             ?.text
             ?.runs
             ?.firstOrNull()
-            ?.text?.let(ApiText::clean) ?: return null,
+            ?.text
+            ?.let(ApiText::clean) ?: return null,
         artists = artists ?: return null,
         album = album,
         duration =
@@ -108,7 +115,7 @@ data class ArtistItemsPage(
             ?.playNavigationEndpoint
             ?.watchEndpoint,
         libraryAddToken = libraryTokens.addToken,
-        libraryRemoveToken = libraryTokens.removeToken
+        libraryRemoveToken = libraryTokens.removeToken,
       )
     }
 
@@ -133,7 +140,7 @@ data class ArtistItemsPage(
             explicit =
               renderer.subtitleBadges?.find {
                 it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
-              } != null
+              } != null,
           )
         // Video
         renderer.isSong ->
@@ -142,14 +149,17 @@ data class ArtistItemsPage(
             title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             artists =
               renderer.subtitle?.runs?.splitBySeparator()?.firstOrNull()?.oddElements()?.map {
-                Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                Artist(
+                  name = ApiText.clean(it.text),
+                  id = it.navigationEndpoint?.browseEndpoint?.browseId,
+                )
               } ?: return null,
             album = null,
             duration = null,
             musicVideoType = renderer.musicVideoType,
             thumbnail =
               renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
-            endpoint = renderer.navigationEndpoint.watchEndpoint
+            endpoint = renderer.navigationEndpoint.watchEndpoint,
           )
         renderer.isPlaylist ->
           PlaylistItem(
@@ -159,7 +169,10 @@ data class ArtistItemsPage(
             title = renderer.title.runs?.firstOrNull()?.text?.let(ApiText::clean) ?: return null,
             author =
               renderer.subtitle?.runs?.firstOrNull()?.let {
-                Artist(name = ApiText.clean(it.text), id = it.navigationEndpoint?.browseEndpoint?.browseId)
+                Artist(
+                  name = ApiText.clean(it.text),
+                  id = it.navigationEndpoint?.browseEndpoint?.browseId,
+                )
               },
             songCountText = renderer.subtitle?.runs?.getOrNull(4)?.text,
             thumbnail =
@@ -184,7 +197,7 @@ data class ArtistItemsPage(
                 .find { it.menuNavigationItemRenderer?.icon?.iconType == "MIX" }
                 ?.menuNavigationItemRenderer
                 ?.navigationEndpoint
-                ?.watchPlaylistEndpoint ?: return null
+                ?.watchPlaylistEndpoint ?: return null,
           )
         else -> null
       }

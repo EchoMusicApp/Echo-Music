@@ -8,17 +8,25 @@ import kotlinx.coroutines.flow.asStateFlow
 
 sealed class GenerationState {
   data object Idle : GenerationState()
+
   data class Running(val message: String) : GenerationState()
+
   data class Done(val playlistId: String) : GenerationState()
+
   data class Failed(val error: String) : GenerationState()
 }
 
 interface GenerationStatus {
   val state: StateFlow<GenerationState>
+
   fun start(message: String)
+
   fun update(message: String)
+
   fun succeed(playlistId: String)
+
   fun fail(error: String)
+
   fun cancel()
 }
 

@@ -18,7 +18,8 @@ class PlaybackCutoffGuardTest {
   fun testAllowEndWhenDiscrepancyIsSmall() {
     guard.onTrackChanged("song_1")
     // Canonical 200,000ms (3m20s), current position 198,500ms (1.5s difference <= 3000ms)
-    val decision = guard.verifyTrackCompletion(currentPositionMs = 198500L, canonicalDurationMs = 200000L)
+    val decision =
+      guard.verifyTrackCompletion(currentPositionMs = 198500L, canonicalDurationMs = 200000L)
     assertEquals(CutoffDecision.AllowEnd, decision)
   }
 
@@ -26,12 +27,14 @@ class PlaybackCutoffGuardTest {
   fun testAllowEndWhenPlayerDurationMatchesCurrentPosition() {
     guard.onTrackChanged("song_with_longer_metadata")
     // Metadata says 210,000ms (e.g. YouTube video length or metadata inaccuracy),
-    // but actual audio stream decoder duration is 195,000ms, and current position is 194,000ms (1s difference <= 3000ms).
-    val decision = guard.verifyTrackCompletion(
-      currentPositionMs = 194000L,
-      canonicalDurationMs = 210000L,
-      playerDurationMs = 195000L
-    )
+    // but actual audio stream decoder duration is 195,000ms, and current position is 194,000ms (1s
+    // difference <= 3000ms).
+    val decision =
+      guard.verifyTrackCompletion(
+        currentPositionMs = 194000L,
+        canonicalDurationMs = 210000L,
+        playerDurationMs = 195000L,
+      )
     assertEquals(CutoffDecision.AllowEnd, decision)
   }
 
@@ -46,7 +49,8 @@ class PlaybackCutoffGuardTest {
   fun testRecoverPrematureCutoffWhenDiscrepancyLarge() {
     guard.onTrackChanged("song_2")
     // Canonical 200,000ms, current position 150,000ms (50s discrepancy > 3000ms)
-    val decision = guard.verifyTrackCompletion(currentPositionMs = 150000L, canonicalDurationMs = 200000L)
+    val decision =
+      guard.verifyTrackCompletion(currentPositionMs = 150000L, canonicalDurationMs = 200000L)
     assertTrue(decision is CutoffDecision.RecoverPrematureCutoff)
     val recovery = decision as CutoffDecision.RecoverPrematureCutoff
     assertEquals(150000L, recovery.resumePositionMs)

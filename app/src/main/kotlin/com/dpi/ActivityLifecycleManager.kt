@@ -78,7 +78,7 @@ abstract class ActivityLifecycleManager : BaseLifecycleContentProvider() {
         override fun onActivityDestroyed(activity: Activity) {
           this@ActivityLifecycleManager.onActivityDestroyed(activity)
         }
-      }
+      },
     )
 
     return true

@@ -38,8 +38,8 @@ class SearchPageAmpTest {
         listOf(
           FlexColumn(
             MusicResponsiveListItemFlexColumnRenderer(
-              Runs(listOf(Run(text = "Samjhanchu", navigationEndpoint = null)))
-            )
+              Runs(listOf(Run(text = "Samjhanchu", navigationEndpoint = null))),
+            ),
           ),
           FlexColumn(
             MusicResponsiveListItemFlexColumnRenderer(
@@ -52,9 +52,9 @@ class SearchPageAmpTest {
                   browseRun("Dhanyavaad", "MPREb_9nNk6xXyZzA"),
                   Run(text = " • ", navigationEndpoint = null),
                   Run(text = "4:34", navigationEndpoint = null),
-                )
-              )
-            )
+                ),
+              ),
+            ),
           ),
         ),
       thumbnail =

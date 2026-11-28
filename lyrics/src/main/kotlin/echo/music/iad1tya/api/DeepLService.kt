@@ -25,7 +25,7 @@ object DeepLService {
     apiKey: String,
     formality: String = "default",
     maxRetries: Int = 3,
-    onLog: ((String) -> Unit)? = null
+    onLog: ((String) -> Unit)? = null,
   ): Result<List<String>> =
     withContext(Dispatchers.IO) {
       onLog?.invoke("Starting DeepL translation...")
@@ -152,4 +152,3 @@ object DeepLService {
       }
     }
 }
-

@@ -7,7 +7,7 @@ data class Context(
   val client: Client,
   val thirdParty: ThirdParty? = null,
   val request: Request = Request(),
-  val user: User = User()
+  val user: User = User(),
 ) {
   @Serializable
   data class Client(

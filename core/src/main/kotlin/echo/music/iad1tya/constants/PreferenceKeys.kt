@@ -40,7 +40,7 @@ enum class HapticIntensity(val label: String, val scaleFactor: Float) {
   }
 }
 
-val DynamicThemeKey = booleanPreferencesKey("dynamicTheme")
+val AlbumArtThemeRecoloringKey = booleanPreferencesKey("albumArtThemeRecoloring")
 val SelectedThemeColorKey = intPreferencesKey("selectedThemeColor")
 val DarkModeKey = stringPreferencesKey("darkMode")
 val PureBlackKey = booleanPreferencesKey("pureBlack")
@@ -90,7 +90,7 @@ val DeveloperModeKey = booleanPreferencesKey("developerMode")
 enum class SliderStyle {
   DEFAULT,
   WAVY,
-  SLIM
+  SLIM,
 }
 
 const val SYSTEM_DEFAULT = "SYSTEM_DEFAULT"
@@ -143,7 +143,9 @@ enum class AudioQuality(
   OPUS(160, "Opus", "Standard ~160 kbps Opus", "77 MB/hr");
 
   fun permitsLossless(): Boolean = this == LOSSLESS || this == AUTO
+
   fun permitsHigh(): Boolean = this == LOSSLESS || this == AUTO || this == HIGH
+
   fun permitsAddons(): Boolean = this == LOSSLESS || this == AUTO || this == HIGH
 }
 
@@ -208,6 +210,8 @@ val ExportProgressKey = stringPreferencesKey("exportProgress")
 val EnableExportAsMp3Key = booleanPreferencesKey("enableExportAsMp3")
 
 val PauseListenHistoryKey = booleanPreferencesKey("pauseListenHistory")
+/** Whether podcast shows leave out the episodes already played (phone and Android Auto). */
+val PodcastHidePlayedKey = booleanPreferencesKey("podcastHidePlayed")
 val PauseSearchHistoryKey = booleanPreferencesKey("pauseSearchHistory")
 val DisableScreenshotKey = booleanPreferencesKey("disableScreenshot")
 
@@ -330,6 +334,9 @@ val ShowCachedPlaylistKey = booleanPreferencesKey("show_cached_playlist")
 val ShowUploadedPlaylistKey = booleanPreferencesKey("show_uploaded_playlist")
 val EnablePlayerSwipeKey = booleanPreferencesKey("enable_player_swipe")
 val ShowSpeedDialKey = booleanPreferencesKey("showSpeedDial")
+val ShowHomeHeroCarouselKey = booleanPreferencesKey("showHomeHeroCarousel")
+val ShowHomeCommunityKey = booleanPreferencesKey("showHomeCommunity")
+val ShowHomeMoodAndGenresKey = booleanPreferencesKey("showHomeMoodAndGenres")
 val ShowCommentButtonKey = booleanPreferencesKey("show_comment_button")
 
 val MusicFlowEnabledKey = booleanPreferencesKey("music_flow_enabled")
@@ -340,11 +347,11 @@ val MusicFlowLyricsKey = booleanPreferencesKey("music_flow_lyrics")
 val MusicFlowCellularPrefetchKey = booleanPreferencesKey("music_flow_cellular_prefetch")
 val MusicFlowHideRecentKey = booleanPreferencesKey("music_flow_hide_recent")
 val PreferExtensionAudioKey = booleanPreferencesKey("prefer_extension_audio")
+val PreferredAudioAddonIdKey = stringPreferencesKey("preferred_audio_addon_id")
 
 enum class LibraryViewType {
   LIST,
-  GRID,
-  ;
+  GRID;
 
   fun toggle() =
     when (this) {
@@ -358,18 +365,18 @@ enum class SongFilter {
   LIKED,
   DOWNLOADED,
   UPLOADED,
-  EXPORTED
+  EXPORTED,
 }
 
 enum class ArtistFilter {
   LIBRARY,
-  LIKED
+  LIKED,
 }
 
 enum class AlbumFilter {
   LIBRARY,
   LIKED,
-  UPLOADED
+  UPLOADED,
 }
 
 enum class SongSortType {
@@ -440,8 +447,7 @@ enum class MyTopFilter {
   DAY,
   WEEK,
   MONTH,
-  YEAR,
-  ;
+  YEAR;
 
   fun toTimeMillis(): Long =
     when (this) {
@@ -465,13 +471,13 @@ enum class PreferredLyricsProvider {
   SIMPMUSIC,
   YOULYPLUS,
   PAXSENIX,
-  UNISON
+  UNISON,
 }
 
 enum class PlayerButtonsStyle {
   DEFAULT,
   PRIMARY,
-  TERTIARY
+  TERTIARY,
 }
 
 enum class PlayerBackgroundStyle {
@@ -559,8 +565,7 @@ val SwipeSensitivityKey = floatPreferencesKey("swipeSensitivity")
 
 enum class SearchSource {
   LOCAL,
-  ONLINE,
-  ;
+  ONLINE;
 
   fun toggle() =
     when (this) {
@@ -813,7 +818,7 @@ val SuggestionRegionSlugToName =
     "eg" to "Egypt",
     "sa" to "Saudi Arabia",
     "ae" to "United Arab Emirates",
-    "il" to "Israel"
+    "il" to "Israel",
   )
 
 val SpatialAudioEnabledKey = booleanPreferencesKey("spatial_audio_enabled")
@@ -859,7 +864,6 @@ val AmbientShowLyricsKey = booleanPreferencesKey("ambient_show_lyrics")
 val AmbientShowArtKey = booleanPreferencesKey("ambient_show_art")
 val AmbientFullScreenArtKey = booleanPreferencesKey("ambient_full_screen_art")
 
-
 val AmbientSpacingKey = floatPreferencesKey("ambient_spacing")
 
 enum class AppFont(val value: String) {
@@ -879,13 +883,16 @@ val SelectedFontKey = stringPreferencesKey("selected_app_font")
 val CustomFontPathKey = androidx.datastore.preferences.core.stringPreferencesKey("custom_font_path")
 val BlockedArtistsKey =
   androidx.datastore.preferences.core.stringSetPreferencesKey("blockedArtists")
+val DislikedSongsKey = androidx.datastore.preferences.core.stringSetPreferencesKey("dislikedSongs")
 
 val EnableBitPerfectUsbDacKey = booleanPreferencesKey("enable_bit_perfect_usb_dac")
 val UsbDacVolumeModeKey = stringPreferencesKey("usb_dac_volume_mode")
 
 enum class RecommendationSource {
-    YOUTUBE,
-    SPOTIFY
+  YOUTUBE,
+  SPOTIFY,
 }
 
 val RecommendationSourceKey = stringPreferencesKey("recommendation_source")
+val DismissDesktopReleaseBannerKey = booleanPreferencesKey("dismissDesktopReleaseBanner")
+val LanSyncEnabledKey = booleanPreferencesKey("lanSyncEnabled")

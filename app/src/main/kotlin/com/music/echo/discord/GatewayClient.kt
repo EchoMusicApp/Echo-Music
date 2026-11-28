@@ -25,7 +25,7 @@ class GatewayClient {
   }
 
   private var httpClient: OkHttpClient? = null
-  private var wsSession: WebSocket? = null
+  @Volatile private var wsSession: WebSocket? = null
   private var processingJob: Job? = null
   private var heartbeatJob: Job? = null
   private var helloTimerJob: Job? = null
@@ -39,7 +39,7 @@ class GatewayClient {
   private var sessionState: GatewaySessionState? = null
   private var liveSeq = 0
   private var token = ""
-  private var closed = false
+  @Volatile private var closed = false
 
   var onReady: ((GatewayReadyEvent) -> Unit)? = null
   var onClose: ((GatewayCloseInfo) -> Unit)? = null
@@ -48,6 +48,9 @@ class GatewayClient {
 
   val latency: Int
     get() = ping
+
+  val isConnected: Boolean
+    get() = !closed && wsSession != null
 
   suspend fun connect(accessToken: String) {
     if (wsSession != null) throw IllegalStateException("GatewayClient already connected")
@@ -107,42 +110,44 @@ class GatewayClient {
             response: Response?,
           ) {
             response?.close()
+            scope.launch {
+              incomingChannel.send(GatewayFrame.Close(1006, t.message ?: "websocket failure"))
+            }
             onError?.invoke(t)
           }
         },
       )
 
-    helloTimerJob =
-      scope.launch {
-        delay(GatewayDefaults.HELLO_TIMEOUT_MS)
-        debug("HELLO timeout")
-        wsSession?.close(4009, "HELLO timeout")
-        ready.completeExceptionally(Exception("HELLO timeout"))
-      }
+    helloTimerJob = scope.launch {
+      delay(GatewayDefaults.HELLO_TIMEOUT_MS)
+      debug("HELLO timeout")
+      wsSession?.close(4009, "HELLO timeout")
+      ready.completeExceptionally(Exception("HELLO timeout"))
+    }
 
-    processingJob =
-      scope.launch {
-        try {
-          for (frame in incomingChannel) {
-            when (frame) {
-              is GatewayFrame.Text -> {
-                handleMessage(frame.text, ready)
+    processingJob = scope.launch {
+      try {
+        for (frame in incomingChannel) {
+          when (frame) {
+            is GatewayFrame.Text -> {
+              handleMessage(frame.text, ready)
+            }
+            is GatewayFrame.Close -> {
+              handleClose(frame.reason, frame.code)
+              if (!ready.isCompleted) {
+                ready.completeExceptionally(
+                  Exception("Gateway closed before ready"),
+                )
               }
-              is GatewayFrame.Close -> {
-                handleClose(frame.reason, frame.code)
-                if (!ready.isCompleted) {
-                  ready.completeExceptionally(
-                    Exception("Gateway closed before ready"),
-                  )
-                }
-              }
+              break
             }
           }
-        } catch (e: Exception) {
-          if (!ready.isCompleted) ready.completeExceptionally(e)
-          onError?.invoke(e)
         }
+      } catch (e: Exception) {
+        if (!ready.isCompleted) ready.completeExceptionally(e)
+        onError?.invoke(e)
       }
+    }
 
     ready.await()
   }
@@ -315,17 +320,16 @@ class GatewayClient {
     stopHeartbeat()
     debug("heartbeat every ${intervalMs}ms")
     val firstDelay = (intervalMs * Random.nextDouble()).toLong()
-    heartbeatJob =
-      scope.launch {
-        delay(firstDelay)
-        if (wsSession != null) {
+    heartbeatJob = scope.launch {
+      delay(firstDelay)
+      if (wsSession != null) {
+        sendHeartbeat()
+        while (isActive) {
+          delay(intervalMs)
           sendHeartbeat()
-          while (isActive) {
-            delay(intervalMs)
-            sendHeartbeat()
-          }
         }
       }
+    }
   }
 
   private fun sendHeartbeat(force: Boolean = false) {

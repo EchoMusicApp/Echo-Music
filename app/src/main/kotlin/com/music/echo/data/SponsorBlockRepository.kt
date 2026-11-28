@@ -56,8 +56,8 @@ class SponsorBlockRepository @Inject constructor() {
                 actionType = obj.optString("actionType"),
                 locked = obj.optInt("locked", 0),
                 votes = obj.optInt("votes", 0),
-                description = obj.optString("description")
-              )
+                description = obj.optString("description"),
+              ),
             )
           }
         }

@@ -52,7 +52,7 @@ import timber.log.Timber
 class CastConnectionHandler(
   private val context: Context,
   private val scope: CoroutineScope,
-  private val musicService: MusicService
+  private val musicService: MusicService,
 ) {
   // ── Core Cast components ──────────────────────────────────────────────
   private var castContext: CastContext? = null
@@ -200,7 +200,7 @@ class CastConnectionHandler(
           pendingSyncOperation?.complete(Unit)
 
           Timber.d(
-            "Cast status: playing=${_castIsPlaying.value}, buffering=${_castIsBuffering.value}, itemId=$currentItemId, deviceVolume=${_castVolume.value}"
+            "Cast status: playing=${_castIsPlaying.value}, buffering=${_castIsBuffering.value}, itemId=$currentItemId, deviceVolume=${_castVolume.value}",
           )
         }
       }
@@ -433,7 +433,7 @@ class CastConnectionHandler(
     val currentItemId = mediaStatus.currentItemId
     val queueItems = mediaStatus.queueItems
     Timber.d(
-      "CastFlow.insertItemsAfterCurrent: currentItemId=$currentItemId, queueSize=${queueItems.size}"
+      "CastFlow.insertItemsAfterCurrent: currentItemId=$currentItemId, queueSize=${queueItems.size}",
     )
 
     // Find the next item's ID after current
@@ -453,12 +453,12 @@ class CastConnectionHandler(
         continue
       }
       Timber.d(
-        "CastFlow.insertItemsAfterCurrent: building MediaInfo for item[$idx] mediaId=${item.mediaId}"
+        "CastFlow.insertItemsAfterCurrent: building MediaInfo for item[$idx] mediaId=${item.mediaId}",
       )
       val mediaInfo = buildMediaInfo(metadata)
       if (mediaInfo == null) {
         Timber.w(
-          "CastFlow.insertItemsAfterCurrent: buildMediaInfo returned null for ${item.mediaId}"
+          "CastFlow.insertItemsAfterCurrent: buildMediaInfo returned null for ${item.mediaId}",
         )
         continue
       }
@@ -467,7 +467,7 @@ class CastConnectionHandler(
         runQueueOperation("insertItemsAfterCurrent ${item.mediaId}") { c ->
           if (nextItemId != 0) {
             Timber.d(
-              "CastFlow.insertItemsAfterCurrent: queueInsertItems before nextItemId=$nextItemId"
+              "CastFlow.insertItemsAfterCurrent: queueInsertItems before nextItemId=$nextItemId",
             )
             c.queueInsertItems(arrayOf(queueItem), nextItemId, org.json.JSONObject())
           } else {
@@ -478,11 +478,11 @@ class CastConnectionHandler(
       if (success) {
         markOccurrenceMirrored(item.mediaId)
         Timber.d(
-          "CastFlow.insertItemsAfterCurrent: SUCCESS mediaId=${item.mediaId}, mirrored=${mirroredTotal()}"
+          "CastFlow.insertItemsAfterCurrent: SUCCESS mediaId=${item.mediaId}, mirrored=${mirroredTotal()}",
         )
       } else {
         Timber.w(
-          "CastFlow.insertItemsAfterCurrent: FAILED mediaId=${item.mediaId}, not added to mirror"
+          "CastFlow.insertItemsAfterCurrent: FAILED mediaId=${item.mediaId}, not added to mirror",
         )
       }
     }
@@ -508,12 +508,12 @@ class CastConnectionHandler(
         continue
       }
       Timber.d(
-        "CastFlow.appendItemsToCastQueue: building MediaInfo for item[$idx] mediaId=${item.mediaId}"
+        "CastFlow.appendItemsToCastQueue: building MediaInfo for item[$idx] mediaId=${item.mediaId}",
       )
       val mediaInfo = buildMediaInfo(metadata)
       if (mediaInfo == null) {
         Timber.w(
-          "CastFlow.appendItemsToCastQueue: buildMediaInfo returned null for ${item.mediaId}"
+          "CastFlow.appendItemsToCastQueue: buildMediaInfo returned null for ${item.mediaId}",
         )
         continue
       }
@@ -526,11 +526,11 @@ class CastConnectionHandler(
       if (success) {
         markOccurrenceMirrored(item.mediaId)
         Timber.d(
-          "CastFlow.appendItemsToCastQueue: SUCCESS mediaId=${item.mediaId}, mirrored=${mirroredTotal()}"
+          "CastFlow.appendItemsToCastQueue: SUCCESS mediaId=${item.mediaId}, mirrored=${mirroredTotal()}",
         )
       } else {
         Timber.w(
-          "CastFlow.appendItemsToCastQueue: FAILED mediaId=${item.mediaId}, not added to mirror"
+          "CastFlow.appendItemsToCastQueue: FAILED mediaId=${item.mediaId}, not added to mirror",
         )
       }
     }
@@ -572,8 +572,9 @@ class CastConnectionHandler(
     val queueItems = mediaStatus.queueItems
     if (queueItems.isEmpty()) return false
 
-    val targetIndex =
-      queueItems.indexOfFirst { it.media?.customData?.optString("mediaId") == mediaId }
+    val targetIndex = queueItems.indexOfFirst {
+      it.media?.customData?.optString("mediaId") == mediaId
+    }
     if (targetIndex < 0) {
       Timber.d("Media $mediaId not found in Cast queue")
       return false
@@ -748,36 +749,35 @@ class CastConnectionHandler(
    */
   private suspend fun runQueueOperation(
     opName: String,
-    execute: (RemoteMediaClient) -> PendingResult<MediaChannelResult>
-  ): Boolean =
-    queueMutationMutex.withLock {
-      val client = remoteMediaClient ?: return@withLock false
-      withContext(Dispatchers.Main) {
-        val outcome =
-          kotlinx.coroutines.withTimeoutOrNull(10_000L) {
-            suspendCancellableCoroutine { cont ->
-              val pending =
-                try {
-                  execute(client)
-                } catch (e: Exception) {
-                  Timber.e(e, "Cast queue op ($opName) threw")
-                  if (cont.isActive) cont.resume(false) {}
-                  return@suspendCancellableCoroutine
-                }
-              pending.setResultCallback { result ->
-                val ok = result.status.isSuccess
-                if (!ok)
-                  Timber.w(
-                    "Cast queue op ($opName) rejected by receiver: code=${result.status.statusCode}"
-                  )
-                if (cont.isActive) cont.resume(ok) {}
+    execute: (RemoteMediaClient) -> PendingResult<MediaChannelResult>,
+  ): Boolean = queueMutationMutex.withLock {
+    val client = remoteMediaClient ?: return@withLock false
+    withContext(Dispatchers.Main) {
+      val outcome =
+        kotlinx.coroutines.withTimeoutOrNull(10_000L) {
+          suspendCancellableCoroutine { cont ->
+            val pending =
+              try {
+                execute(client)
+              } catch (e: Exception) {
+                Timber.e(e, "Cast queue op ($opName) threw")
+                if (cont.isActive) cont.resume(false) {}
+                return@suspendCancellableCoroutine
               }
+            pending.setResultCallback { result ->
+              val ok = result.status.isSuccess
+              if (!ok)
+                Timber.w(
+                  "Cast queue op ($opName) rejected by receiver: code=${result.status.statusCode}",
+                )
+              if (cont.isActive) cont.resume(ok) {}
             }
-          } ?: false
-        if (!outcome) Timber.w("Cast queue op ($opName) failed or timed out")
-        outcome
-      }
+          }
+        } ?: false
+      if (!outcome) Timber.w("Cast queue op ($opName) failed or timed out")
+      outcome
     }
+  }
 
   /** Handle when Cast changes to a different item (user pressed next/prev on Cast widget). */
   private fun handleCastItemChanged(mediaStatus: MediaStatus) {
@@ -797,7 +797,7 @@ class CastConnectionHandler(
     val customData = currentQueueItem.media?.customData
     val castMediaId = customData?.optString("mediaId")
     Timber.d(
-      "Cast item changed: index=$currentIndex, mediaId=$castMediaId, mirrored=${mirroredTotal()}"
+      "Cast item changed: index=$currentIndex, mediaId=$castMediaId, mirrored=${mirroredTotal()}",
     )
 
     if (castMediaId != null && castMediaId != currentMediaId) {
@@ -829,7 +829,7 @@ class CastConnectionHandler(
    */
   private suspend fun extendQueueIfNeeded(localPlayerIndex: Int, playerItemCount: Int) {
     Timber.d(
-      "CastFlow.extendQueueIfNeeded: localPlayerIndex=$localPlayerIndex, playerItemCount=$playerItemCount, isReloadingQueue=$isReloadingQueue, mirrored=${mirroredTotal()}"
+      "CastFlow.extendQueueIfNeeded: localPlayerIndex=$localPlayerIndex, playerItemCount=$playerItemCount, isReloadingQueue=$isReloadingQueue, mirrored=${mirroredTotal()}",
     )
     if (isReloadingQueue) {
       Timber.d("CastFlow.extendQueueIfNeeded: skipped (isReloadingQueue)")
@@ -852,7 +852,7 @@ class CastConnectionHandler(
       val totalAdded = forwardCount + backwardCount
       if (totalAdded > 0) {
         Timber.d(
-          "Cast queue extended: +$forwardCount fwd, +$backwardCount bwd, mirrored=${mirroredTotal()}"
+          "Cast queue extended: +$forwardCount fwd, +$backwardCount bwd, mirrored=${mirroredTotal()}",
         )
       }
     } catch (e: Exception) {
@@ -897,7 +897,7 @@ class CastConnectionHandler(
   /** Append a single track to the Cast queue, marking it mirrored on success. */
   private suspend fun appendTrackForward(
     item: androidx.media3.common.MediaItem,
-    mediaId: String
+    mediaId: String,
   ): Int {
     val metadata = item.metadata ?: return 0
     val mediaInfo = buildMediaInfo(metadata) ?: return 0
@@ -951,7 +951,12 @@ class CastConnectionHandler(
 
   /** Build MediaInfo for a single track. */
   private suspend fun buildMediaInfo(metadata: AppMediaMetadata): MediaInfo? {
-    val streamUrl = musicService.getStreamUrl(metadata.id) ?: return null
+    val streamUrl =
+      musicService.getStreamUrl(
+        metadata.id,
+        metadata.title,
+        metadata.artists.joinToString(", ") { it.name },
+      ) ?: return null
     val castMetadata =
       MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK).apply {
         putString(MediaMetadata.KEY_TITLE, metadata.title)
@@ -979,7 +984,7 @@ class CastConnectionHandler(
    */
   private fun loadMediaWithQueue(metadata: AppMediaMetadata) {
     Timber.d(
-      "CastFlow.loadMediaWithQueue: mediaId=${metadata.id}, title=${metadata.title}, isCasting=${_isCasting.value}"
+      "CastFlow.loadMediaWithQueue: mediaId=${metadata.id}, title=${metadata.title}, isCasting=${_isCasting.value}",
     )
     if (!_isCasting.value) return
     if (isReloadingQueue) {
@@ -1056,7 +1061,7 @@ class CastConnectionHandler(
             }
 
           Timber.d(
-            "Loading Cast queue: ${queueItems.size} items, startIndex=$startIndex, shuffle=$shuffleEnabled"
+            "Loading Cast queue: ${queueItems.size} items, startIndex=$startIndex, shuffle=$shuffleEnabled",
           )
 
           val loadSucceeded =
@@ -1066,7 +1071,7 @@ class CastConnectionHandler(
                 startIndex,
                 MediaStatus.REPEAT_MODE_REPEAT_OFF,
                 startPosition,
-                org.json.JSONObject()
+                org.json.JSONObject(),
               )
             }
 
@@ -1135,15 +1140,14 @@ class CastConnectionHandler(
 
   private fun startPositionUpdates() {
     positionUpdateJob?.cancel()
-    positionUpdateJob =
-      scope.launch {
-        while (isActive && _isCasting.value) {
-          remoteMediaClient?.let { client ->
-            _castPosition.value = client.approximateStreamPosition
-          }
-          delay(500)
+    positionUpdateJob = scope.launch {
+      while (isActive && _isCasting.value) {
+        remoteMediaClient?.let { client ->
+          _castPosition.value = client.approximateStreamPosition
         }
+        delay(500)
       }
+    }
   }
 
   private fun stopPositionUpdates() {

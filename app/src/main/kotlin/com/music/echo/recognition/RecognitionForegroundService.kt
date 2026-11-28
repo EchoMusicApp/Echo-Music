@@ -113,26 +113,24 @@ class RecognitionForegroundService : Service() {
     Timber.tag(TAG).d("MusicRecognitionService reset")
 
     statusJob?.cancel()
-    statusJob =
-      serviceScope.launch {
-        MusicRecognitionService.recognitionStatus.collect { status ->
-          when (status) {
-            is RecognitionStatus.Ready -> Unit
-            else -> renderStatus(status)
-          }
+    statusJob = serviceScope.launch {
+      MusicRecognitionService.recognitionStatus.collect { status ->
+        when (status) {
+          is RecognitionStatus.Ready -> Unit
+          else -> renderStatus(status)
         }
       }
+    }
 
-    recognitionJob =
-      serviceScope.launch {
-        val result = MusicRecognitionService.recognize(this@RecognitionForegroundService)
-        if (
-          result is RecognitionStatus.Error &&
-            MusicRecognitionService.recognitionStatus.value !is RecognitionStatus.Error
-        ) {
-          renderStatus(result)
-        }
+    recognitionJob = serviceScope.launch {
+      val result = MusicRecognitionService.recognize(this@RecognitionForegroundService)
+      if (
+        result is RecognitionStatus.Error &&
+          MusicRecognitionService.recognitionStatus.value !is RecognitionStatus.Error
+      ) {
+        renderStatus(result)
       }
+    }
   }
 
   private fun renderStatus(status: RecognitionStatus) {
@@ -292,19 +290,19 @@ class RecognitionForegroundService : Service() {
     withContext(Dispatchers.IO) {
       Timber.tag(TAG).d("Loading cover art bitmap from %s", url)
       runCatching {
-          val connection =
-            (URL(url).openConnection() as? HttpURLConnection) ?: return@runCatching null
-          try {
-            connection.connectTimeout = BITMAP_CONNECT_TIMEOUT_MS
-            connection.readTimeout = BITMAP_READ_TIMEOUT_MS
-            connection.instanceFollowRedirects = true
-            connection.doInput = true
-            connection.connect()
-            connection.inputStream.use(BitmapFactory::decodeStream)
-          } finally {
-            connection.disconnect()
-          }
+        val connection =
+          (URL(url).openConnection() as? HttpURLConnection) ?: return@runCatching null
+        try {
+          connection.connectTimeout = BITMAP_CONNECT_TIMEOUT_MS
+          connection.readTimeout = BITMAP_READ_TIMEOUT_MS
+          connection.instanceFollowRedirects = true
+          connection.doInput = true
+          connection.connect()
+          connection.inputStream.use(BitmapFactory::decodeStream)
+        } finally {
+          connection.disconnect()
         }
+      }
         .getOrNull()
     }
 

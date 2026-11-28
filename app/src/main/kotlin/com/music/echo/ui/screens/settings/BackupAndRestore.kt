@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 
 enum class BackupSubScreen {
   MAIN,
-  IMPORT
+  IMPORT,
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,7 +89,7 @@ fun BackupAndRestore(
 
   val backupLauncher =
     rememberLauncherForActivityResult(
-      ActivityResultContracts.CreateDocument("application/octet-stream")
+      ActivityResultContracts.CreateDocument("application/octet-stream"),
     ) { uri ->
       if (uri != null) {
         coroutineScope.launch { viewModel.backup(context, uri) }
@@ -134,15 +134,15 @@ fun BackupAndRestore(
   Crossfade(targetState = currentScreen, label = "BackupSubScreen") { screen ->
     Column(
       Modifier.windowInsetsPadding(
-          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal)
+          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal),
         )
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 16.dp)
+        .padding(horizontal = 16.dp),
     ) {
       Spacer(
         Modifier.windowInsetsPadding(
-          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top)
-        )
+          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top),
+        ),
       )
 
       when (screen) {
@@ -163,23 +163,23 @@ fun BackupAndRestore(
                       "${context.getString(R.string.app_name)}_${
                                             LocalDateTime.now().format(formatter)
                                         }.backup",
-                      context
+                      context,
                     )
-                  }
+                  },
                 ),
                 Material3SettingsItem(
                   title = { Text("Import") },
                   description = { Text("Restore data from backups or other sources") },
                   icon = painterResource(R.drawable.restore),
-                  onClick = { currentScreen = BackupSubScreen.IMPORT }
+                  onClick = { currentScreen = BackupSubScreen.IMPORT },
                 ),
                 Material3SettingsItem(
                   title = { Text("Import from Spotify") },
                   description = { Text(stringResource(R.string.spotify_import_desc)) },
                   icon = painterResource(R.drawable.ic_spotify),
-                  onClick = { navController.navigate("settings/spotify_import") }
-                )
-              )
+                  onClick = { navController.navigate("settings/spotify_import") },
+                ),
+              ),
           )
         }
         BackupSubScreen.IMPORT -> {
@@ -195,12 +195,12 @@ fun BackupAndRestore(
                   icon = painterResource(R.drawable.restore),
                   onClick = {
                     restoreLauncher.launchSafely(arrayOf("application/octet-stream"), context)
-                  }
+                  },
                 ),
                 Material3SettingsItem(
                   title = { Text("Import 'm3u' Playlist") },
                   icon = painterResource(R.drawable.playlist_add),
-                  onClick = { importM3uLauncherOnline.launchSafely(arrayOf("audio/*"), context) }
+                  onClick = { importM3uLauncherOnline.launchSafely(arrayOf("audio/*"), context) },
                 ),
                 Material3SettingsItem(
                   title = { Text("Import 'csv' Playlist") },
@@ -211,21 +211,21 @@ fun BackupAndRestore(
                         "text/csv",
                         "text/comma-separated-values",
                         "application/csv",
-                        "text/plain"
+                        "text/plain",
                       ),
-                      context
+                      context,
                     )
-                  }
-                )
-              )
+                  },
+                ),
+              ),
           )
         }
       }
 
       Spacer(
         Modifier.windowInsetsPadding(
-          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom)
-        )
+          LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom),
+        ),
       )
     }
   }
@@ -253,7 +253,7 @@ fun BackupAndRestore(
           contentDescription = null,
         )
       }
-    }
+    },
   )
 
   AddToPlaylistDialogOnline(
@@ -263,7 +263,7 @@ fun BackupAndRestore(
     songs = importedSongs,
     onDismiss = { showChoosePlaylistDialogOnline = false },
     onProgressStart = { newVal -> isProgressStarted = newVal },
-    onPercentageChange = { newPercentage -> progressPercentage = newPercentage }
+    onPercentageChange = { newPercentage -> progressPercentage = newPercentage },
   )
 
   LaunchedEffect(progressPercentage, isProgressStarted) {

@@ -53,7 +53,7 @@ fun ImportPlaylistDialog(
 
           onDismiss()
         }
-      }
+      },
     )
   }
 }

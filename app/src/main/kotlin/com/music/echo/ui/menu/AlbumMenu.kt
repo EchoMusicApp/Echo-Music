@@ -3,6 +3,7 @@ package echo.music.iad1tya.ui.menu
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -69,9 +70,11 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.ListItemHeight
 import echo.music.iad1tya.constants.ListThumbnailSize
 import echo.music.iad1tya.db.entities.Album
+import echo.music.iad1tya.db.entities.RecommendationExclusionEntity
 import echo.music.iad1tya.db.entities.Song
 import echo.music.iad1tya.db.entities.SpeedDialItem
 import echo.music.iad1tya.extensions.toMediaItem
+import echo.music.iad1tya.generate.trackKeyOf
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.playback.queues.ListQueue
 import echo.music.iad1tya.ui.component.AlbumListItem
@@ -106,6 +109,18 @@ fun AlbumMenu(
   val coroutineScope = rememberCoroutineScope()
 
   LaunchedEffect(Unit) { database.albumSongs(album.id).collect { songs = it } }
+
+  val exclusions by
+    database.recommendationExclusionDao.observeAll().collectAsState(initial = emptyList())
+  val albumTrackKeys =
+    remember(songs) {
+      songs.map { song -> trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name }) }
+    }
+  val isAlbumExcluded =
+    remember(albumTrackKeys, exclusions) {
+      albumTrackKeys.isNotEmpty() &&
+        exclusions.map { it.trackKey }.toSet().containsAll(albumTrackKeys)
+    }
 
   var downloadState by remember { mutableIntStateOf(STATE_STOPPED) }
 
@@ -245,7 +260,7 @@ fun AlbumMenu(
           painter =
             painterResource(
               if (album.album.bookmarkedAt != null) R.drawable.favorite
-              else R.drawable.favorite_border
+              else R.drawable.favorite_border,
             ),
           tint =
             if (album.album.bookmarkedAt != null) MaterialTheme.colorScheme.error
@@ -283,7 +298,7 @@ fun AlbumMenu(
                     painter = painterResource(R.drawable.play),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.play),
@@ -291,10 +306,10 @@ fun AlbumMenu(
                   onDismiss()
                   if (songs.isNotEmpty()) {
                     playerConnection.playQueue(
-                      ListQueue(title = album.album.title, items = songs.map(Song::toMediaItem))
+                      ListQueue(title = album.album.title, items = songs.map(Song::toMediaItem)),
                     )
                   }
-                }
+                },
               )
 
               NewAction(
@@ -303,7 +318,7 @@ fun AlbumMenu(
                     painter = painterResource(R.drawable.shuffle),
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 },
                 text = stringResource(R.string.shuffle),
@@ -316,11 +331,11 @@ fun AlbumMenu(
                     playerConnection.playQueue(
                       ListQueue(
                         title = album.album.title,
-                        items = songs.shuffled().map(Song::toMediaItem)
-                      )
+                        items = songs.shuffled().map(Song::toMediaItem),
+                      ),
                     )
                   }
-                }
+                },
               )
             } else null,
             NewAction(
@@ -329,7 +344,7 @@ fun AlbumMenu(
                   painter = painterResource(R.drawable.share),
                   contentDescription = null,
                   modifier = Modifier.size(28.dp),
-                  tint = MaterialTheme.colorScheme.onSurfaceVariant
+                  tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
               },
               text = stringResource(R.string.share),
@@ -341,15 +356,15 @@ fun AlbumMenu(
                     type = "text/plain"
                     putExtra(
                       Intent.EXTRA_TEXT,
-                      "https://share.echomusic.fun/playlist?list=${album.album.playlistId}"
+                      "https://share.echomusic.fun/playlist?list=${album.album.playlistId}",
                     )
                   }
                 context.startActivity(Intent.createChooser(intent, null))
-              }
-            )
+              },
+            ),
           ),
         modifier = Modifier.padding(horizontal = 4.dp, vertical = 16.dp),
-        columns = if (isGuest) 1 else 3
+        columns = if (isGuest) 1 else 3,
       )
     }
     item {
@@ -363,13 +378,13 @@ fun AlbumMenu(
                 icon = {
                   Icon(
                     painter = painterResource(R.drawable.playlist_play),
-                    contentDescription = null
+                    contentDescription = null,
                   )
                 },
                 onClick = {
                   onDismiss()
                   playerConnection.playNext(songs.map { it.toMediaItem() })
-                }
+                },
               )
             } else null,
             if (!isGuest) {
@@ -382,7 +397,7 @@ fun AlbumMenu(
                 onClick = {
                   onDismiss()
                   playerConnection.addToQueue(songs.map { it.toMediaItem() })
-                }
+                },
               )
             } else null,
             Material3MenuItemData(
@@ -391,7 +406,7 @@ fun AlbumMenu(
               icon = {
                 Icon(painter = painterResource(R.drawable.playlist_add), contentDescription = null)
               },
-              onClick = { showChoosePlaylistDialog = true }
+              onClick = { showChoosePlaylistDialog = true },
             ),
             Material3MenuItemData(
               title = {
@@ -416,15 +431,15 @@ fun AlbumMenu(
                         subtitle = album.artists.joinToString(", ") { it.name },
                         thumbnailUrl = album.album.thumbnailUrl,
                         type = "ALBUM",
-                        explicit = album.album.explicit
-                      )
+                        explicit = album.album.explicit,
+                      ),
                     )
                   }
                 }
                 onDismiss()
-              }
-            )
-          )
+              },
+            ),
+          ),
       )
     }
 
@@ -450,7 +465,7 @@ fun AlbumMenu(
                         false,
                       )
                     }
-                  }
+                  },
                 )
               }
               STATE_QUEUED,
@@ -469,7 +484,7 @@ fun AlbumMenu(
                         false,
                       )
                     }
-                  }
+                  },
                 )
               }
               else -> {
@@ -493,11 +508,11 @@ fun AlbumMenu(
                         false,
                       )
                     }
-                  }
+                  },
                 )
               }
-            }
-          )
+            },
+          ),
       )
     }
 
@@ -520,7 +535,7 @@ fun AlbumMenu(
                 } else {
                   showSelectArtistDialog = true
                 }
-              }
+              },
             ),
             Material3MenuItemData(
               title = { Text(text = stringResource(R.string.refetch)) },
@@ -529,7 +544,7 @@ fun AlbumMenu(
                 Icon(
                   painter = painterResource(R.drawable.sync),
                   contentDescription = null,
-                  modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation)
+                  modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation),
                 )
               },
               onClick = {
@@ -539,9 +554,65 @@ fun AlbumMenu(
                     database.transaction { update(album.album, it, album.artists) }
                   }
                 }
-              }
-            )
-          )
+              },
+            ),
+            Material3MenuItemData(
+              title = {
+                Text(
+                  text =
+                    if (isAlbumExcluded) "Allow in recommendations" else "Never recommend again",
+                )
+              },
+              description = {
+                Text(
+                  text =
+                    if (isAlbumExcluded) "Remove album exclusion from taste recommendations"
+                    else "Exclude album from local taste recommendations",
+                )
+              },
+              icon = {
+                Icon(
+                  painter =
+                    painterResource(if (isAlbumExcluded) R.drawable.remove else R.drawable.close),
+                  contentDescription = null,
+                )
+              },
+              onClick = {
+                val wasExcluded = isAlbumExcluded
+                val albumSongs = songs
+                scope.launch(Dispatchers.IO) {
+                  if (wasExcluded) {
+                    albumSongs.forEach { song ->
+                      database.recommendationExclusionDao.delete(
+                        trackKeyOf(song.song.title, song.artists.joinToString(", ") { it.name }),
+                      )
+                    }
+                  } else {
+                    val now = System.currentTimeMillis()
+                    database.recommendationExclusionDao.upsertAll(
+                      albumSongs.map { song ->
+                        val artistName = song.artists.joinToString(", ") { it.name }
+                        RecommendationExclusionEntity(
+                          trackKey = trackKeyOf(song.song.title, artistName),
+                          excludedAtMillis = now,
+                          trackName = song.song.title,
+                          artistName = artistName,
+                        )
+                      },
+                    )
+                  }
+                }
+                Toast.makeText(
+                    context,
+                    if (wasExcluded) "Album re-allowed in recommendations"
+                    else "Album excluded from recommendations",
+                    Toast.LENGTH_SHORT,
+                  )
+                  .show()
+                onDismiss()
+              },
+            ),
+          ),
       )
     }
   }

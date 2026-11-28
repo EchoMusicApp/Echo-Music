@@ -3,6 +3,9 @@
  * © Chartreux Westia — github.com/koiverse
  * GPL-3.0 License | Contributors: see git history
  * Do not remove or alter this notice. - Per GPL-3.0 Section 4 & Section 5
+ *
+ * Session management adapted from Vivi Music (vivimusic Project (C) 2026, GPL-3.0)
+ * https://github.com/vivizzz007/vivi-music
  */
 
 package echo.music.iad1tya.spotifyimport
@@ -91,10 +94,21 @@ constructor(
               accountAvatarUrl = refreshed[SpotifyAccountAvatarUrlKey],
             )
           },
-          onFailure = {
-            if (it is CancellationException) throw it
-            reportException(it)
-            SpotifyImportSession()
+          onFailure = { error ->
+            if (error is CancellationException) throw error
+            reportException(error)
+            if ((error as? Spotify.SpotifyException)?.statusCode == 401) {
+              logout()
+              SpotifyImportSession(isAuthenticated = false)
+            } else {
+              // Transient network failure: retain cached session credentials
+              val cached = context.dataStore.data.first()
+              SpotifyImportSession(
+                isAuthenticated = true,
+                accountName = cached[SpotifyAccountNameKey].orEmpty(),
+                accountAvatarUrl = cached[SpotifyAccountAvatarUrlKey],
+              )
+            }
           },
         )
     }
@@ -166,7 +180,7 @@ constructor(
       val playlistId =
         parsePlaylistId(url)
           ?: throw IllegalArgumentException(
-            context.getString(R.string.spotify_invalid_playlist_link)
+            context.getString(R.string.spotify_invalid_playlist_link),
           )
       ensureAuthenticated()
 
@@ -281,17 +295,16 @@ constructor(
       val finalTracks = ArrayList<MediaMetadata>()
 
       for ((index, track) in remoteTracks.withIndex()) {
-        val existing =
-          existingSongs.find {
-            SpotifyMapper.matchScore(
-              spotifyTitle = track.name,
-              spotifyArtist = track.artists.joinToString(" ") { it.name },
-              spotifyDurationMs = track.durationMs,
-              candidateTitle = it.song.song.title,
-              candidateArtist = it.song.artists.joinToString(" ") { it.name },
-              candidateDurationSec = it.song.song.duration
-            ) > 80.0
-          }
+        val existing = existingSongs.find {
+          SpotifyMapper.matchScore(
+            spotifyTitle = track.name,
+            spotifyArtist = track.artists.joinToString(" ") { it.name },
+            spotifyDurationMs = track.durationMs,
+            candidateTitle = it.song.song.title,
+            candidateArtist = it.song.artists.joinToString(" ") { it.name },
+            candidateDurationSec = it.song.song.duration,
+          ) > 80.0
+        }
 
         if (existing != null) {
           finalTracks.add(existing.song.toMediaMetadata())
@@ -375,7 +388,7 @@ constructor(
   }
 
   private suspend fun enrichPlaylistTrackCounts(
-    playlists: List<SpotifyPlaylist>
+    playlists: List<SpotifyPlaylist>,
   ): List<SpotifyPlaylist> = coroutineScope {
     val semaphore = Semaphore(MAX_CONCURRENT_SPOTIFY_COUNT_REQUESTS)
     playlists
@@ -398,13 +411,13 @@ constructor(
   private suspend fun playlistTrackCount(playlistId: String): Int? =
     try {
       spotifyCallWithTokenRetry {
-          Spotify.playlistTracks(
-              playlistId = playlistId,
-              limit = 1,
-              offset = 0,
-            )
-            .getOrThrow()
-        }
+        Spotify.playlistTracks(
+            playlistId = playlistId,
+            limit = 1,
+            offset = 0,
+          )
+          .getOrThrow()
+      }
         .total
     } catch (error: CancellationException) {
       throw error
@@ -472,20 +485,21 @@ constructor(
     return null
   }
 
-  private suspend fun <T> spotifyCallWithTokenRetry(block: suspend () -> T): T =
-    runCatching { block() }
-      .getOrElse { error ->
-        if ((error as? Spotify.SpotifyException)?.statusCode != 401) {
-          throw error
-        }
-        val prefs = context.dataStore.data.first()
-        val spDc = prefs[SpotifySpDcKey].orEmpty()
-        if (spDc.isBlank()) {
-          throw error
-        }
-        refreshAccessToken(spDc = spDc, spKey = prefs[SpotifySpKeyKey].orEmpty()).getOrThrow()
-        block()
+  private suspend fun <T> spotifyCallWithTokenRetry(block: suspend () -> T): T = runCatching {
+    block()
+  }
+    .getOrElse { error ->
+      if ((error as? Spotify.SpotifyException)?.statusCode != 401) {
+        throw error
       }
+      val prefs = context.dataStore.data.first()
+      val spDc = prefs[SpotifySpDcKey].orEmpty()
+      if (spDc.isBlank()) {
+        throw error
+      }
+      refreshAccessToken(spDc = spDc, spKey = prefs[SpotifySpKeyKey].orEmpty()).getOrThrow()
+      block()
+    }
 
   private suspend fun matchTracks(
     sourceIndex: Int,

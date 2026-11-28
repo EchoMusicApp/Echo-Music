@@ -172,7 +172,7 @@ fun ArtistItemsScreen(
                     playerConnection.playQueue(
                       YouTubeQueue(
                         item.endpoint ?: WatchEndpoint(videoId = item.id),
-                        item.toMediaMetadata()
+                        item.toMediaMetadata(),
                       ),
                     )
                   }
@@ -194,9 +194,9 @@ fun ArtistItemsScreen(
       state = lazyGridState,
       columns =
         GridCells.Adaptive(
-          minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp
+          minSize = GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
         ),
-      contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
+      contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
     ) {
       items(items = itemsPage?.items.orEmpty().distinctBy { it.id }, key = { it.id }) { item ->
         YouTubeGridItem(
@@ -218,8 +218,8 @@ fun ArtistItemsScreen(
                       playerConnection.playQueue(
                         YouTubeQueue(
                           item.endpoint ?: WatchEndpoint(videoId = item.id),
-                          item.toMediaMetadata()
-                        )
+                          item.toMediaMetadata(),
+                        ),
                       )
                     is AlbumItem -> navController.navigate("album/${item.id}")
                     is ArtistItem -> navController.navigate("artist/${item.id}")
@@ -234,13 +234,13 @@ fun ArtistItemsScreen(
                         YouTubeSongMenu(
                           song = item,
                           navController = navController,
-                          onDismiss = menuState::dismiss
+                          onDismiss = menuState::dismiss,
                         )
                       is AlbumItem ->
                         YouTubeAlbumMenu(
                           albumItem = item,
                           navController = navController,
-                          onDismiss = menuState::dismiss
+                          onDismiss = menuState::dismiss,
                         )
                       is ArtistItem ->
                         YouTubeArtistMenu(artist = item, onDismiss = menuState::dismiss)
@@ -248,13 +248,13 @@ fun ArtistItemsScreen(
                         YouTubePlaylistMenu(
                           playlist = item,
                           coroutineScope = coroutineScope,
-                          onDismiss = menuState::dismiss
+                          onDismiss = menuState::dismiss,
                         )
                     }
                   }
-                }
+                },
               )
-              .animateItem()
+              .animateItem(),
         )
       }
 

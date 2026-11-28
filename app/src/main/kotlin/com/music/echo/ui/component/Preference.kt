@@ -204,12 +204,12 @@ fun SwitchPreference(
             checkedThumbColor = MaterialTheme.colorScheme.surface,
             checkedTrackColor = MaterialTheme.colorScheme.onSurface,
             uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
-          )
+            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+          ),
       )
     },
     onClick = { onCheckedChange(!checked) },
-    isEnabled = isEnabled
+    isEnabled = isEnabled,
   )
 }
 
@@ -293,7 +293,7 @@ fun SliderPreference(
               pluralStringResource(
                 R.plurals.seconds,
                 sliderValue.roundToInt(),
-                sliderValue.roundToInt()
+                sliderValue.roundToInt(),
               ),
             style = MaterialTheme.typography.bodyLarge,
           )
@@ -304,10 +304,10 @@ fun SliderPreference(
             value = sliderValue,
             onValueChange = { sliderValue = it },
             valueRange = 15f..60f,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
           )
         }
-      }
+      },
     )
   }
 
@@ -330,7 +330,7 @@ fun PreferenceGroupTitle(
     text = title.uppercase(),
     style =
       MaterialTheme.typography.labelLarge.copy(
-        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
       ),
     color = MaterialTheme.colorScheme.onSurfaceVariant,
     modifier = modifier.padding(bottom = 8.dp, top = 8.dp, start = 8.dp),

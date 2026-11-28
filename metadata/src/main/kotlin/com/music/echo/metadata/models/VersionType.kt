@@ -13,5 +13,5 @@ enum class VersionType {
   RADIO_EDIT,
   SLOWED,
   SPED_UP,
-  OTHER_VERSION
+  OTHER_VERSION,
 }

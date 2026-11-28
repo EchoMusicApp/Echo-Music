@@ -14,7 +14,7 @@ import com.music.innertube.models.filterYoutubeShorts
 import com.music.innertube.pages.ArtistPage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import echo.music.iad1tya.artistvideo.ArtistVideoCanvasProvider
+import echo.music.iad1tya.applecanvas.AppleMusicCanvasProvider
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.constants.HideYoutubeShortsKey
@@ -111,7 +111,7 @@ constructor(
               it[HideYoutubeShortsKey]
             } catch (e: Exception) {
               null
-            }) ?: false
+            }) ?: false,
           )
         }
         .distinctUntilChanged()
@@ -135,7 +135,7 @@ constructor(
                     section.items
                       .filterExplicit(hideExplicit)
                       .filterVideoSongs(hideVideoSongs)
-                      .filterYoutubeShorts(hideYoutubeShorts)
+                      .filterYoutubeShorts(hideYoutubeShorts),
                 )
               }
               .filter { section -> section.items.isNotEmpty() }
@@ -144,15 +144,22 @@ constructor(
 
           val topSongsSection =
             page.sections.find { it.items.firstOrNull() is com.music.innertube.models.SongItem }
+          // The first top song with an Apple Music canvas, a short looping video made to stand
+          // behind the song: the search went on through every song, so the video and the song it
+          // plays were those of the last one found. A YouTube music video is not used: cropped to
+          // the header it showed stretched, letterboxed frames, and it streamed a whole video.
           topSongsSection?.items?.forEach { item ->
+            if (_artistVideoUrl.value != null) return@forEach
             if (item is com.music.innertube.models.SongItem) {
-              val canvas =
-                ArtistVideoCanvasProvider.getBySongArtist(
-                  song = item.title,
-                  artist = page.artist?.title ?: ""
-                )
-              if (canvas?.preferredAnimationUrl != null) {
-                _artistVideoUrl.value = canvas.preferredAnimationUrl
+              val canvasUrl =
+                AppleMusicCanvasProvider.getBySongArtist(
+                    song = item.title,
+                    artist = page.artist?.title ?: "",
+                  )
+                  ?.preferredAnimationUrl
+
+              if (canvasUrl != null) {
+                _artistVideoUrl.value = canvasUrl
                 _artistVideoSong.value = item
                 return@forEach
               }

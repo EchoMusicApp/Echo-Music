@@ -118,15 +118,15 @@ fun RecognitionHistoryScreen(navController: NavController) {
           onClick = {
             coroutineScope.launch(Dispatchers.IO) { database.query { clearRecognitionHistory() } }
             showClearDialog = false
-          }
+          },
         ) {
           Text(stringResource(R.string.clear))
         }
-      }
+      },
     ) {
       Text(
         text = stringResource(R.string.clear_recognition_history_confirm),
-        style = MaterialTheme.typography.bodyMedium
+        style = MaterialTheme.typography.bodyMedium,
       )
     }
   }
@@ -144,15 +144,15 @@ fun RecognitionHistoryScreen(navController: NavController) {
               database.query { deleteRecognitionHistoryById(item.id) }
             }
             itemToDelete = null
-          }
+          },
         ) {
           Text(stringResource(R.string.delete))
         }
-      }
+      },
     ) {
       Text(
         text = stringResource(R.string.delete_playlist_confirm, item.title),
-        style = MaterialTheme.typography.bodyMedium
+        style = MaterialTheme.typography.bodyMedium,
       )
     }
   }
@@ -164,7 +164,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
         navigationIcon = {
           IconButton(
             onClick = { navController.navigateUp() },
-            onLongClick = { navController.backToMain() }
+            onLongClick = { navController.backToMain() },
           ) {
             Icon(painter = painterResource(R.drawable.arrow_back), contentDescription = null)
           }
@@ -174,13 +174,13 @@ fun RecognitionHistoryScreen(navController: NavController) {
             IconButton(onClick = { showClearDialog = true }) {
               Icon(
                 painter = painterResource(R.drawable.clear_all),
-                contentDescription = stringResource(R.string.clear_recognition_history)
+                contentDescription = stringResource(R.string.clear_recognition_history),
               )
             }
           }
-        }
+        },
       )
-    }
+    },
   ) { paddingValues ->
     Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
       TextField(
@@ -190,14 +190,14 @@ fun RecognitionHistoryScreen(navController: NavController) {
           Text(
             text = stringResource(R.string.search),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         },
         leadingIcon = {
           Icon(
             painter = painterResource(R.drawable.search),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         },
         trailingIcon = {
@@ -206,7 +206,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
               Icon(
                 painter = painterResource(R.drawable.close),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
           }
@@ -222,7 +222,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
           ),
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
       )
 
       when {
@@ -234,13 +234,13 @@ fun RecognitionHistoryScreen(navController: NavController) {
                 painter = painterResource(R.drawable.history),
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
               )
               Spacer(modifier = Modifier.height(16.dp))
               Text(
                 text = "No recognition history",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
           }
@@ -253,13 +253,13 @@ fun RecognitionHistoryScreen(navController: NavController) {
                 painter = painterResource(R.drawable.search),
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
               )
               Spacer(modifier = Modifier.height(16.dp))
               Text(
                 text = "No results for \"${query.text}\"",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
           }
@@ -268,7 +268,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
           LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding =
-              LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom).asPaddingValues()
+              LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Bottom).asPaddingValues(),
           ) {
             if (query.text.isEmpty()) {
 
@@ -276,7 +276,8 @@ fun RecognitionHistoryScreen(navController: NavController) {
                 stickyHeader(key = "header_$label") {
                   NavigationTitle(
                     title = label,
-                    modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)
+                    modifier =
+                      Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface),
                   )
                 }
                 items(items = groupItems, key = { it.id }) { item ->
@@ -285,10 +286,10 @@ fun RecognitionHistoryScreen(navController: NavController) {
                     onClick = {
                       val searchQuery = "${item.title} ${item.artist}"
                       navController.navigate(
-                        "search/${java.net.URLEncoder.encode(searchQuery, "UTF-8")}"
+                        "search/${java.net.URLEncoder.encode(searchQuery, "UTF-8")}",
                       )
                     },
-                    onDelete = { itemToDelete = item }
+                    onDelete = { itemToDelete = item },
                   )
                 }
               }
@@ -300,10 +301,10 @@ fun RecognitionHistoryScreen(navController: NavController) {
                   onClick = {
                     val searchQuery = "${item.title} ${item.artist}"
                     navController.navigate(
-                      "search/${java.net.URLEncoder.encode(searchQuery, "UTF-8")}"
+                      "search/${java.net.URLEncoder.encode(searchQuery, "UTF-8")}",
                     )
                   },
-                  onDelete = { itemToDelete = item }
+                  onDelete = { itemToDelete = item },
                 )
               }
             }
@@ -318,7 +319,7 @@ fun RecognitionHistoryScreen(navController: NavController) {
 private fun RecognitionHistoryItem(
   item: RecognitionHistory,
   onClick: () -> Unit,
-  onDelete: () -> Unit
+  onDelete: () -> Unit,
 ) {
   val dateFormatter = remember { DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm") }
 
@@ -328,18 +329,18 @@ private fun RecognitionHistoryItem(
     shape = RoundedCornerShape(ThumbnailCornerRadius),
     colors =
       CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-      )
+        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+      ),
   ) {
     Row(
       modifier = Modifier.fillMaxWidth().padding(12.dp),
-      verticalAlignment = Alignment.CenterVertically
+      verticalAlignment = Alignment.CenterVertically,
     ) {
       AsyncImage(
         model = item.coverArtUrl,
         contentDescription = null,
         modifier = Modifier.size(60.dp).clip(RoundedCornerShape(ThumbnailCornerRadius)),
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Crop,
       )
 
       Spacer(modifier = Modifier.width(12.dp))
@@ -350,19 +351,19 @@ private fun RecognitionHistoryItem(
           style = MaterialTheme.typography.titleMedium,
           fontWeight = FontWeight.SemiBold,
           maxLines = 1,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
         Text(
           text = item.artist,
           style = MaterialTheme.typography.bodyMedium,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           maxLines = 1,
-          overflow = TextOverflow.Ellipsis
+          overflow = TextOverflow.Ellipsis,
         )
         Text(
           text = item.recognizedAt.format(dateFormatter),
           style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+          color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
         )
       }
 
@@ -370,7 +371,7 @@ private fun RecognitionHistoryItem(
         Icon(
           painter = painterResource(R.drawable.delete),
           contentDescription = stringResource(R.string.delete_from_history),
-          tint = MaterialTheme.colorScheme.onSurfaceVariant
+          tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
     }

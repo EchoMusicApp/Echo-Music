@@ -63,7 +63,7 @@ object YouLyPlus {
           Json {
             isLenient = true
             ignoreUnknownKeys = true
-          }
+          },
         )
       }
       expectSuccess = true
@@ -83,10 +83,9 @@ object YouLyPlus {
     isrc: String? = null,
   ): Result<String> = runCatching {
     val scope = CoroutineScope(Dispatchers.IO)
-    val jobs =
-      servers.map { server ->
-        server to scope.async { fetchFromServer(server, title, artist, duration, album, id, isrc) }
-      }
+    val jobs = servers.map { server ->
+      server to scope.async { fetchFromServer(server, title, artist, duration, album, id, isrc) }
+    }
 
     try {
       // Poll until one server returns a usable result
@@ -100,12 +99,11 @@ object YouLyPlus {
           }
         remaining.removeAll { it.first == winServer }
 
-        val lrc =
-          winLyrics?.let { resp ->
-            resp.syncedLyrics?.takeIf { it.isNotBlank() }
-              ?: resp.lyrics?.convertToLrc()?.takeIf { it.isNotBlank() }
-              ?: resp.plainLyrics?.takeIf { it.isNotBlank() }
-          }
+        val lrc = winLyrics?.let { resp ->
+          resp.syncedLyrics?.takeIf { it.isNotBlank() }
+            ?: resp.lyrics?.convertToLrc()?.takeIf { it.isNotBlank() }
+            ?: resp.plainLyrics?.takeIf { it.isNotBlank() }
+        }
         if (!lrc.isNullOrBlank()) {
           lastWorkingServer.set(winServer)
           return@runCatching lrc
@@ -131,20 +129,19 @@ object YouLyPlus {
     callback: (String) -> Unit,
   ) {
     val scope = CoroutineScope(Dispatchers.IO)
-    val jobs =
-      servers.map { server ->
-        scope.async {
-          runCatching {
-              val response = fetchFromServer(server, title, artist, duration, album, id, isrc)
-              if (response != null) {
-                response.syncedLyrics?.takeIf { it.isNotBlank() }
-                  ?: response.lyrics?.convertToLrc()?.takeIf { it.isNotBlank() }
-                  ?: response.plainLyrics?.takeIf { it.isNotBlank() }
-              } else null
-            }
-            .getOrNull()
+    val jobs = servers.map { server ->
+      scope.async {
+        runCatching {
+          val response = fetchFromServer(server, title, artist, duration, album, id, isrc)
+          if (response != null) {
+            response.syncedLyrics?.takeIf { it.isNotBlank() }
+              ?: response.lyrics?.convertToLrc()?.takeIf { it.isNotBlank() }
+              ?: response.plainLyrics?.takeIf { it.isNotBlank() }
+          } else null
         }
+          .getOrNull()
       }
+    }
     try {
       val remaining = jobs.toMutableList()
       while (remaining.isNotEmpty()) {
@@ -175,15 +172,25 @@ object YouLyPlus {
       if (!syllabus.isNullOrEmpty()) {
         val sb = StringBuilder(lineTimestamp)
         sb.append(bgMarker)
-        syllabus.forEach { syl ->
-          val sylTime = syl.time ?: 0L
-          sb.append(formatTime(sylTime, isSyllable = true))
-          sb.append(syl.text ?: "")
-          // Add space after word if it's missing and not the last word
-          if (syl.text?.endsWith(" ") == false) {
+        val word = StringBuilder()
+        var wordTime = 0L
+        fun flushWord() {
+          val wordText = word.toString().trim()
+          if (wordText.isNotEmpty()) {
+            sb.append(formatTime(wordTime, isSyllable = true))
+            sb.append(wordText)
             sb.append(" ")
           }
+          word.clear()
         }
+        syllabus.forEach { syl ->
+          val text = syl.text.orEmpty()
+          if (text.startsWith(" ")) flushWord()
+          if (word.isBlank()) wordTime = syl.time ?: 0L
+          word.append(text)
+          if (text.endsWith(" ")) flushWord()
+        }
+        flushWord()
         sb.toString().trim()
       } else {
         lineTimestamp + bgMarker + (item.text ?: "")
@@ -208,18 +215,17 @@ object YouLyPlus {
     album: String? = null,
     id: String? = null,
     isrc: String? = null,
-  ): LyricsResponse? =
-    runCatching {
-        client
-          .get(baseUrl.let { if (it.endsWith("/")) it else "$it/" } + "v2/lyrics/get") {
-            parameter("title", title)
-            parameter("artist", artist)
-            parameter("duration", duration)
-            if (album != null) parameter("album", album)
-            if (id != null) parameter("id", id)
-            if (isrc != null) parameter("isrc", isrc)
-          }
-          .body<LyricsResponse>()
+  ): LyricsResponse? = runCatching {
+    client
+      .get(baseUrl.let { if (it.endsWith("/")) it else "$it/" } + "v2/lyrics/get") {
+        parameter("title", title)
+        parameter("artist", artist)
+        parameter("duration", duration)
+        if (album != null) parameter("album", album)
+        if (id != null) parameter("id", id)
+        if (isrc != null) parameter("isrc", isrc)
       }
-      .getOrNull()
+      .body<LyricsResponse>()
+  }
+    .getOrNull()
 }

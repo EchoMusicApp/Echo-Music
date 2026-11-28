@@ -77,26 +77,29 @@ object Paxsenix {
       client ?: throw IllegalStateException("Paxsenix.init() must be called before using Paxsenix")
 
   private fun cleanTitle(title: String, artist: String = ""): String {
-    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery().first
+    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist)
+      .toSearchQuery()
+      .first
   }
 
   private fun cleanArtist(artist: String, title: String = ""): String {
-    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery().second
+    return com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist)
+      .toSearchQuery()
+      .second
   }
 
-  private suspend fun search(query: String): List<SearchResult> =
-    runCatching {
-        Timber.d("Searching for: $query")
-        val response =
-          httpClient.get("/apple-music/search") { parameter("q", query) }.body<SearchResponse>()
+  private suspend fun search(query: String): List<SearchResult> = runCatching {
+    Timber.d("Searching for: $query")
+    val response =
+      httpClient.get("/apple-music/search") { parameter("q", query) }.body<SearchResponse>()
 
-        Timber.d("Search results count: ${response.size}")
-        response
-      }
-      .getOrElse { e ->
-        Timber.e(e, "Search error: ${e.message}")
-        emptyList()
-      }
+    Timber.d("Search results count: ${response.size}")
+    response
+  }
+    .getOrElse { e ->
+      Timber.e(e, "Search error: ${e.message}")
+      emptyList()
+    }
 
   suspend fun getLyrics(
     title: String,
@@ -104,7 +107,8 @@ object Paxsenix {
     duration: Int,
     album: String? = null,
   ): Result<String> = runCatching {
-    val (cleanedTitle, cleanedArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (cleanedTitle, cleanedArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
 
     Timber.d("getLyrics: title='$title', artist='$artist', duration=$duration")
 
@@ -136,13 +140,12 @@ object Paxsenix {
     // or the best plain/line-synced result if none have word timings.
     val candidates = allResults.take(5)
     val scope = CoroutineScope(Dispatchers.IO)
-    val jobs =
-      candidates.map { (result, score) ->
-        scope.async {
-          Timber.d("Fetching (parallel): ${result.displayName} (ID: ${result.id}, score: $score)")
-          result to runCatching { fetchLyricsForTrackWithType(result.id) }.getOrDefault("" to false)
-        }
+    val jobs = candidates.map { (result, score) ->
+      scope.async {
+        Timber.d("Fetching (parallel): ${result.displayName} (ID: ${result.id}, score: $score)")
+        result to runCatching { fetchLyricsForTrackWithType(result.id) }.getOrDefault("" to false)
       }
+    }
 
     var plainFallback: String? = null
     try {
@@ -175,12 +178,13 @@ object Paxsenix {
     results: List<SearchResult>,
     title: String,
     artist: String,
-    duration: Int
+    duration: Int,
   ): List<Pair<SearchResult, Double>> {
     val durationMs = duration * 1000
     val cleanupRegex = Regex("""\s*\(.*?\)|\s*\[.*?\]""")
 
-    val (queryTitle, queryArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (queryTitle, queryArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
     val cleanedTitle = queryTitle.replace(cleanupRegex, "").lowercase().trim()
     val cleanedArtist = queryArtist.lowercase()
 
@@ -310,8 +314,8 @@ object Paxsenix {
               seconds,
               centiseconds,
               agent,
-              lineText
-            )
+              lineText,
+            ),
           )
           if (line.text.isNotEmpty()) {
             val wordsData =
@@ -334,7 +338,8 @@ object Paxsenix {
     album: String? = null,
     callback: (String) -> Unit,
   ) {
-    val (cleanedTitle, cleanedArtist) = com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
+    val (cleanedTitle, cleanedArtist) =
+      com.music.echo.metadata.cleaner.MetadataCleaner.clean(title, artist).toSearchQuery()
 
     val searchQueries = listOf("$cleanedTitle $cleanedArtist", cleanedTitle)
     var plainFallback: String? = null
@@ -353,13 +358,12 @@ object Paxsenix {
     // Fetch top 3 candidates in parallel; deliver word-timed result first.
     val candidates = scoredResults.take(3)
     val scope = CoroutineScope(Dispatchers.IO)
-    val jobs =
-      candidates.map { (result, _) ->
-        scope.async {
-          Timber.d("Fetching (parallel/all): ${result.displayName}")
-          runCatching { fetchLyricsForTrackWithType(result.id) }.getOrDefault("" to false)
-        }
+    val jobs = candidates.map { (result, _) ->
+      scope.async {
+        Timber.d("Fetching (parallel/all): ${result.displayName}")
+        runCatching { fetchLyricsForTrackWithType(result.id) }.getOrDefault("" to false)
       }
+    }
     try {
       val remaining = jobs.toMutableList()
       while (remaining.isNotEmpty()) {

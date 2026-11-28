@@ -26,7 +26,8 @@
                 android:id="@+id/widget_soundwave_logo"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_widget_soundwave_logo"
+                android:scaleType="fitCenter"
+                android:src="@drawable/icon"
                 android:contentDescription="@string/widget_echo_music" />
 
             <TextView

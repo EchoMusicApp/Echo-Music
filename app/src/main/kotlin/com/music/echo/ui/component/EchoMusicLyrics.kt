@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -20,9 +21,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -30,8 +35,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import echo.music.iad1tya.constants.LyricsRomanizeAsMainKey
 import echo.music.iad1tya.lyrics.LyricsEntry
 import echo.music.iad1tya.ui.screens.settings.LyricsPosition
+import echo.music.iad1tya.utils.rememberPreference
+import kotlin.math.PI
+import kotlin.math.sin
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -54,8 +63,10 @@ fun echomusicLyricsLine(
   isSelectionModeActive: Boolean,
   isAutoScrollActive: Boolean,
   expressiveAccent: Color,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
+  val (romanizeAsMain) = rememberPreference(LyricsRomanizeAsMainKey, false)
+  val romanizedTextState by entry.romanizedTextFlow.collectAsState()
 
   val duration =
     remember(entry.time, nextEntryTime) {
@@ -111,14 +122,14 @@ fun echomusicLyricsLine(
     animateFloatAsState(
       targetValue = targetAlpha,
       animationSpec = tween(durationMillis = 300),
-      label = "lineAlpha"
+      label = "lineAlpha",
     )
 
   val scale by
     animateFloatAsState(
       targetValue = if (isActive) 1f else 0.85f,
       animationSpec = tween(durationMillis = 400),
-      label = "lineScale"
+      label = "lineScale",
     )
 
   val itemModifier =
@@ -134,7 +145,7 @@ fun echomusicLyricsLine(
       .background(
         if (isSelected && isSelectionModeActive)
           MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-        else Color.Transparent
+        else Color.Transparent,
       )
       .padding(horizontal = 24.dp, vertical = (8 * lineSpacing).dp)
 
@@ -167,87 +178,69 @@ fun echomusicLyricsLine(
     }
 
   Column(modifier = itemModifier, horizontalAlignment = agentAlignment) {
-    FlowRow(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement =
-        when (agentTextAlign) {
-          TextAlign.Center -> Arrangement.Center
-          TextAlign.Right -> Arrangement.End
-          else -> Arrangement.Start
-        },
-      verticalArrangement =
-        Arrangement.spacedBy(
-          with(LocalDensity.current) {
-            (textSize * (lineSpacing.coerceAtMost(1.3f) - 1f)).sp.toDp()
-          }
-        )
-    ) {
-      wordData.forEachIndexed { index, (wordText, startRelative, endRelative) ->
+    val romanizedText = romanizedTextState
+    if (showRomanized && romanizeAsMain && romanizedText != null) {
+      Text(
+        text = romanizedText,
+        fontSize = textSize.sp,
+        color = textColor,
+        textAlign = agentTextAlign,
+        fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Bold,
+        modifier = Modifier.fillMaxWidth(),
+        lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
+      )
+      Text(
+        text = entry.text,
+        fontSize = (textSize * 0.65f).sp,
+        color = textColor.copy(alpha = 0.6f),
+        textAlign = agentTextAlign,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(top = 2.dp).fillMaxWidth(),
+        lineHeight = (textSize * 0.65f * lineSpacing.coerceAtMost(1.3f)).sp,
+      )
+    } else {
+      FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement =
+          when (agentTextAlign) {
+            TextAlign.Center -> Arrangement.Center
+            TextAlign.Right -> Arrangement.End
+            else -> Arrangement.Start
+          },
+        verticalArrangement =
+          Arrangement.spacedBy(
+            with(LocalDensity.current) {
+              (textSize * (lineSpacing.coerceAtMost(1.3f) - 1f)).sp.toDp()
+            },
+          ),
+      ) {
         val lineRelTime = (effectivePlaybackPosition - entry.time).coerceAtLeast(0L)
-        val wordDuration = (endRelative - startRelative).coerceAtLeast(1L)
-
-        val progress by
-          animateFloatAsState(
-            targetValue =
-              when {
-                lineRelTime >= endRelative -> 1f
-                lineRelTime < startRelative -> 0f
-                else -> (lineRelTime - startRelative).toFloat() / wordDuration
-              },
-            animationSpec =
-              tween(durationMillis = 150, easing = androidx.compose.animation.core.LinearEasing),
-            label = "wordProgress"
+        wordData.forEachIndexed { index, (wordText, startRelative, endRelative) ->
+          EchoMusicWord(
+            wordText = wordText,
+            startRelative = startRelative,
+            endRelative = endRelative,
+            lineRelTime = lineRelTime,
+            isActive = isActive,
+            textColor = textColor,
+            textSize = textSize,
+            lineSpacing = lineSpacing,
+            agentTextAlign = agentTextAlign,
           )
-
-        val finalFontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Bold
-
-        Text(
-          text = wordText,
-          fontSize = textSize.sp,
-          style =
-            TextStyle(
-              brush =
-                Brush.horizontalGradient(
-                  0.0f to textColor,
-                  (progress - 0.05f).coerceAtLeast(0f) to textColor,
-                  (progress + 0.05f).coerceAtMost(1f) to textColor.copy(alpha = 0.45f),
-                  1.0f to textColor.copy(alpha = 0.45f)
-                ),
-              fontWeight = finalFontWeight,
+          if (index != wordData.lastIndex) {
+            val isSpacePassed = !isActive || lineRelTime >= endRelative
+            Text(
+              text = " ",
+              fontSize = textSize.sp,
+              color = textColor.copy(alpha = if (isSpacePassed) 1f else 0.40f),
               lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
-              textAlign = agentTextAlign,
-              shadow =
-                androidx.compose.ui.graphics.Shadow(
-                  color = textColor.copy(alpha = 0.6f * progress),
-                  offset = Offset.Zero,
-                  blurRadius = (12f * progress).coerceAtLeast(0.1f)
-                )
             )
-        )
-        if (index != wordData.lastIndex) {
-          Text(
-            text = " ",
-            fontSize = textSize.sp,
-            color = textColor.copy(alpha = if (lineRelTime >= endRelative) 1f else 0.45f),
-            lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
-            style =
-              TextStyle(
-                shadow =
-                  if (lineRelTime >= endRelative) {
-                    androidx.compose.ui.graphics.Shadow(
-                      color = textColor.copy(alpha = 0.3f),
-                      offset = Offset.Zero,
-                      blurRadius = 6f
-                    )
-                  } else null
-              )
-          )
+          }
         }
       }
     }
 
-    if (showRomanized) {
-      val romanizedText by entry.romanizedTextFlow.collectAsState()
+    if (showRomanized && !(romanizeAsMain && romanizedText != null)) {
       romanizedText?.let { romanized ->
         Text(
           text = romanized,
@@ -256,7 +249,7 @@ fun echomusicLyricsLine(
           textAlign = agentTextAlign,
           fontWeight = FontWeight.SemiBold,
           modifier = Modifier.padding(top = 2.dp).fillMaxWidth(),
-          lineHeight = (textSize * 0.65f * lineSpacing.coerceAtMost(1.3f)).sp
+          lineHeight = (textSize * 0.65f * lineSpacing.coerceAtMost(1.3f)).sp,
         )
       }
     }
@@ -271,9 +264,114 @@ fun echomusicLyricsLine(
           textAlign = agentTextAlign,
           fontWeight = FontWeight.Medium,
           modifier = Modifier.padding(top = 4.dp).fillMaxWidth(),
-          lineHeight = (textSize * 0.7f * lineSpacing.coerceAtMost(1.3f)).sp
+          lineHeight = (textSize * 0.7f * lineSpacing.coerceAtMost(1.3f)).sp,
         )
       }
+    }
+  }
+}
+
+@Composable
+private fun EchoMusicWord(
+  wordText: String,
+  startRelative: Long,
+  endRelative: Long,
+  lineRelTime: Long,
+  isActive: Boolean,
+  textColor: Color,
+  textSize: Float,
+  lineSpacing: Float,
+  agentTextAlign: TextAlign,
+) {
+  val wordDuration = (endRelative - startRelative).coerceAtLeast(1L)
+  val isWordComplete = !isActive || lineRelTime >= endRelative
+  val isWordActive = isActive && lineRelTime in startRelative until endRelative
+
+  val progress =
+    when {
+      !isActive -> 0f
+      lineRelTime >= endRelative -> 1f
+      lineRelTime <= startRelative -> 0f
+      else -> ((lineRelTime - startRelative).toFloat() / wordDuration).coerceIn(0f, 1f)
+    }
+
+  val baseAlpha = if (isActive) 0.40f else 1f
+  val sinProgress = sin(progress * PI).toFloat()
+  val activeLift = if (isWordActive) -1.8f * sinProgress else 0f
+  val wordScale = if (isWordActive) 1f + 0.018f * sinProgress else 1f
+  val density = LocalDensity.current
+
+  Box(
+    modifier =
+      Modifier.graphicsLayer {
+        if (isWordActive) {
+          translationY = activeLift * density.density
+          scaleX = wordScale
+          scaleY = wordScale
+        }
+      },
+  ) {
+    Text(
+      text = wordText,
+      fontSize = textSize.sp,
+      fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Bold,
+      color = textColor.copy(alpha = baseAlpha),
+      lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
+      textAlign = agentTextAlign,
+    )
+
+    if (isActive && (isWordComplete || isWordActive)) {
+      Text(
+        text = wordText,
+        fontSize = textSize.sp,
+        fontWeight = FontWeight.ExtraBold,
+        color = textColor,
+        lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
+        textAlign = agentTextAlign,
+        style =
+          TextStyle(
+            shadow =
+              if (isWordActive) {
+                Shadow(
+                  color = textColor.copy(alpha = 0.45f + 0.25f * sinProgress),
+                  offset = Offset.Zero,
+                  blurRadius = 10f + 8f * sinProgress,
+                )
+              } else {
+                Shadow(
+                  color = textColor.copy(alpha = 0.25f),
+                  offset = Offset.Zero,
+                  blurRadius = 4f,
+                )
+              },
+          ),
+        modifier =
+          if (isWordActive) {
+            Modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+              .drawWithContent {
+                drawContent()
+                val feather = 8.dp.toPx()
+                val sweepEnd = size.width * progress
+                val totalWidth = size.width + feather
+                val stopOpaque =
+                  if (totalWidth > 0f) (sweepEnd / totalWidth).coerceIn(0f, 1f) else 1f
+                val stopTrans =
+                  if (totalWidth > 0f) ((sweepEnd + feather) / totalWidth).coerceIn(0f, 1f) else 1f
+                drawRect(
+                  brush =
+                    Brush.horizontalGradient(
+                      0.0f to Color.Black,
+                      stopOpaque to Color.Black,
+                      stopTrans to Color.Transparent,
+                      1.0f to Color.Transparent,
+                      startX = 0f,
+                      endX = totalWidth,
+                    ),
+                  blendMode = BlendMode.DstIn,
+                )
+              }
+          } else Modifier,
+      )
     }
   }
 }

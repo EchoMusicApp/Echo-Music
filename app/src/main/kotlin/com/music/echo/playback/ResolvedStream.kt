@@ -13,7 +13,8 @@ internal data class ResolvedStream(
   val isFromExtension: Boolean = false,
 ) {
   fun resolve(dataSpec: DataSpec): DataSpec =
-    dataSpec.buildUpon()
+    dataSpec
+      .buildUpon()
       .setUri(url.toUri())
       .setHttpRequestHeaders(dataSpec.httpRequestHeaders + headers)
       .build()
@@ -27,9 +28,10 @@ internal data class ResolvedStream(
       ResolvedStream(
         url = playbackData.streamUrl,
         expiresAtMs = nowMs + playbackData.streamExpiresInSeconds * 1000L,
-        headers = playbackData.headers
-          ?: InnerTubeXResolver.headersFor(playbackData.streamUrl)
-          ?: PlayerClient.forStreamUrl(playbackData.streamUrl).mediaHeaders(),
+        headers =
+          playbackData.headers
+            ?: InnerTubeXResolver.headersFor(playbackData.streamUrl)
+            ?: PlayerClient.forStreamUrl(playbackData.streamUrl).mediaHeaders(),
         isFromExtension = isFromExtension,
       )
   }

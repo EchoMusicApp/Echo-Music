@@ -18,7 +18,7 @@ data class SpeedDialItem(
   val thumbnailUrl: String? = null,
   val type: String,
   val explicit: Boolean = false,
-  val createDate: Long = System.currentTimeMillis()
+  val createDate: Long = System.currentTimeMillis(),
 ) {
   fun toYTItem(): YTItem {
     return when (type) {
@@ -28,7 +28,7 @@ data class SpeedDialItem(
           title = title,
           artists = subtitle?.split(", ")?.map { Artist(name = it, id = null) } ?: emptyList(),
           thumbnail = thumbnailUrl ?: "",
-          explicit = explicit
+          explicit = explicit,
         )
       "ALBUM" ->
         AlbumItem(
@@ -37,7 +37,7 @@ data class SpeedDialItem(
           title = title,
           artists = subtitle?.split(", ")?.map { Artist(name = it, id = null) },
           thumbnail = thumbnailUrl ?: "",
-          explicit = explicit
+          explicit = explicit,
         )
       "ARTIST" ->
         ArtistItem(
@@ -45,7 +45,7 @@ data class SpeedDialItem(
           title = title,
           thumbnail = thumbnailUrl,
           shuffleEndpoint = null,
-          radioEndpoint = null
+          radioEndpoint = null,
         )
       "PLAYLIST" ->
         PlaylistItem(
@@ -56,7 +56,7 @@ data class SpeedDialItem(
           thumbnail = thumbnailUrl,
           playEndpoint = null,
           shuffleEndpoint = null,
-          radioEndpoint = null
+          radioEndpoint = null,
         )
       else -> throw IllegalArgumentException("Unknown type: $type")
     }
@@ -72,7 +72,7 @@ data class SpeedDialItem(
             subtitle = item.artists.joinToString(", ") { it.name },
             thumbnailUrl = item.thumbnail,
             type = "SONG",
-            explicit = item.explicit
+            explicit = item.explicit,
           )
         is AlbumItem ->
           SpeedDialItem(
@@ -82,14 +82,14 @@ data class SpeedDialItem(
             subtitle = item.artists?.joinToString(", ") { it.name },
             thumbnailUrl = item.thumbnail,
             type = "ALBUM",
-            explicit = item.explicit
+            explicit = item.explicit,
           )
         is ArtistItem ->
           SpeedDialItem(
             id = item.id,
             title = item.title,
             thumbnailUrl = item.thumbnail,
-            type = "ARTIST"
+            type = "ARTIST",
           )
         is PlaylistItem ->
           SpeedDialItem(
@@ -97,7 +97,7 @@ data class SpeedDialItem(
             title = item.title,
             subtitle = item.author?.name,
             thumbnailUrl = item.thumbnail,
-            type = "PLAYLIST"
+            type = "PLAYLIST",
           )
       }
     }

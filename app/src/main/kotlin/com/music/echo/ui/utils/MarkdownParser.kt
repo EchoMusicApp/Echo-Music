@@ -39,7 +39,7 @@ fun parseSimpleMarkdown(text: String, primaryColor: Color = Color.Unspecified): 
         "(\\*([^*]+)\\*)|" + // 3, 4: *italic*
         "(`([^`]+)`)|" + // 5, 6: `code`
         "(@[a-zA-Z0-9_-]+)|" + // 7: @username
-        "(\\[([^\\]]+)\\]\\(([^)]+)\\))" // 8, 9, 10: [text](url)
+        "(\\[([^\\]]+)\\]\\(([^)]+)\\))", // 8, 9, 10: [text](url)
     )
 
   return buildAnnotatedString {
@@ -67,8 +67,8 @@ fun parseSimpleMarkdown(text: String, primaryColor: Color = Color.Unspecified): 
           withStyle(
             SpanStyle(
               fontWeight = FontWeight.SemiBold,
-              color = if (primaryColor != Color.Unspecified) primaryColor else Color.Unspecified
-            )
+              color = if (primaryColor != Color.Unspecified) primaryColor else Color.Unspecified,
+            ),
           ) {
             append(match.groups[7]!!.value)
           }
@@ -82,8 +82,8 @@ fun parseSimpleMarkdown(text: String, primaryColor: Color = Color.Unspecified): 
                 SpanStyle(
                   color =
                     if (primaryColor != Color.Unspecified) primaryColor else Color.Unspecified,
-                  textDecoration = TextDecoration.Underline
-                )
+                  textDecoration = TextDecoration.Underline,
+                ),
             )
           withLink(LinkAnnotation.Url(linkUrl, styles = linkStyle)) { append(linkText) }
         }

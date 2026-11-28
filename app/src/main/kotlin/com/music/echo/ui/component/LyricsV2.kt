@@ -67,8 +67,8 @@ fun LyricsLineV2(
         Arrangement.spacedBy(
           with(LocalDensity.current) {
             (baseFontSize * ((lineHeight / baseFontSize).coerceAtMost(1.3f) - 1f)).sp.toDp()
-          }
-        )
+          },
+        ),
     ) {
       words.forEachIndexed { wordIndex, word ->
         AnimatedWordV2(
@@ -80,13 +80,13 @@ fun LyricsLineV2(
           inactiveAlpha = inactiveAlpha,
           fontSize = if (entry.isBackground) baseFontSize * 0.85f else baseFontSize,
           lineHeight = lineHeight.coerceAtMost(baseFontSize * 1.3f),
-          isBackground = entry.isBackground
+          isBackground = entry.isBackground,
         )
         if (wordIndex < words.size - 1) {
           Text(
             text = " ",
             fontSize = baseFontSize.sp,
-            lineHeight = lineHeight.coerceAtMost(baseFontSize * 1.3f).sp
+            lineHeight = lineHeight.coerceAtMost(baseFontSize * 1.3f).sp,
           )
         }
       }
@@ -118,7 +118,7 @@ fun LyricsLineV2(
         textAlign = agentTextAlign,
         fontWeight = FontWeight.Medium,
         modifier = Modifier.padding(top = 4.dp).fillMaxWidth(),
-        lineHeight = (baseFontSize * 0.7f * (lineHeight / baseFontSize).coerceAtMost(1.3f)).sp
+        lineHeight = (baseFontSize * 0.7f * (lineHeight / baseFontSize).coerceAtMost(1.3f)).sp,
       )
     }
   }
@@ -159,7 +159,7 @@ fun AnimatedWordV2(
       targetValue = targetFloat,
       animationSpec =
         tween(durationMillis = if (isWordActive) 50 else 350, easing = FastOutSlowInEasing),
-      label = "WordFloatOffset"
+      label = "WordFloatOffset",
     )
 
   val glowProgress = (progress * 2f).coerceAtMost(1f)
@@ -175,7 +175,7 @@ fun AnimatedWordV2(
         translationY = floatOffset * density.density
         scaleX = wordScale
         scaleY = wordScale
-      }
+      },
   ) {
     Text(
       text = word.text,
@@ -214,19 +214,27 @@ fun AnimatedWordV2(
             Modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
               .drawWithContent {
                 drawContent()
-                val edgeWidth = 8.dp.toPx()
-                val center = (size.width + edgeWidth * 2) * progress - edgeWidth
+                val feather = 8.dp.toPx()
+                val sweepEnd = size.width * progress
+                val totalWidth = size.width + feather
+                val stopOpaque =
+                  if (totalWidth > 0f) (sweepEnd / totalWidth).coerceIn(0f, 1f) else 1f
+                val stopTrans =
+                  if (totalWidth > 0f) ((sweepEnd + feather) / totalWidth).coerceIn(0f, 1f) else 1f
                 drawRect(
                   brush =
                     Brush.horizontalGradient(
-                      colors = listOf(Color.Black, Color.Transparent),
-                      startX = center - edgeWidth,
-                      endX = center + edgeWidth,
+                      0.0f to Color.Black,
+                      stopOpaque to Color.Black,
+                      stopTrans to Color.Transparent,
+                      1.0f to Color.Transparent,
+                      startX = 0f,
+                      endX = totalWidth,
                     ),
                   blendMode = BlendMode.DstIn,
                 )
               }
-          } else Modifier
+          } else Modifier,
       )
     }
   }

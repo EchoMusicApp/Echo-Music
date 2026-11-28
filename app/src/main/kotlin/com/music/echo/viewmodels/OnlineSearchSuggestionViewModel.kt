@@ -10,6 +10,7 @@ import com.music.innertube.models.filterVideoSongs
 import com.music.innertube.utils.YouTubeUrlParser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import echo.music.iad1tya.constants.DislikedSongsKey
 import echo.music.iad1tya.constants.HideExplicitKey
 import echo.music.iad1tya.constants.HideVideoSongsKey
 import echo.music.iad1tya.db.MusicDatabase
@@ -20,7 +21,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -38,13 +41,28 @@ constructor(
 
   init {
     viewModelScope.launch {
-      query
-        .flatMapLatest { query ->
+      combine(query, context.dataStore.data.map { it[DislikedSongsKey].orEmpty() }) { q, disliked ->
+          q to
+            disliked
+              .mapNotNull { it.split("||").getOrNull(1)?.trim()?.lowercase() }
+              .filter { it.isNotBlank() }
+              .toSet()
+        }
+        .flatMapLatest { (query, dislikedTitles) ->
+          val filterHistory: (List<SearchHistory>) -> List<SearchHistory> = { history ->
+            if (dislikedTitles.isEmpty()) history
+            else
+              history.filterNot { h ->
+                val qLower = h.query.trim().lowercase()
+                dislikedTitles.any { title ->
+                  qLower == title ||
+                    (title.length >= 3 && (qLower.contains(title) || title.contains(qLower)))
+                }
+              }
+          }
           if (query.isEmpty()) {
             database.searchHistory().map { history ->
-              SearchSuggestionViewState(
-                history = history,
-              )
+              SearchSuggestionViewState(history = filterHistory(history))
             }
           } else {
             val parsedUrl = YouTubeUrlParser.parse(query)
@@ -55,29 +73,22 @@ constructor(
             val hideExplicit = context.dataStore.get(HideExplicitKey, false)
             val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
 
-            database
-              .searchHistory(query)
-              .map { it.take(3) }
-              .map { history ->
-                SearchSuggestionViewState(
-                  history = history,
-                  suggestions =
+            // While typing, only results, as in Spotify: past searches and query suggestions
+            // filled the list ahead of what was being looked for.
+            flowOf(
+              SearchSuggestionViewState(
+                items =
+                  listOfNotNull(parsedItem) +
                     result
-                      ?.queries
-                      ?.filter { suggestionQuery -> history.none { it.query == suggestionQuery } }
+                      ?.recommendedItems
+                      ?.distinctBy { it.id }
+                      ?.filter { it.id != parsedItem?.id }
+                      ?.filterExplicit(hideExplicit)
+                      ?.filterVideoSongs(hideVideoSongs)
                       .orEmpty(),
-                  items =
-                    listOfNotNull(parsedItem) +
-                      result
-                        ?.recommendedItems
-                        ?.distinctBy { it.id }
-                        ?.filter { it.id != parsedItem?.id }
-                        ?.filterExplicit(hideExplicit)
-                        ?.filterVideoSongs(hideVideoSongs)
-                        .orEmpty(),
-                  isFromLink = parsedUrl != null
-                )
-              }
+                isFromLink = parsedUrl != null,
+              ),
+            )
           }
         }
         .collect { _viewState.value = it }

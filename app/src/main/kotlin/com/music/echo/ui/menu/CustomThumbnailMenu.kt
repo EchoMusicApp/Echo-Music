@@ -46,7 +46,7 @@ fun CustomThumbnailMenu(
           Modifier.clickable {
             onEdit()
             onDismiss()
-          }
+          },
       )
     }
     item {
@@ -62,7 +62,7 @@ fun CustomThumbnailMenu(
           Modifier.clickable {
             onRemove()
             onDismiss()
-          }
+          },
       )
     }
   }

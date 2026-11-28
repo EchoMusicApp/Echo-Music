@@ -24,7 +24,7 @@ object LocationProvider {
           listOf(
             LocationManager.GPS_PROVIDER,
             LocationManager.NETWORK_PROVIDER,
-            LocationManager.PASSIVE_PROVIDER
+            LocationManager.PASSIVE_PROVIDER,
           )
 
         var bestLocation: Location? = null

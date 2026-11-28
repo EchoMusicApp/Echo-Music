@@ -8,20 +8,20 @@ data class ShazamRequestJson(
   @SerialName("geolocation") val geolocation: Geolocation,
   @SerialName("signature") val signature: Signature,
   @SerialName("timestamp") val timestamp: Long,
-  @SerialName("timezone") val timezone: String
+  @SerialName("timezone") val timezone: String,
 ) {
   @Serializable
   data class Geolocation(
     @SerialName("altitude") val altitude: Double,
     @SerialName("latitude") val latitude: Double,
-    @SerialName("longitude") val longitude: Double
+    @SerialName("longitude") val longitude: Double,
   )
 
   @Serializable
   data class Signature(
     @SerialName("samplems") val samplems: Long,
     @SerialName("timestamp") val timestamp: Long,
-    @SerialName("uri") val uri: String
+    @SerialName("uri") val uri: String,
   )
 }
 
@@ -32,14 +32,14 @@ data class ShazamResponseJson(
   @SerialName("timestamp") val timestamp: Long? = null,
   @SerialName("timezone") val timezone: String? = null,
   @SerialName("track") val track: Track? = null,
-  @SerialName("tagid") val tagid: String? = null
+  @SerialName("tagid") val tagid: String? = null,
 ) {
   @Serializable
   data class Match(
     @SerialName("id") val id: String? = null,
     @SerialName("offset") val offset: Double? = null,
     @SerialName("timeskew") val timeskew: Double? = null,
-    @SerialName("frequencyskew") val frequencyskew: Double? = null
+    @SerialName("frequencyskew") val frequencyskew: Double? = null,
   )
 
   @Serializable
@@ -47,7 +47,7 @@ data class ShazamResponseJson(
     @SerialName("latitude") val latitude: Double? = null,
     @SerialName("longitude") val longitude: Double? = null,
     @SerialName("altitude") val altitude: Double? = null,
-    @SerialName("accuracy") val accuracy: Double? = null
+    @SerialName("accuracy") val accuracy: Double? = null,
   )
 
   @Serializable
@@ -66,14 +66,14 @@ data class ShazamResponseJson(
     @SerialName("isrc") val isrc: String? = null,
     @SerialName("genres") val genres: Genres? = null,
     @SerialName("relatedtracksurl") val relatedtracksurl: String? = null,
-    @SerialName("albumadamid") val albumadamid: String? = null
+    @SerialName("albumadamid") val albumadamid: String? = null,
   ) {
     @Serializable
     data class Images(
       @SerialName("background") val background: String? = null,
       @SerialName("coverart") val coverart: String? = null,
       @SerialName("coverarthq") val coverarthq: String? = null,
-      @SerialName("joecolor") val joecolor: String? = null
+      @SerialName("joecolor") val joecolor: String? = null,
     )
 
     @Serializable
@@ -85,7 +85,7 @@ data class ShazamResponseJson(
       @SerialName("twitter") val twitter: String? = null,
       @SerialName("html") val html: String? = null,
       @SerialName("avatar") val avatar: String? = null,
-      @SerialName("snapchat") val snapchat: String? = null
+      @SerialName("snapchat") val snapchat: String? = null,
     )
 
     @Serializable
@@ -96,14 +96,14 @@ data class ShazamResponseJson(
       @SerialName("options") val options: List<Option?>? = null,
       @SerialName("providers") val providers: List<Provider?>? = null,
       @SerialName("explicit") val explicit: Boolean? = null,
-      @SerialName("displayname") val displayname: String? = null
+      @SerialName("displayname") val displayname: String? = null,
     ) {
       @Serializable
       data class Action(
         @SerialName("name") val name: String? = null,
         @SerialName("type") val type: String? = null,
         @SerialName("id") val id: String? = null,
-        @SerialName("uri") val uri: String? = null
+        @SerialName("uri") val uri: String? = null,
       )
 
       @Serializable
@@ -116,20 +116,20 @@ data class ShazamResponseJson(
         @SerialName("listcaption") val listcaption: String? = null,
         @SerialName("overflowimage") val overflowimage: String? = null,
         @SerialName("colouroverflowimage") val colouroverflowimage: Boolean? = null,
-        @SerialName("providername") val providername: String? = null
+        @SerialName("providername") val providername: String? = null,
       ) {
         @Serializable
         data class OptionAction(
           @SerialName("name") val name: String? = null,
           @SerialName("type") val type: String? = null,
           @SerialName("uri") val uri: String? = null,
-          @SerialName("id") val id: String? = null
+          @SerialName("id") val id: String? = null,
         )
 
         @Serializable
         data class Beacondata(
           @SerialName("type") val type: String? = null,
-          @SerialName("providername") val providername: String? = null
+          @SerialName("providername") val providername: String? = null,
         )
       }
 
@@ -138,19 +138,19 @@ data class ShazamResponseJson(
         @SerialName("caption") val caption: String? = null,
         @SerialName("images") val images: ProviderImages? = null,
         @SerialName("actions") val actions: List<ProviderAction?>? = null,
-        @SerialName("type") val type: String? = null
+        @SerialName("type") val type: String? = null,
       ) {
         @Serializable
         data class ProviderImages(
           @SerialName("overflow") val overflow: String? = null,
-          @SerialName("default") val default: String? = null
+          @SerialName("default") val default: String? = null,
         )
 
         @Serializable
         data class ProviderAction(
           @SerialName("name") val name: String? = null,
           @SerialName("type") val type: String? = null,
-          @SerialName("uri") val uri: String? = null
+          @SerialName("uri") val uri: String? = null,
         )
       }
     }
@@ -167,20 +167,20 @@ data class ShazamResponseJson(
       @Serializable
       data class Metapage(
         @SerialName("image") val image: String? = null,
-        @SerialName("caption") val caption: String? = null
+        @SerialName("caption") val caption: String? = null,
       )
 
       @Serializable
       data class Metadata(
         @SerialName("title") val title: String? = null,
-        @SerialName("text") val text: String? = null
+        @SerialName("text") val text: String? = null,
       )
     }
 
     @Serializable
     data class Artist(
       @SerialName("id") val id: String? = null,
-      @SerialName("adamid") val adamid: String? = null
+      @SerialName("adamid") val adamid: String? = null,
     )
 
     @Serializable data class Genres(@SerialName("primary") val primary: String? = null)
@@ -202,7 +202,7 @@ data class RecognitionResult(
   val appleMusicUrl: String?,
   val spotifyUrl: String?,
   val isrc: String?,
-  val youtubeVideoId: String? = null
+  val youtubeVideoId: String? = null,
 )
 
 sealed class RecognitionStatus {

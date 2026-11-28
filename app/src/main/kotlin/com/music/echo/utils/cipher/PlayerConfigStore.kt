@@ -359,7 +359,7 @@ object PlayerConfigStore {
     if (changed) configEpoch++
     Timber.tag(TAG)
       .d(
-        "Remote configs applied (${remote.size} hashes, merged=${merged.size}, changed=$changed, epoch=$configEpoch)"
+        "Remote configs applied (${remote.size} hashes, merged=${merged.size}, changed=$changed, epoch=$configEpoch)",
       )
 
     try {

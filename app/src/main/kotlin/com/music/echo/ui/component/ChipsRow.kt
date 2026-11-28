@@ -58,8 +58,10 @@ fun <E> ChipsRow(
   onValueUpdate: (E) -> Unit,
   modifier: Modifier = Modifier,
   containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+  leading: (@Composable () -> Unit)? = null,
 ) {
   Row(
+    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     modifier =
       modifier
         .fillMaxWidth()
@@ -68,6 +70,11 @@ fun <E> ChipsRow(
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
   ) {
     Spacer(Modifier.width(12.dp))
+
+    if (leading != null) {
+      leading()
+      Spacer(Modifier.width(8.dp))
+    }
 
     chips.forEach { (value, label) ->
       val isSelected = currentValue == value
@@ -78,9 +85,9 @@ fun <E> ChipsRow(
           animationSpec =
             spring(
               dampingRatio = Spring.DampingRatioMediumBouncy,
-              stiffness = Spring.StiffnessMedium
+              stiffness = Spring.StiffnessMedium,
             ),
-          label = "corner_radius"
+          label = "corner_radius",
         )
 
       FilterChip(
@@ -91,7 +98,7 @@ fun <E> ChipsRow(
             containerColor = containerColor,
             selectedContainerColor = MaterialTheme.colorScheme.onSurface,
             selectedLabelColor = MaterialTheme.colorScheme.surface,
-            selectedLeadingIconColor = MaterialTheme.colorScheme.surface
+            selectedLeadingIconColor = MaterialTheme.colorScheme.surface,
           ),
         onClick = { onValueUpdate(value) },
         leadingIcon =
@@ -113,9 +120,9 @@ fun <E> ChipsRow(
             animationSpec =
               spring(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessMedium
-              )
-          )
+                stiffness = Spring.StiffnessMedium,
+              ),
+          ),
       )
 
       Spacer(Modifier.width(8.dp))
@@ -169,7 +176,7 @@ fun <Int> ChoiceChipsRow(
                   OptionStats.MONTHS -> stringResource(id = R.string.months)
                   OptionStats.YEARS -> stringResource(id = R.string.years)
                   OptionStats.CONTINUOUS -> stringResource(id = R.string.continuous)
-                }
+                },
             )
           },
           leadingIcon = {
@@ -183,7 +190,7 @@ fun <Int> ChoiceChipsRow(
             Icon(
               painter = painterResource(R.drawable.expand_more),
               contentDescription = null,
-              modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation)
+              modifier = Modifier.graphicsLayer(rotationZ = rotationAnimation),
             )
           },
           shape = RoundedCornerShape(16.dp),
@@ -193,8 +200,8 @@ fun <Int> ChoiceChipsRow(
               containerColor = containerColor,
               selectedContainerColor = MaterialTheme.colorScheme.onSurface,
               labelColor = MaterialTheme.colorScheme.onSurface,
-              selectedLabelColor = MaterialTheme.colorScheme.surface
-            )
+              selectedLabelColor = MaterialTheme.colorScheme.surface,
+            ),
         )
 
         DropdownMenu(
@@ -220,7 +227,7 @@ fun <Int> ChoiceChipsRow(
       Box(
         Modifier.height(FilterChipDefaults.Height)
           .padding(horizontal = 4.dp)
-          .align(Alignment.CenterVertically)
+          .align(Alignment.CenterVertically),
       ) {
         VerticalDivider()
       }
@@ -234,9 +241,9 @@ fun <Int> ChoiceChipsRow(
             animationSpec =
               spring(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessMedium
+                stiffness = Spring.StiffnessMedium,
               ),
-            label = "corner_radius"
+            label = "corner_radius",
           )
 
         FilterChip(
@@ -247,7 +254,7 @@ fun <Int> ChoiceChipsRow(
               containerColor = containerColor,
               selectedContainerColor = MaterialTheme.colorScheme.onSurface,
               selectedLabelColor = MaterialTheme.colorScheme.surface,
-              selectedLeadingIconColor = MaterialTheme.colorScheme.surface
+              selectedLeadingIconColor = MaterialTheme.colorScheme.surface,
             ),
           onClick = { onValueUpdate(value) },
           leadingIcon =
@@ -270,9 +277,9 @@ fun <Int> ChoiceChipsRow(
                 animationSpec =
                   spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMedium
-                  )
-              )
+                    stiffness = Spring.StiffnessMedium,
+                  ),
+              ),
         )
       }
     }

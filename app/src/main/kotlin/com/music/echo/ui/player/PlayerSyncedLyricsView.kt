@@ -2,6 +2,10 @@ package echo.music.iad1tya.ui.player
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -16,8 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,13 +44,14 @@ import echo.music.iad1tya.ui.component.shimmer.TextPlaceholder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @Composable
 fun PlayerSyncedLyricsView(
   mediaMetadata: MediaMetadata?,
   positionProvider: () -> Long,
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
 ) {
   val playerConnection = LocalPlayerConnection.current ?: return
   val currentLyrics by playerConnection.currentLyrics.collectAsState(initial = null)
@@ -61,7 +69,7 @@ fun PlayerSyncedLyricsView(
           val entryPoint =
             EntryPointAccessors.fromApplication(
               context.applicationContext,
-              echo.music.iad1tya.di.LyricsHelperEntryPoint::class.java
+              echo.music.iad1tya.di.LyricsHelperEntryPoint::class.java,
             )
           val lyricsHelper = entryPoint.lyricsHelper()
           val fetchedLyricsWithProvider = lyricsHelper.getLyrics(mediaMetadata)
@@ -70,8 +78,8 @@ fun PlayerSyncedLyricsView(
               LyricsEntity(
                 mediaMetadata.id,
                 fetchedLyricsWithProvider.lyrics ?: "",
-                fetchedLyricsWithProvider.providerName
-              )
+                fetchedLyricsWithProvider.providerName,
+              ),
             )
           }
         } catch (e: Exception) {
@@ -84,16 +92,26 @@ fun PlayerSyncedLyricsView(
   val lines =
     remember(currentLyrics) {
       val lyricsText = currentLyrics?.lyrics?.trim()
-      if (lyricsText.isNullOrEmpty() || !lyricsText.startsWith("[")) return@remember emptyList()
+      if (lyricsText.isNullOrEmpty() || lyricsText == LyricsEntity.LYRICS_NOT_FOUND)
+        return@remember emptyList()
       parseLyrics(lyricsText).filter { it.text.isNotBlank() }
     }
+
+  var currentPosition by remember { mutableLongStateOf(0L) }
+  LaunchedEffect(Unit) {
+    while (isActive) {
+      withFrameMillis {
+        currentPosition = positionProvider()
+      }
+    }
+  }
 
   Box(
     modifier =
       modifier
         .fillMaxWidth()
         .padding(horizontal = echo.music.iad1tya.constants.PlayerHorizontalPadding),
-    contentAlignment = Alignment.CenterStart
+    contentAlignment = Alignment.CenterStart,
   ) {
     if (currentLyrics == null) {
       // Loading skeleton
@@ -101,16 +119,15 @@ fun PlayerSyncedLyricsView(
         TextPlaceholder(
           height = 20.dp,
           shape = RoundedCornerShape(8.dp),
-          modifier = Modifier.fillMaxWidth(0.6f)
+          modifier = Modifier.fillMaxWidth(0.6f),
         )
       }
     } else if (lines.isEmpty()) {
       // No synced lyrics found - just empty state, show nothing
     } else {
-      val effectivePosition = positionProvider()
       val currentLineIndex =
-        remember(effectivePosition, lines) {
-          val index = lines.indexOfLast { it.time <= effectivePosition }
+        remember(currentPosition, lines) {
+          val index = lines.indexOfLast { it.time <= currentPosition }
           if (index >= 0) index else 0
         }
       val currentLine = lines.getOrNull(currentLineIndex)?.text ?: ""
@@ -118,11 +135,26 @@ fun PlayerSyncedLyricsView(
       AnimatedContent(
         targetState = currentLine,
         transitionSpec = {
-          (fadeIn() + slideInVertically { height -> height })
-            .togetherWith(fadeOut() + slideOutVertically { height -> -height })
+          (fadeIn(animationSpec = tween(400, easing = FastOutSlowInEasing)) +
+              slideInVertically(
+                animationSpec =
+                  spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow,
+                  ),
+              ) { height ->
+                height / 2
+              })
+            .togetherWith(
+              fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing)) +
+                slideOutVertically(animationSpec = tween(250, easing = FastOutSlowInEasing)) {
+                  height ->
+                  -height / 2
+                },
+            )
             .using(SizeTransform(clip = false))
         },
-        label = "SyncedLyrics"
+        label = "SyncedLyrics",
       ) { lineText ->
         Text(
           text = lineText,
@@ -130,7 +162,7 @@ fun PlayerSyncedLyricsView(
           fontSize = 18.sp,
           fontWeight = FontWeight.Bold,
           textAlign = TextAlign.Left,
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
       }
     }

@@ -12,7 +12,10 @@ class RadioQueuePageFilterTest {
   fun repeatedSongsWithinAPageAreOnlyQueuedOnce() {
     val filter = RadioQueuePageFilter()
 
-    assertEquals(listOf("a", "b"), filter.filter(listOf(song("a"), song("a"), song("b"))).map { it.id })
+    assertEquals(
+      listOf("a", "b"),
+      filter.filter(listOf(song("a"), song("a"), song("b"))).map { it.id },
+    )
   }
 
   @Test

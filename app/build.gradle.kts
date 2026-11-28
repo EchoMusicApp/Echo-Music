@@ -33,8 +33,8 @@ android {
     applicationId = "echo.music.iad1tya"
     minSdk = 26
     targetSdk = 36
-    versionCode = 165
-    versionName = "1.4.4"
+    versionCode = 171
+    versionName = "1.4.10"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     vectorDrawables.useSupportLibrary = true
@@ -58,12 +58,12 @@ android {
       "String",
       "FLOW_NEURO_BASE_URL",
       project.findProperty("FLOW_NEURO_BASE_URL")?.toString()?.let { "\"$it\"" }
-        ?: "\"https://api.flowneuroengine.com\""
+        ?: "\"https://api.flowneuroengine.com\"",
     )
     buildConfigField(
       "String",
       "FLOW_NEURO_API_KEY",
-      project.findProperty("FLOW_NEURO_API_KEY")?.toString()?.let { "\"$it\"" } ?: "\"\""
+      project.findProperty("FLOW_NEURO_API_KEY")?.toString()?.let { "\"$it\"" } ?: "\"\"",
     )
 
     // add nightly build label support
@@ -154,7 +154,14 @@ android {
       isShrinkResources = true
       isCrunchPngs = false
       isDebuggable = false
-      signingConfig = signingConfigs.getByName("release")
+      signingConfig =
+        if (
+          rootProject.file("keystore.jks").exists() || file("keystore/release.keystore").exists()
+        ) {
+          signingConfigs.getByName("release")
+        } else {
+          signingConfigs.getByName("debug")
+        }
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       buildConfigField("String", "ARCHITECTURE", "\"release\"")
     }
@@ -314,8 +321,8 @@ dependencies {
 
   implementation(libs.hilt)
   ksp(libs.hilt.compiler)
-  ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.20")
-  annotationProcessor("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.20")
+  ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
+  annotationProcessor("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
 
   implementation(project(":innertube"))
   implementation("com.github.MetrolistGroup.innertubex:innertubex-android:v0.7.0")
@@ -353,6 +360,8 @@ dependencies {
   implementation(libs.work.runtime.ktx)
   implementation(libs.androidx.core.splashscreen)
   implementation(libs.ffmpeg.kit.audio)
+  implementation("io.github.dokar3:quickjs-kt-android:1.0.14")
+  implementation("com.microsoft.onnxruntime:onnxruntime-android:1.28.0")
 
   testImplementation(libs.junit)
   testImplementation(libs.kotlinx.coroutines.test)

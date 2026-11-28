@@ -1,6 +1,5 @@
 package echo.music.iad1tya.echomusic.component
 
-import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,6 +17,7 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.echomusic.updater.ChangelogSection
 import echo.music.iad1tya.ui.utils.parseMarkdownToSections
 import echo.music.iad1tya.ui.utils.parseSimpleMarkdown
+import echo.music.iad1tya.ui.utils.safeOpenUri
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 
 /**
@@ -34,7 +34,7 @@ fun UpdateAvailableDialog(
   version: String,
   changelog: List<ChangelogSection>,
   description: String?,
-  onDismiss: () -> Unit
+  onDismiss: () -> Unit,
 ) {
   val context = LocalContext.current
   val cardShape =
@@ -72,7 +72,7 @@ fun UpdateAvailableDialog(
           ) {
             Row(
               modifier = Modifier.fillMaxWidth(),
-              verticalAlignment = Alignment.CenterVertically
+              verticalAlignment = Alignment.CenterVertically,
             ) {
               Surface(
                 shape = AbsoluteSmoothCornerShape(12.dp, 60),
@@ -81,7 +81,7 @@ fun UpdateAvailableDialog(
                 Row(
                   modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                   verticalAlignment = Alignment.CenterVertically,
-                  horizontalArrangement = Arrangement.spacedBy(8.dp)
+                  horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                   Icon(
                     painter = painterResource(R.drawable.update),
@@ -116,13 +116,13 @@ fun UpdateAvailableDialog(
             Column(
               modifier =
                 Modifier.fillMaxWidth().padding(14.dp).verticalScroll(rememberScrollState()),
-              verticalArrangement = Arrangement.spacedBy(8.dp)
+              verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
               Text(
                 text = stringResource(R.string.changelog),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
               )
 
               val (effectiveDescription, effectiveSections) =
@@ -142,7 +142,7 @@ fun UpdateAvailableDialog(
                     parseSimpleMarkdown(effectiveDescription, MaterialTheme.colorScheme.primary),
                   style = MaterialTheme.typography.bodyMedium,
                   color = MaterialTheme.colorScheme.onSurfaceVariant,
-                  modifier = Modifier.padding(bottom = 4.dp)
+                  modifier = Modifier.padding(bottom = 4.dp),
                 )
               }
 
@@ -154,13 +154,13 @@ fun UpdateAvailableDialog(
                       style = MaterialTheme.typography.titleSmall,
                       fontWeight = FontWeight.Bold,
                       color = MaterialTheme.colorScheme.primary,
-                      modifier = Modifier.padding(top = 6.dp)
+                      modifier = Modifier.padding(top = 6.dp),
                     )
                   }
                   section.items.forEach { item ->
                     Row(
                       modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                      horizontalArrangement = Arrangement.spacedBy(8.dp)
+                      horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                       Text(
                         text = "•",
@@ -171,7 +171,7 @@ fun UpdateAvailableDialog(
                       Text(
                         text = parseSimpleMarkdown(item.trim(), MaterialTheme.colorScheme.primary),
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                       )
                     }
                   }
@@ -196,9 +196,7 @@ fun UpdateAvailableDialog(
           Button(
             onClick = {
               onDismiss()
-              val intent =
-                Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://echomusic.fun"))
-              context.startActivity(intent)
+              context.safeOpenUri("https://echomusic.fun")
             },
             shape = actionShape,
           ) {

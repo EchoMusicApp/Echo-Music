@@ -28,9 +28,10 @@ class ScrobbleManagerTest {
 
     // Ensure it didn't return early due to isLocalMediaId()
     // It should accept metadata
-    val currentField = ScrobbleManager::class.java.getDeclaredField("currentMetadata").apply {
-      isAccessible = true
-    }
+    val currentField =
+      ScrobbleManager::class.java.getDeclaredField("currentMetadata").apply {
+        isAccessible = true
+      }
     val current = currentField.get(manager) as? MediaMetadata
     assertNotNull(current)
     assertEquals("local_42", current?.id)
@@ -60,9 +61,10 @@ class ScrobbleManagerTest {
     // Song 1 starts
     manager.onPlayerStateChanged(isPlaying = true, metadata = song1, duration = 200000L)
 
-    val currentField = ScrobbleManager::class.java.getDeclaredField("currentMetadata").apply {
-      isAccessible = true
-    }
+    val currentField =
+      ScrobbleManager::class.java.getDeclaredField("currentMetadata").apply {
+        isAccessible = true
+      }
     assertEquals("song_1", (currentField.get(manager) as? MediaMetadata)?.id)
 
     // Autoplay transition to Song 2 while isPlaying remains true
@@ -70,4 +72,3 @@ class ScrobbleManagerTest {
     assertEquals("song_2", (currentField.get(manager) as? MediaMetadata)?.id)
   }
 }
-

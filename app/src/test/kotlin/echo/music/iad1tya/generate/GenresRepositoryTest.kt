@@ -26,7 +26,9 @@ private class FakeGenresTasteApi : LastFmTasteApi {
   override suspend fun getTopTags(artist: String): Result<List<Tag>> {
     topTagsCallCount++
     if (shouldFail) return Result.failure(RuntimeException("Network error"))
-    return Result.success(tagsByArtist[artist.lowercase()] ?: listOf(Tag("rock", 100), Tag("alternative", 80)))
+    return Result.success(
+      tagsByArtist[artist.lowercase()] ?: listOf(Tag("rock", 100), Tag("alternative", 80)),
+    )
   }
 
   override suspend fun getUserTopArtists(user: String, limit: Int): Result<List<String>> =
@@ -41,12 +43,13 @@ private class FakeGenresTasteApi : LastFmTasteApi {
 
 private class FakeTasteProfileProvider(
   private val profile: TasteProfile? = null,
-) : TasteProfileProvider(
-  tasteProfileDao = FakeTasteProfileDao(),
-  lastFmTasteApi = FakeGenresTasteApi(),
-  dataStore = FakePreferencesDataStore(mutablePreferencesOf()),
-  songPlayStatsDao = FakeSongPlayStatsDao(),
-) {
+) :
+  TasteProfileProvider(
+    tasteProfileDao = FakeTasteProfileDao(),
+    lastFmTasteApi = FakeGenresTasteApi(),
+    dataStore = FakePreferencesDataStore(mutablePreferencesOf()),
+    songPlayStatsDao = FakeSongPlayStatsDao(),
+  ) {
   override suspend fun get(forceRefresh: Boolean): TasteProfile? = profile
 }
 
@@ -60,20 +63,22 @@ class GenresRepositoryTest {
   fun setup() {
     fakeApi = FakeGenresTasteApi()
     fakeStatsDao = FakeSongPlayStatsDao()
-    val fakeProvider = FakeTasteProfileProvider(
-      TasteProfile(
-        topArtistNames = listOf("radiohead"),
-        topTrackKeys = listOf("creep|radiohead"),
-        topGenres = listOf("rock", "indie"),
-        fetchedAtMillis = System.currentTimeMillis(),
+    val fakeProvider =
+      FakeTasteProfileProvider(
+        TasteProfile(
+          topArtistNames = listOf("radiohead"),
+          topTrackKeys = listOf("creep|radiohead"),
+          topGenres = listOf("rock", "indie"),
+          fetchedAtMillis = System.currentTimeMillis(),
+        ),
       )
-    )
-    repository = GenresRepository(
-      database = null,
-      tasteApi = fakeApi,
-      tasteProfileProvider = fakeProvider,
-      songPlayStatsDao = fakeStatsDao,
-    )
+    repository =
+      GenresRepository(
+        database = null,
+        tasteApi = fakeApi,
+        tasteProfileProvider = fakeProvider,
+        songPlayStatsDao = fakeStatsDao,
+      )
   }
 
   @Test
@@ -103,7 +108,7 @@ class GenresRepositoryTest {
         playCount = 10,
         skipCount = 0,
         lastPlayedAtMillis = System.currentTimeMillis(),
-      )
+      ),
     )
 
     val top = repository.topGenres(5)

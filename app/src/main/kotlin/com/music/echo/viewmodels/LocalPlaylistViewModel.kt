@@ -70,7 +70,7 @@ constructor(
                 it[HideVideoSongsKey]
               } catch (e: Exception) {
                 null
-              }) ?: false
+              }) ?: false,
             )
           }
           .distinctUntilChanged(),
@@ -83,7 +83,8 @@ constructor(
           }
         when (sortType) {
           PlaylistSongSortType.CUSTOM -> filteredSongs
-          PlaylistSongSortType.CREATE_DATE -> filteredSongs.sortedBy { it.map.id }
+          PlaylistSongSortType.CREATE_DATE ->
+            filteredSongs.sortedWith(compareBy({ it.map.position }, { it.map.id }))
           PlaylistSongSortType.NAME -> {
             val collator = Collator.getInstance(Locale.getDefault())
             collator.strength = Collator.PRIMARY
@@ -94,7 +95,7 @@ constructor(
             collator.strength = Collator.PRIMARY
             filteredSongs
               .sortedWith(
-                compareBy(collator) { song -> song.song.artists.joinToString("") { it.name } }
+                compareBy(collator) { song -> song.song.artists.joinToString("") { it.name } },
               )
               .groupBy { it.song.album?.title }
               .flatMap { (_, songsByAlbum) ->

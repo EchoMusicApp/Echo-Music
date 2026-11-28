@@ -43,8 +43,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -62,7 +60,9 @@ import androidx.navigation.NavController
 import com.music.innertube.YouTube.SearchFilter.Companion.FILTER_ALBUM
 import com.music.innertube.YouTube.SearchFilter.Companion.FILTER_ARTIST
 import com.music.innertube.YouTube.SearchFilter.Companion.FILTER_COMMUNITY_PLAYLIST
+import com.music.innertube.YouTube.SearchFilter.Companion.FILTER_EPISODE
 import com.music.innertube.YouTube.SearchFilter.Companion.FILTER_FEATURED_PLAYLIST
+import com.music.innertube.YouTube.SearchFilter.Companion.FILTER_PODCAST
 import com.music.innertube.YouTube.SearchFilter.Companion.FILTER_SONG
 import com.music.innertube.YouTube.SearchFilter.Companion.FILTER_VIDEO
 import com.music.innertube.models.AlbumItem
@@ -98,6 +98,7 @@ import echo.music.iad1tya.viewmodels.OnlineSearchViewModel
 import java.net.URLDecoder
 import java.net.URLEncoder
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -105,7 +106,7 @@ import kotlinx.coroutines.launch
 fun OnlineSearchResult(
   navController: NavController,
   viewModel: OnlineSearchViewModel = hiltViewModel(),
-  pureBlack: Boolean = false
+  pureBlack: Boolean = false,
 ) {
   val database = LocalDatabase.current
   val menuState = LocalMenuState.current
@@ -117,15 +118,16 @@ fun OnlineSearchResult(
   val coroutineScope = rememberCoroutineScope()
   val lazyListState = rememberLazyListState()
   val focusManager = LocalFocusManager.current
-  val focusRequester = remember { FocusRequester() }
+  val keyboardController = LocalSoftwareKeyboardController.current
+  val pauseSearchHistory by rememberPreference(PauseSearchHistoryKey, defaultValue = false)
 
   var isSearchFocused by remember { mutableStateOf(false) }
-
-  val pauseSearchHistory by rememberPreference(PauseSearchHistoryKey, defaultValue = false)
+  var isInitialFocus by remember { mutableStateOf(true) }
 
   BackHandler(enabled = isSearchFocused) {
     isSearchFocused = false
-    focusManager.clearFocus()
+    focusManager.clearFocus(force = true)
+    keyboardController?.hide()
   }
 
   val encodedQuery = navController.currentBackStackEntry?.arguments?.getString("query") ?: ""
@@ -143,13 +145,12 @@ fun OnlineSearchResult(
       mutableStateOf(TextFieldValue(decodedQuery, TextRange(decodedQuery.length)))
     }
 
-  val keyboardController = LocalSoftwareKeyboardController.current
-
   val onSearch: (String) -> Unit = remember {
     { searchQuery ->
       if (searchQuery.isNotEmpty()) {
         isSearchFocused = false
-        focusManager.clearFocus()
+        isInitialFocus = true
+        focusManager.clearFocus(force = true)
         keyboardController?.hide()
 
         navController.navigate("search/${URLEncoder.encode(searchQuery.trim(), "UTF-8")}") {
@@ -166,7 +167,13 @@ fun OnlineSearchResult(
   }
 
   LaunchedEffect(decodedQuery) {
+    isSearchFocused = false
+    isInitialFocus = true
     query = TextFieldValue(decodedQuery, TextRange(decodedQuery.length))
+    focusManager.clearFocus(force = true)
+    keyboardController?.hide()
+    delay(400)
+    isInitialFocus = false
   }
 
   val searchFilter by viewModel.filter.collectAsState()
@@ -245,7 +252,7 @@ fun OnlineSearchResult(
                       playerConnection.togglePlayPause()
                     } else {
                       playerConnection.playQueue(
-                        YouTubeQueue(WatchEndpoint(videoId = item.id), item.toMediaMetadata())
+                        YouTubeQueue(WatchEndpoint(videoId = item.id), item.toMediaMetadata()),
                       )
                     }
                   }
@@ -264,7 +271,7 @@ fun OnlineSearchResult(
     modifier =
       Modifier.fillMaxSize()
         .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.background)
-        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top))
+        .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top)),
   ) {
     OutlinedTextField(
       value = query,
@@ -273,7 +280,7 @@ fun OnlineSearchResult(
         Text(
           text = stringResource(R.string.search_yt_music),
           style = MaterialTheme.typography.bodyLarge,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       },
       leadingIcon = {
@@ -281,7 +288,7 @@ fun OnlineSearchResult(
           Icon(
             painter = painterResource(R.drawable.arrow_back),
             contentDescription = stringResource(R.string.dismiss),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
           )
         }
       },
@@ -291,7 +298,7 @@ fun OnlineSearchResult(
             Icon(
               painter = painterResource(R.drawable.close),
               contentDescription = null,
-              tint = MaterialTheme.colorScheme.onSurfaceVariant
+              tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -309,17 +316,15 @@ fun OnlineSearchResult(
             if (pureBlack) MaterialTheme.colorScheme.surface
             else MaterialTheme.colorScheme.surfaceContainerHigh,
           focusedBorderColor = Color.Transparent,
-          unfocusedBorderColor = Color.Transparent
+          unfocusedBorderColor = Color.Transparent,
         ),
       modifier =
-        Modifier.fillMaxWidth()
-          .padding(horizontal = 16.dp, vertical = 8.dp)
-          .focusRequester(focusRequester)
-          .onFocusChanged { focusState ->
-            if (focusState.isFocused) {
-              isSearchFocused = true
-            }
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp).onFocusChanged {
+          focusState ->
+          if (focusState.isFocused && !isInitialFocus) {
+            isSearchFocused = true
           }
+        },
     )
 
     Box(modifier = Modifier.weight(1f)) {
@@ -334,6 +339,8 @@ fun OnlineSearchResult(
               FILTER_ARTIST to stringResource(R.string.filter_artists),
               FILTER_COMMUNITY_PLAYLIST to stringResource(R.string.filter_community_playlists),
               FILTER_FEATURED_PLAYLIST to stringResource(R.string.filter_featured_playlists),
+              FILTER_PODCAST to stringResource(R.string.filter_podcasts),
+              FILTER_EPISODE to stringResource(R.string.filter_episodes),
             ),
           currentValue = searchFilter,
           onValueUpdate = {
@@ -342,13 +349,13 @@ fun OnlineSearchResult(
             }
             coroutineScope.launch { lazyListState.animateScrollToItem(0) }
           },
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         )
 
         LazyColumn(
           state = lazyListState,
           contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues(),
-          modifier = Modifier.fillMaxWidth()
+          modifier = Modifier.fillMaxWidth(),
         ) {
           if (searchFilter == null) {
             searchSummary?.summaries?.forEach { summary ->
@@ -402,7 +409,7 @@ fun OnlineSearchResult(
           item(key = "bottom_spacer") {
             Spacer(
               modifier =
-                Modifier.height(MiniPlayerHeight + MiniPlayerBottomSpacing + NavigationBarHeight)
+                Modifier.height(MiniPlayerHeight + MiniPlayerBottomSpacing + NavigationBarHeight),
             )
           }
         }
@@ -415,9 +422,10 @@ fun OnlineSearchResult(
           onSearch = onSearch,
           onDismiss = {
             isSearchFocused = false
-            focusManager.clearFocus()
+            focusManager.clearFocus(force = true)
+            keyboardController?.hide()
           },
-          pureBlack = pureBlack
+          pureBlack = pureBlack,
         )
       }
     }

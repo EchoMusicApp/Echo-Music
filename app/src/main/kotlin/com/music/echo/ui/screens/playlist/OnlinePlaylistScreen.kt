@@ -44,6 +44,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -67,11 +68,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -119,6 +119,7 @@ import echo.music.iad1tya.LocalPlayerConnection
 import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.AppBarHeight
 import echo.music.iad1tya.constants.HideExplicitKey
+import echo.music.iad1tya.constants.PodcastHidePlayedKey
 import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.db.entities.PlaylistSongMap
@@ -127,6 +128,8 @@ import echo.music.iad1tya.playback.DownloadUtil
 import echo.music.iad1tya.playback.ExoDownloadService
 import echo.music.iad1tya.playback.queues.YouTubePlaylistQueue
 import echo.music.iad1tya.playback.queues.YouTubeQueue
+import echo.music.iad1tya.ui.component.ChipsRow
+import echo.music.iad1tya.ui.component.EpisodeDetails
 import echo.music.iad1tya.ui.component.HeartBurstIcon
 import echo.music.iad1tya.ui.component.IconButton
 import echo.music.iad1tya.ui.component.LocalMenuState
@@ -140,17 +143,19 @@ import echo.music.iad1tya.ui.menu.YouTubePlaylistMenu
 import echo.music.iad1tya.ui.menu.YouTubeSelectionSongMenu
 import echo.music.iad1tya.ui.menu.YouTubeSongMenu
 import echo.music.iad1tya.ui.utils.backToMain
+import echo.music.iad1tya.utils.PodcastProgress
 import echo.music.iad1tya.utils.listItemShape
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.OnlinePlaylistViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @OptIn(
   ExperimentalMaterial3Api::class,
   ExperimentalFoundationApi::class,
-  ExperimentalMaterial3ExpressiveApi::class
+  ExperimentalMaterial3ExpressiveApi::class,
 )
 @Composable
 fun OnlinePlaylistScreen(
@@ -182,6 +187,14 @@ fun OnlinePlaylistScreen(
   val snackbarHostState = remember { SnackbarHostState() }
 
   var isSearching by rememberSaveable { mutableStateOf(false) }
+  // Podcast shows list the newest episode first; oldest first needs every episode loaded.
+  var oldestFirst by rememberSaveable { mutableStateOf(false) }
+  val isPlaylistLoaded = playlist != null
+  LaunchedEffect(oldestFirst, isPlaylistLoaded) {
+    if (oldestFirst && isPlaylistLoaded) viewModel.loadAllSongs()
+  }
+  val (hidePlayed, onHidePlayedChange) = rememberPreference(PodcastHidePlayedKey, false)
+  val episodeProgress by PodcastProgress.entries.collectAsState()
 
   // Beyond the songs loaded up front, load the next page when the list is
   // scrolled close to its end instead of fetching the whole playlist.
@@ -220,10 +233,17 @@ fun OnlinePlaylistScreen(
   }
 
   val filteredSongs =
-    remember(songs, query) {
-      if (query.text.isEmpty()) songs.mapIndexed { i, s -> i to s }
+    remember(songs, query, oldestFirst, hidePlayed, episodeProgress, playlist) {
+      val listed =
+        if (hidePlayed && playlist?.isPodcast == true) {
+          songs.filterNot { episodeProgress[it.id]?.finished == true }
+        } else {
+          songs
+        }
+      val ordered = if (oldestFirst) listed.asReversed() else listed
+      if (query.text.isEmpty()) ordered.mapIndexed { i, s -> i to s }
       else
-        songs
+        ordered
           .mapIndexed { i, s -> i to s }
           .filter {
             it.second.title.contains(query.text, true) ||
@@ -237,8 +257,8 @@ fun OnlinePlaylistScreen(
       saver =
         listSaver<MutableList<String>, String>(
           save = { it.toList() },
-          restore = { it.toMutableStateList() }
-        )
+          restore = { it.toMutableStateList() },
+        ),
     ) {
       mutableStateListOf()
     }
@@ -284,7 +304,7 @@ fun OnlinePlaylistScreen(
           item(key = "loading_placeholder") {
             Box(
               modifier = Modifier.fillMaxWidth().padding(32.dp),
-              contentAlignment = Alignment.Center
+              contentAlignment = Alignment.Center,
             ) {
               ContainedLoadingIndicator()
             }
@@ -303,7 +323,31 @@ fun OnlinePlaylistScreen(
                 coroutineScope = coroutineScope,
                 continuation = viewModel.continuation,
                 loadAllSongs = viewModel::loadAllSongs,
+                listedSongs = filteredSongs.map { it.second },
+                oldestFirst = oldestFirst,
               )
+            }
+            if (playlist.isPodcast) {
+              item(key = "podcast_order") {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                  ChipsRow(
+                    chips =
+                      listOf(
+                        false to stringResource(R.string.sort_newest),
+                        true to stringResource(R.string.sort_oldest),
+                      ),
+                    currentValue = oldestFirst,
+                    onValueUpdate = { oldestFirst = it },
+                    modifier = Modifier.weight(1f),
+                  )
+                  FilterChip(
+                    selected = hidePlayed,
+                    onClick = { onHidePlayedChange(!hidePlayed) },
+                    label = { Text(stringResource(R.string.hide_played)) },
+                    modifier = Modifier.padding(end = 12.dp),
+                  )
+                }
+              }
             }
           }
 
@@ -331,14 +375,21 @@ fun OnlinePlaylistScreen(
                       } else if (songItem.id == mediaMetadata?.id) {
                         playerConnection.togglePlayPause()
                       } else {
+                        // What follows an episode is the next one out, so a show queues
+                        // forward in time however the list is sorted. Further pages are
+                        // older episodes, which do not follow on then.
+                        val newestFirst = playlist.isPodcast && !oldestFirst
+                        val listed = filteredSongs.map { it.second }
                         playerConnection.playQueue(
                           YouTubePlaylistQueue(
                             playlistId = playlist.id,
                             playlistTitle = playlist.title,
-                            initialSongs = filteredSongs.map { it.second },
-                            initialContinuation = viewModel.continuation,
-                            startIndex = index
-                          )
+                            initialSongs = if (newestFirst) listed.asReversed() else listed,
+                            initialContinuation =
+                              if (oldestFirst || playlist.isPodcast) null
+                              else viewModel.continuation,
+                            startIndex = if (newestFirst) listed.lastIndex - index else index,
+                          ),
                         )
                       }
                     },
@@ -348,24 +399,34 @@ fun OnlinePlaylistScreen(
                         inSelectMode = true
                         onCheckedChange(true)
                       }
-                    }
+                    },
                   )
                   .animateItem(),
               trailingContent = {
                 if (inSelectMode) {
                   Checkbox(checked = songItem.id in selection, onCheckedChange = onCheckedChange)
                 } else {
+                  if (songItem.isPodcastEpisode && songItem.description != null) {
+                    IconButton(
+                      onClick = { menuState.show { EpisodeDetails(songItem, menuState::dismiss) } },
+                    ) {
+                      Icon(
+                        painterResource(R.drawable.info),
+                        stringResource(R.string.episode_details),
+                      )
+                    }
+                  }
                   IconButton(
                     onClick = {
                       menuState.show {
                         YouTubeSongMenu(songItem, navController, menuState::dismiss)
                       }
-                    }
+                    },
                   ) {
                     Icon(painterResource(R.drawable.more_vert), null)
                   }
                 }
-              }
+              },
             )
           }
 
@@ -373,7 +434,7 @@ fun OnlinePlaylistScreen(
             item(key = "loading_more") {
               Box(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
               ) {
                 ContainedLoadingIndicator()
               }
@@ -384,7 +445,7 @@ fun OnlinePlaylistScreen(
             item(key = "related_title") {
               NavigationTitle(
                 title = stringResource(R.string.you_might_also_like),
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateItem(),
               )
             }
 
@@ -392,7 +453,7 @@ fun OnlinePlaylistScreen(
               LazyRow(
                 contentPadding = PaddingValues(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().animateItem()
+                modifier = Modifier.fillMaxWidth().animateItem(),
               ) {
                 items(relatedItems) { item ->
                   YouTubeGridItem(
@@ -408,7 +469,7 @@ fun OnlinePlaylistScreen(
                               is ArtistItem -> navController.navigate("artist/${item.id}")
                               is SongItem ->
                                 playerConnection.playQueue(
-                                  YouTubeQueue(WatchEndpoint(videoId = item.id))
+                                  YouTubeQueue(WatchEndpoint(videoId = item.id)),
                                 )
                             }
                           },
@@ -420,26 +481,26 @@ fun OnlinePlaylistScreen(
                                   YouTubePlaylistMenu(
                                     playlist = item,
                                     coroutineScope = coroutineScope,
-                                    onDismiss = menuState::dismiss
+                                    onDismiss = menuState::dismiss,
                                   )
                                 is SongItem ->
                                   YouTubeSongMenu(
                                     song = item,
                                     navController = navController,
-                                    onDismiss = menuState::dismiss
+                                    onDismiss = menuState::dismiss,
                                   )
                                 is AlbumItem ->
                                   YouTubeAlbumMenu(
                                     albumItem = item,
                                     navController = navController,
-                                    onDismiss = menuState::dismiss
+                                    onDismiss = menuState::dismiss,
                                   )
                                 is ArtistItem ->
                                   YouTubeArtistMenu(artist = item, onDismiss = menuState::dismiss)
                               }
                             }
-                          }
-                        )
+                          },
+                        ),
                   )
                 }
               }
@@ -456,7 +517,7 @@ fun OnlinePlaylistScreen(
         if (inSelectMode) {
           Text(
             text = pluralStringResource(R.plurals.n_song, selection.size, selection.size),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
           )
         } else if (isSearching) {
           TextField(
@@ -465,7 +526,7 @@ fun OnlinePlaylistScreen(
             placeholder = {
               Text(
                 text = stringResource(R.string.search),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
               )
             },
             singleLine = true,
@@ -479,13 +540,13 @@ fun OnlinePlaylistScreen(
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
               ),
-            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
+            modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
           )
         } else {
           AnimatedContent(
             targetState = !transparentAppBar,
             transitionSpec = { fadeIn().togetherWith(fadeOut()) },
-            label = "TopAppBarTitle"
+            label = "TopAppBarTitle",
           ) { show ->
             if (show) {
               Text(playlist?.title ?: "")
@@ -498,7 +559,7 @@ fun OnlinePlaylistScreen(
           modifier =
             Modifier.background(
               androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-              CircleShape
+              CircleShape,
             ),
           onClick = {
             if (isSearching) {
@@ -514,12 +575,12 @@ fun OnlinePlaylistScreen(
             if (!isSearching && !inSelectMode) {
               navController.backToMain()
             }
-          }
+          },
         ) {
           Icon(
             painter =
               painterResource(if (inSelectMode) R.drawable.close else R.drawable.arrow_back),
-            contentDescription = null
+            contentDescription = null,
           )
         }
       },
@@ -534,7 +595,7 @@ fun OnlinePlaylistScreen(
                 selection.clear()
                 selection.addAll(filteredSongs.map { it.second.id })
               }
-            }
+            },
           )
           IconButton(
             enabled = selection.isNotEmpty(),
@@ -544,10 +605,10 @@ fun OnlinePlaylistScreen(
                   songSelection =
                     filteredSongs.filter { it.second.id in selection }.map { it.second },
                   onDismiss = menuState::dismiss,
-                  clearAction = onExitSelectionMode
+                  clearAction = onExitSelectionMode,
                 )
               }
-            }
+            },
           ) {
             Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
           }
@@ -557,8 +618,8 @@ fun OnlinePlaylistScreen(
             modifier =
               Modifier.background(
                 androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                CircleShape
-              )
+                CircleShape,
+              ),
           ) {
             Icon(painter = painterResource(R.drawable.search), contentDescription = null)
           }
@@ -567,11 +628,11 @@ fun OnlinePlaylistScreen(
       colors =
         if (transparentAppBar && !isSearching && !inSelectMode) {
           androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent
+            containerColor = Color.Transparent,
           )
         } else {
           androidx.compose.material3.TopAppBarDefaults.topAppBarColors()
-        }
+        },
     )
 
     SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
@@ -589,7 +650,9 @@ private fun OnlinePlaylistHeader(
   coroutineScope: CoroutineScope,
   continuation: String?,
   loadAllSongs: suspend () -> List<SongItem>,
-  modifier: Modifier = Modifier
+  listedSongs: List<SongItem>,
+  oldestFirst: Boolean,
+  modifier: Modifier = Modifier,
 ) {
   val context = LocalContext.current
   val playerConnection = LocalPlayerConnection.current ?: return
@@ -608,18 +671,18 @@ private fun OnlinePlaylistHeader(
   Box(modifier = modifier.fillMaxWidth()) {
     OnlineBlur(
       thumbnailUrl = playlist.thumbnail,
-      modifier = Modifier.matchParentSize().offset { IntOffset(0, headerOffset) }
+      modifier = Modifier.matchParentSize().offset { IntOffset(0, headerOffset) },
     )
 
     Column(
       modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-      horizontalAlignment = Alignment.CenterHorizontally
+      horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       Spacer(Modifier.height(20.dp))
 
       Box(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 48.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
       ) {
         AsyncImage(
           model = ImageRequest.Builder(LocalContext.current).data(playlist.thumbnail).build(),
@@ -627,10 +690,10 @@ private fun OnlinePlaylistHeader(
           modifier =
             Modifier.then(
                 if (LocalConfiguration.current.screenWidthDp > 600) Modifier.size(300.dp)
-                else Modifier.fillMaxWidth().aspectRatio(1f)
+                else Modifier.fillMaxWidth().aspectRatio(1f),
               )
               .clip(RoundedCornerShape(8.dp)),
-          contentScale = ContentScale.Crop
+          contentScale = ContentScale.Crop,
         )
       }
 
@@ -639,14 +702,14 @@ private fun OnlinePlaylistHeader(
       Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(horizontal = 32.dp)
+        modifier = Modifier.padding(horizontal = 32.dp),
       ) {
         Text(
           text = playlist.title,
           style = MaterialTheme.typography.headlineMedium,
           fontWeight = FontWeight.Bold,
           textAlign = TextAlign.Center,
-          color = MaterialTheme.colorScheme.onSurface
+          color = MaterialTheme.colorScheme.onSurface,
         )
       }
 
@@ -659,7 +722,7 @@ private fun OnlinePlaylistHeader(
           fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.primary,
           textAlign = TextAlign.Center,
-          modifier = Modifier.padding(horizontal = 32.dp)
+          modifier = Modifier.padding(horizontal = 32.dp),
         )
       }
 
@@ -668,24 +731,24 @@ private fun OnlinePlaylistHeader(
       if (hasExplicitContent) {
         Surface(
           shape = RoundedCornerShape(6.dp),
-          color = MaterialTheme.colorScheme.surfaceVariant
+          color = MaterialTheme.colorScheme.surfaceVariant,
         ) {
           Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
           ) {
             Icon(
               painter = painterResource(R.drawable.explicit),
               contentDescription = "Explicit",
               tint = MaterialTheme.colorScheme.onPrimaryContainer,
-              modifier = Modifier.size(14.dp)
+              modifier = Modifier.size(14.dp),
             )
             Text(
               text = stringResource(R.string.explicit),
               style = MaterialTheme.typography.labelSmall,
               fontWeight = FontWeight.Bold,
-              color = MaterialTheme.colorScheme.onPrimaryContainer
+              color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
           }
         }
@@ -696,12 +759,18 @@ private fun OnlinePlaylistHeader(
       Surface(
         shape = RoundedCornerShape(6.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = Modifier.padding(horizontal = 32.dp)
+        modifier = Modifier.padding(horizontal = 32.dp),
       ) {
         Text(
           text =
             buildString {
-              append(pluralStringResource(R.plurals.n_song, songs.size, songs.size))
+              append(
+                pluralStringResource(
+                  if (playlist.isPodcast) R.plurals.n_episode else R.plurals.n_song,
+                  songs.size,
+                  songs.size,
+                ),
+              )
               if (totalDuration > 0) {
                 append(" • ")
                 val hours = totalDuration / 3600
@@ -715,7 +784,7 @@ private fun OnlinePlaylistHeader(
             },
           style = MaterialTheme.typography.bodyMedium,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
-          modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+          modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
         )
       }
 
@@ -724,7 +793,7 @@ private fun OnlinePlaylistHeader(
       Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
       ) {
         Button(
           onClick = {
@@ -734,6 +803,19 @@ private fun OnlinePlaylistHeader(
                   val currentPlaylist = dbPlaylist.playlist
                   update(currentPlaylist, playlist)
                   update(currentPlaylist.toggleLike())
+                }
+              } else if (playlist.isPodcast) {
+                // Following a show keeps only the show; episodes are loaded when opened.
+                database.withTransaction {
+                  insert(
+                    PlaylistEntity(
+                        name = playlist.title,
+                        browseId = playlist.id,
+                        thumbnailUrl = playlist.thumbnail,
+                        isEditable = false,
+                      )
+                      .toggleLike(),
+                  )
                 }
               } else {
                 // Save every song, not only the pages loaded so far.
@@ -751,7 +833,7 @@ private fun OnlinePlaylistHeader(
                           },
                         playEndpointParams = playlist.playEndpoint?.params,
                         shuffleEndpointParams = playlist.shuffleEndpoint?.params,
-                        radioEndpointParams = playlist.radioEndpoint?.params
+                        radioEndpointParams = playlist.radioEndpoint?.params,
                       )
                       .toggleLike()
                   insert(playlistEntity)
@@ -763,7 +845,7 @@ private fun OnlinePlaylistHeader(
                         songId = song.id,
                         playlistId = playlistEntity.id,
                         position = index,
-                        setVideoId = song.setVideoId
+                        setVideoId = song.setVideoId,
                       )
                     }
                     .forEach { insert(it) }
@@ -775,35 +857,52 @@ private fun OnlinePlaylistHeader(
           colors =
             ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.surfaceVariant,
-              contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+              contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
           contentPadding = PaddingValues(vertical = 12.dp),
-          modifier = Modifier.weight(1f)
+          modifier = Modifier.weight(1f),
         ) {
           Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             HeartBurstIcon(isLiked = dbPlaylist?.playlist?.bookmarkedAt != null, iconSize = 18.dp)
             Text(
               text =
-                if (dbPlaylist?.playlist?.bookmarkedAt != null) stringResource(R.string.saved)
-                else stringResource(R.string.save),
-              style = MaterialTheme.typography.labelLarge
+                when {
+                  playlist.isPodcast && dbPlaylist?.playlist?.bookmarkedAt != null ->
+                    stringResource(R.string.following)
+                  playlist.isPodcast -> stringResource(R.string.follow)
+                  dbPlaylist?.playlist?.bookmarkedAt != null -> stringResource(R.string.saved)
+                  else -> stringResource(R.string.save)
+                },
+              style = MaterialTheme.typography.labelLarge,
             )
           }
         }
 
         Button(
           onClick = {
-            if (songs.isNotEmpty()) {
+            if (playlist.isPodcast) {
+              // The list's first episode, then forward in time like tapping an episode.
+              if (listedSongs.isNotEmpty()) {
+                playerConnection.playQueue(
+                  YouTubePlaylistQueue(
+                    playlistId = playlist.id,
+                    playlistTitle = playlist.title,
+                    initialSongs = if (oldestFirst) listedSongs else listedSongs.asReversed(),
+                    startIndex = if (oldestFirst) 0 else listedSongs.lastIndex,
+                  ),
+                )
+              }
+            } else if (songs.isNotEmpty()) {
               playerConnection.playQueue(
                 YouTubePlaylistQueue(
                   playlistId = playlist.id,
                   playlistTitle = playlist.title,
                   initialSongs = songs,
-                  initialContinuation = continuation
-                )
+                  initialContinuation = continuation,
+                ),
               )
             }
           },
@@ -811,24 +910,24 @@ private fun OnlinePlaylistHeader(
           colors =
             ButtonDefaults.buttonColors(
               containerColor = MaterialTheme.colorScheme.primary,
-              contentColor = MaterialTheme.colorScheme.onPrimary
+              contentColor = MaterialTheme.colorScheme.onPrimary,
             ),
           contentPadding = PaddingValues(vertical = 12.dp),
-          modifier = Modifier.weight(1f)
+          modifier = Modifier.weight(1f),
         ) {
           Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
           ) {
             Icon(
               painter =
                 painterResource(
                   if (isPlaying && mediaMetadata?.album?.id == playlist.id) R.drawable.pause
-                  else R.drawable.play
+                  else R.drawable.play,
                 ),
               contentDescription = null,
               modifier = Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onPrimary
+              tint = MaterialTheme.colorScheme.onPrimary,
             )
             Spacer(Modifier.width(8.dp))
             Text(
@@ -836,7 +935,7 @@ private fun OnlinePlaylistHeader(
                 if (isPlaying && mediaMetadata?.album?.id == playlist.id)
                   stringResource(R.string.pause)
                 else stringResource(R.string.play),
-              style = MaterialTheme.typography.labelLarge
+              style = MaterialTheme.typography.labelLarge,
             )
           }
         }
@@ -853,14 +952,14 @@ private fun OnlinePlaylistHeader(
           },
           shape = CircleShape,
           color = MaterialTheme.colorScheme.surfaceVariant,
-          modifier = Modifier.size(48.dp)
+          modifier = Modifier.size(48.dp),
         ) {
           Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Icon(
               painter = painterResource(R.drawable.share),
               contentDescription = stringResource(R.string.share),
               modifier = Modifier.size(20.dp),
-              tint = MaterialTheme.colorScheme.onSurfaceVariant
+              tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
           }
         }
@@ -881,8 +980,9 @@ private fun OnlinePlaylistHeader(
               // Cover every song, not only the pages loaded so far.
               val allSongs = loadAllSongs()
               val downloads = downloadUtil.downloads.value
-              val missingSongs =
-                allSongs.filter { song -> !DownloadUtil.hasDownload(song.id, downloads) }
+              val missingSongs = allSongs.filter { song ->
+                !DownloadUtil.hasDownload(song.id, downloads)
+              }
               if (missingSongs.isNotEmpty()) {
                 missingSongs.forEach { song ->
                   val downloadRequest =
@@ -917,21 +1017,21 @@ private fun OnlinePlaylistHeader(
               Icon(
                 painter = painterResource(R.drawable.offline),
                 contentDescription = stringResource(R.string.saved),
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
               )
             }
             Download.STATE_DOWNLOADING -> {
               CircularProgressIndicator(
                 strokeWidth = 2.dp,
                 modifier = Modifier.size(16.dp),
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
               )
             }
             else -> {
               Icon(
                 painter = painterResource(R.drawable.download),
                 contentDescription = stringResource(R.string.action_download),
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
               )
             }
           }
@@ -943,7 +1043,7 @@ private fun OnlinePlaylistHeader(
                 Download.STATE_DOWNLOADING -> stringResource(R.string.saving)
                 else -> stringResource(R.string.save_album)
               },
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
           )
         }
 
@@ -956,8 +1056,8 @@ private fun OnlinePlaylistHeader(
                   playlistId = playlist.id,
                   playlistTitle = playlist.title,
                   initialSongs = songs.shuffled(),
-                  initialContinuation = continuation
-                )
+                  initialContinuation = continuation,
+                ),
               )
             }
           },
@@ -967,14 +1067,14 @@ private fun OnlinePlaylistHeader(
           Icon(
             painter = painterResource(R.drawable.shuffle),
             contentDescription = stringResource(R.string.shuffle_content_desc),
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
           )
           Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
           Text(
             stringResource(R.string.shuffle_label),
             style = MaterialTheme.typography.labelMedium,
             maxLines = 1,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
           )
         }
 
@@ -996,7 +1096,7 @@ private fun OnlinePlaylistHeader(
           Icon(
             painter = painterResource(R.drawable.more_vert),
             contentDescription = stringResource(R.string.more_options),
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
           )
           Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
           Text(stringResource(R.string.more_label), style = MaterialTheme.typography.labelMedium)

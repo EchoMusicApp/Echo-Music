@@ -44,7 +44,7 @@ fun AnimatedRadioButton(
       targetValue = if (enabled && isPressed) 0.92f else 1f,
       animationSpec =
         spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
-      label = "buttonScale"
+      label = "buttonScale",
     )
 
   // 2. Bouncy overshoot spring-scale transition for the inner dot
@@ -54,9 +54,9 @@ fun AnimatedRadioButton(
       animationSpec =
         spring(
           dampingRatio = 0.55f, // Elastic overshoot
-          stiffness = Spring.StiffnessLow
+          stiffness = Spring.StiffnessLow,
         ),
-      label = "dotScale"
+      label = "dotScale",
     )
 
   // 3. Smooth color transitions for selection state
@@ -67,14 +67,14 @@ fun AnimatedRadioButton(
     animateColorAsState(
       targetValue = if (selected) primaryColor else outlineColor,
       animationSpec = tween(durationMillis = 200),
-      label = "borderColor"
+      label = "borderColor",
     )
 
   val dotColor by
     animateColorAsState(
       targetValue = if (selected) primaryColor else Color.Transparent,
       animationSpec = tween(durationMillis = 150),
-      label = "dotColor"
+      label = "dotColor",
     )
 
   // Layout containing clickable bounds and canvas drawing
@@ -88,10 +88,10 @@ fun AnimatedRadioButton(
           interactionSource = interactionSource,
           indication = ripple(bounded = false, radius = 20.dp),
           enabled = enabled && onClick != null,
-          onClick = onClick ?: {}
+          onClick = onClick ?: {},
         )
         .alpha(if (enabled) 1f else 0.38f),
-    contentAlignment = Alignment.Center
+    contentAlignment = Alignment.Center,
   ) {
     Canvas(modifier = Modifier.size(20.dp)) {
       val outerRadius = size.minDimension / 2
@@ -101,7 +101,7 @@ fun AnimatedRadioButton(
       drawCircle(
         color = borderColor,
         radius = outerRadius - strokeWidth / 2,
-        style = Stroke(width = strokeWidth)
+        style = Stroke(width = strokeWidth),
       )
 
       // Draw inner selected dot circle

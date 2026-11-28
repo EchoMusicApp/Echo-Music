@@ -8,7 +8,9 @@ class LrcLibSanitizationTest {
 
   @Test
   fun testSearchQuerySanitization() {
-    val query = MetadataCleaner.clean("Coldplay - Yellow (Official Video) [4K]", "Coldplay - Topic").toSearchQuery()
+    val query =
+      MetadataCleaner.clean("Coldplay - Yellow (Official Video) [4K]", "Coldplay - Topic")
+        .toSearchQuery()
     assertEquals("Yellow", query.first)
     assertEquals("Coldplay", query.second)
   }

@@ -1,21 +1,15 @@
 package echo.music.iad1tya.ui.screens.library
 
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -23,9 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -36,7 +28,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,22 +35,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
@@ -81,35 +65,26 @@ import echo.music.iad1tya.constants.ShowDownloadedPlaylistKey
 import echo.music.iad1tya.constants.ShowExportedPlaylistKey
 import echo.music.iad1tya.constants.ShowLikedPlaylistKey
 import echo.music.iad1tya.constants.ShowTopPlaylistKey
-import echo.music.iad1tya.constants.ThumbnailCornerRadius
-import echo.music.iad1tya.constants.ListThumbnailSize
 import echo.music.iad1tya.constants.YtmSyncKey
 import echo.music.iad1tya.db.entities.Album
 import echo.music.iad1tya.db.entities.Artist
 import echo.music.iad1tya.db.entities.Playlist
 import echo.music.iad1tya.db.entities.PlaylistEntity
 import echo.music.iad1tya.extensions.reversed
-import echo.music.iad1tya.spotify.SpotifyMapper
 import echo.music.iad1tya.ui.component.AlbumGridItem
 import echo.music.iad1tya.ui.component.AlbumListItem
 import echo.music.iad1tya.ui.component.ArtistGridItem
 import echo.music.iad1tya.ui.component.ArtistListItem
 import echo.music.iad1tya.ui.component.AutoPlaylistButton
-import echo.music.iad1tya.ui.component.GridItem
-import echo.music.iad1tya.ui.component.ListItem
+import echo.music.iad1tya.ui.component.LibraryPlaylistGridItem
+import echo.music.iad1tya.ui.component.LibraryPlaylistListItem
 import echo.music.iad1tya.ui.component.LocalMenuState
-import echo.music.iad1tya.ui.component.PlaylistGridItem
-import echo.music.iad1tya.ui.component.PlaylistListItem
 import echo.music.iad1tya.ui.component.SortHeader
 import echo.music.iad1tya.ui.menu.AlbumMenu
 import echo.music.iad1tya.ui.menu.ArtistMenu
-import echo.music.iad1tya.ui.menu.PlaylistMenu
-import echo.music.iad1tya.utils.joinByBullet
-import echo.music.iad1tya.utils.listItemShape
 import echo.music.iad1tya.utils.rememberEnumPreference
 import echo.music.iad1tya.utils.rememberPreference
 import echo.music.iad1tya.viewmodels.LibraryMixViewModel
-import coil3.compose.AsyncImage
 import java.text.Collator
 import java.time.LocalDateTime
 import java.util.Locale
@@ -120,35 +95,19 @@ import kotlinx.coroutines.withContext
 @OptIn(
   ExperimentalFoundationApi::class,
   ExperimentalMaterial3Api::class,
-  ExperimentalMaterial3ExpressiveApi::class
+  ExperimentalMaterial3ExpressiveApi::class,
 )
 @Composable
 fun LibraryMixScreen(
   navController: NavController,
   filterContent: @Composable () -> Unit,
   viewModel: LibraryMixViewModel = hiltViewModel(),
-  spotifyViewModel: LibrarySpotifyViewModel = hiltViewModel(),
 ) {
   val menuState = LocalMenuState.current
   val haptic = LocalHapticFeedback.current
   val playerConnection = LocalPlayerConnection.current ?: return
   val isPlaying by playerConnection.isEffectivelyPlaying.collectAsState()
   val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
-
-  val spotifyUiState by spotifyViewModel.uiState.collectAsState()
-  val lifecycleOwner = LocalLifecycleOwner.current
-
-  DisposableEffect(lifecycleOwner) {
-    val observer = LifecycleEventObserver { _, event ->
-      if (event == Lifecycle.Event.ON_RESUME) {
-        spotifyViewModel.refresh()
-      }
-    }
-    lifecycleOwner.lifecycle.addObserver(observer)
-    onDispose {
-      lifecycleOwner.lifecycle.removeObserver(observer)
-    }
-  }
 
   var viewType by rememberEnumPreference(AlbumViewTypeKey, LibraryViewType.GRID)
   val (sortType, onSortTypeChange) = rememberEnumPreference(MixSortTypeKey, MixSortType.CREATE_DATE)
@@ -179,7 +138,7 @@ fun LibraryMixScreen(
       playlist =
         PlaylistEntity(
           id = UUID.randomUUID().toString(),
-          name = stringResource(R.string.my_top) + " $topSize"
+          name = stringResource(R.string.my_top) + " $topSize",
         ),
       songCount = 0,
       songThumbnails = emptyList(),
@@ -190,7 +149,7 @@ fun LibraryMixScreen(
       playlist =
         PlaylistEntity(
           id = UUID.randomUUID().toString(),
-          name = stringResource(R.string.cached_playlist)
+          name = stringResource(R.string.cached_playlist),
         ),
       songCount = 0,
       songThumbnails = emptyList(),
@@ -201,7 +160,7 @@ fun LibraryMixScreen(
       playlist =
         PlaylistEntity(
           id = UUID.randomUUID().toString(),
-          name = stringResource(R.string.uploaded_playlist)
+          name = stringResource(R.string.uploaded_playlist),
         ),
       songCount = 0,
       songThumbnails = emptyList(),
@@ -258,6 +217,7 @@ fun LibraryMixScreen(
   val sortedPlaylists = playlist.value.sortItems()
   val pinnedPlaylists = sortedPlaylists.filter { it.playlist.isPinned }
   val otherPlaylists = sortedPlaylists.filterNot { it.playlist.isPinned }
+  val allPlaylists = (pinnedPlaylists + otherPlaylists).distinctBy { it.id }
   val sortedArtists = artist.value.sortItems()
   val sortedAlbums = albums.value.sortItems()
 
@@ -285,65 +245,56 @@ fun LibraryMixScreen(
     }
   }
 
+  val isRefreshing by viewModel.isRefreshing.collectAsState()
+  val pullRefreshState = rememberPullToRefreshState()
+
   val headerContent =
     @Composable {
       Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(start = 16.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 2.dp),
       ) {
         SortHeader(
           sortType = sortType,
           sortDescending = sortDescending,
           onSortTypeChange = onSortTypeChange,
           onSortDescendingChange = onSortDescendingChange,
-          sortTypeText = { sortType ->
-            when (sortType) {
+          sortTypeText = { type ->
+            when (type) {
               MixSortType.CREATE_DATE -> R.string.sort_by_create_date
               MixSortType.LAST_UPDATED -> R.string.sort_by_last_updated
               MixSortType.NAME -> R.string.sort_by_name
             }
           },
         )
-
-        Spacer(Modifier.weight(1f))
-
-        Spacer(modifier = Modifier.width(16.dp))
       }
     }
-
-  val isRefreshing by viewModel.isRefreshing.collectAsState()
-  val pullRefreshState = rememberPullToRefreshState()
 
   PullToRefreshBox(
     state = pullRefreshState,
     isRefreshing = isRefreshing,
     onRefresh = viewModel::refresh,
+    modifier = Modifier.fillMaxSize(),
     indicator = {
       PullToRefreshDefaults.LoadingIndicator(
         state = pullRefreshState,
         isRefreshing = isRefreshing,
         modifier = Modifier.align(Alignment.TopCenter),
       )
-    }
+    },
   ) {
     when (viewType) {
       LibraryViewType.LIST ->
         LazyColumn(
           state = lazyListState,
           contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+          modifier = Modifier.fillMaxSize(),
         ) {
           item(
             key = "filter",
             contentType = CONTENT_TYPE_HEADER,
           ) {
             filterContent()
-          }
-
-          item(
-            key = "header",
-            contentType = CONTENT_TYPE_HEADER,
-          ) {
-            headerContent()
           }
 
           item(
@@ -354,7 +305,9 @@ fun LibraryMixScreen(
               maxItemsInEachRow = 2,
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp),
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+              modifier =
+                Modifier.fillMaxWidth()
+                  .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
             ) {
               val itemModifier = Modifier.weight(1f)
               if (showLiked) {
@@ -363,7 +316,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.favorite,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/liked") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showDownloaded) {
@@ -372,7 +325,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.offline,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/downloaded") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showExported) {
@@ -381,7 +334,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.download,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/exported") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showCached) {
@@ -390,7 +343,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.cached,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("cache_playlist/cached") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -400,7 +353,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.trending_up,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("top_playlist/$topSize") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showBottom) {
@@ -409,7 +362,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.trending_down,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("bottom_playlist/50") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               AutoPlaylistButton(
@@ -417,105 +370,39 @@ fun LibraryMixScreen(
                 icon = R.drawable.snippet_folder,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                 onClick = { navController.navigate("local_songs") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
               AutoPlaylistButton(
                 title = "Taste Mix",
                 icon = R.drawable.playlist_play,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                 onClick = { navController.navigate("generate") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
             }
           }
 
+          val totalPlaylists = allPlaylists.size
           item(
             key = "playlists_header",
             contentType = CONTENT_TYPE_HEADER,
           ) {
-            androidx.compose.material3.Text(
-              text = stringResource(R.string.filter_playlists),
-              style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
-              fontWeight = FontWeight.Bold,
-              modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-            )
-          }
-
-          val allPlaylists = pinnedPlaylists + otherPlaylists
-          items(
-            items = allPlaylists.distinctBy { it.id },
-            key = { "playlist_${it.id}" },
-            contentType = { CONTENT_TYPE_PLAYLIST },
-          ) { item ->
-            PlaylistListItem(
-              playlist = item,
-              trailingContent = {
-                IconButton(
-                  onClick = {
-                    menuState.show {
-                      PlaylistMenu(
-                        playlist = item,
-                        coroutineScope = coroutineScope,
-                        onDismiss = menuState::dismiss,
-                      )
-                    }
-                  },
-                ) {
-                  Icon(
-                    painter = painterResource(R.drawable.more_vert),
-                    contentDescription = null,
-                  )
-                }
-              },
+            Row(
               modifier =
                 Modifier.fillMaxWidth()
-                  .combinedClickable(
-                    onClick = { navController.navigate("local_playlist/${item.id}") },
-                    onLongClick = {
-                      haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                      menuState.show {
-                        PlaylistMenu(
-                          playlist = item,
-                          coroutineScope = coroutineScope,
-                          onDismiss = menuState::dismiss,
-                        )
-                      }
-                    },
-                  )
-                  .animateItem(),
-            )
-          }
-
-          item(
-            key = "spotify_playlists_header",
-            contentType = CONTENT_TYPE_HEADER,
-          ) {
-            Row(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp),
+                  .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 2.dp),
               verticalAlignment = Alignment.CenterVertically,
               horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-              Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                  painter = painterResource(R.drawable.ic_spotify),
-                  contentDescription = null,
-                  tint = Color(0xFF1DB954),
-                  modifier = Modifier.size(22.dp)
-                )
-                Spacer(Modifier.width(8.dp))
+              Text(
+                text = stringResource(R.string.filter_playlists),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+              )
+              if (totalPlaylists > 0) {
                 Text(
-                  text = stringResource(R.string.spotify_playlists_title),
-                  style = MaterialTheme.typography.titleLarge,
-                  fontWeight = FontWeight.Bold,
-                  color = MaterialTheme.colorScheme.onSurface,
-                )
-              }
-              if (spotifyUiState.isAuthenticated) {
-                val total = spotifyUiState.playlists.size + 1
-                Text(
-                  text = pluralStringResource(R.plurals.n_playlist, total, total),
+                  text = pluralStringResource(R.plurals.n_playlist, totalPlaylists, totalPlaylists),
                   style = MaterialTheme.typography.titleSmall,
                   color = MaterialTheme.colorScheme.secondary,
                 )
@@ -523,122 +410,37 @@ fun LibraryMixScreen(
             }
           }
 
-          if (!spotifyUiState.isAuthenticated) {
-            item(key = "spotify_connect_banner") {
-              SpotifyConnectBanner(
-                onConnect = { navController.navigate("settings/spotify_import") },
-                onRefresh = { spotifyViewModel.refresh() }
+          item(
+            key = "header",
+            contentType = CONTENT_TYPE_HEADER,
+          ) {
+            headerContent()
+          }
+
+          if (allPlaylists.isEmpty()) {
+            item(
+              key = "playlists_empty",
+              contentType = CONTENT_TYPE_HEADER,
+            ) {
+              Text(
+                text = stringResource(R.string.library_playlist_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
               )
             }
           } else {
-            val totalPlaylists = spotifyUiState.playlists.size + 1
-            val songCount = spotifyUiState.likedSongsCount ?: 0
-            item(key = "spotify_liked_songs") {
-              ListItem(
-                title = stringResource(R.string.spotify_liked_songs),
-                subtitle = {
-                  val sub = joinByBullet(
-                    "Spotify",
-                    pluralStringResource(R.plurals.n_song, songCount, songCount),
-                  )
-                  Text(
-                    text = sub,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                  )
-                },
-                thumbnailContent = {
-                  Box(
-                    modifier = Modifier
-                      .size(ListThumbnailSize)
-                      .clip(RoundedCornerShape(ThumbnailCornerRadius))
-                      .background(
-                        Brush.linearGradient(
-                          listOf(
-                            Color(0xFF450AF5),
-                            Color(0xFF8E8EE5),
-                            Color(0xFFABEDD8),
-                          )
-                        )
-                      ),
-                    contentAlignment = Alignment.Center,
-                  ) {
-                    Icon(
-                      painter = painterResource(R.drawable.favorite),
-                      contentDescription = null,
-                      tint = Color.White,
-                      modifier = Modifier.size(24.dp),
-                    )
-                    AsyncImage(
-                      model = SPOTIFY_LIKED_SONGS_COVER,
-                      contentDescription = null,
-                      contentScale = ContentScale.Crop,
-                      modifier = Modifier.fillMaxSize(),
-                    )
-                  }
-                },
-                trailingContent = {
-                  Icon(
-                    painter = painterResource(R.drawable.ic_push_pin),
-                    contentDescription = "Pinned",
-                    tint = Color(0xFF1DB954),
-                    modifier = Modifier.size(18.dp).padding(end = 4.dp),
-                  )
-                },
-                shape = listItemShape(0, totalPlaylists),
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .clickable {
-                    val titleEnc = Uri.encode("Liked Songs")
-                    val coverEnc = Uri.encode(SPOTIFY_LIKED_SONGS_COVER)
-                    navController.navigate("spotify_playlist/liked?title=$titleEnc&cover=$coverEnc")
-                  },
-              )
-            }
-
-            itemsIndexed(
-              items = spotifyUiState.playlists,
-              key = { _, pl -> "spotify_${pl.id}" }
-            ) { index, spPlaylist ->
-              val coverUrl = SpotifyMapper.getPlaylistThumbnail(spPlaylist)
-              val owner = spPlaylist.owner?.displayName?.takeIf { it.isNotBlank() }
-              val countText = spPlaylist.tracks?.total?.let { "$it songs" }
-
-              ListItem(
-                title = spPlaylist.name,
-                subtitle = {
-                  val sub = joinByBullet(owner, countText)
-                  if (sub.isNotBlank()) {
-                    Text(
-                      text = sub,
-                      style = MaterialTheme.typography.bodySmall,
-                      color = MaterialTheme.colorScheme.onSurfaceVariant,
-                      maxLines = 1,
-                      overflow = TextOverflow.Ellipsis,
-                    )
-                  }
-                },
-                thumbnailContent = {
-                  AsyncImage(
-                    model = coverUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                      .size(ListThumbnailSize)
-                      .clip(RoundedCornerShape(ThumbnailCornerRadius))
-                      .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                  )
-                },
-                shape = listItemShape(index + 1, totalPlaylists),
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .clickable {
-                    val titleEnc = Uri.encode(spPlaylist.name)
-                    val coverEnc = Uri.encode(coverUrl.orEmpty())
-                    navController.navigate("spotify_playlist/${spPlaylist.id}?title=$titleEnc&cover=$coverEnc")
-                  },
+            items(
+              items = allPlaylists,
+              key = { "playlist_${it.id}" },
+              contentType = { CONTENT_TYPE_PLAYLIST },
+            ) { playlist ->
+              LibraryPlaylistListItem(
+                navController = navController,
+                menuState = menuState,
+                coroutineScope = coroutineScope,
+                playlist = playlist,
+                modifier = Modifier.animateItem(),
               )
             }
           }
@@ -652,7 +454,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_artists),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 4.dp),
               )
             }
 
@@ -710,7 +512,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_albums),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 4.dp),
               )
             }
 
@@ -770,6 +572,7 @@ fun LibraryMixScreen(
                 GridThumbnailHeight + if (gridItemSize == GridItemSize.BIG) 24.dp else (-24).dp,
             ),
           contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues(),
+          modifier = Modifier.fillMaxSize(),
         ) {
           item(
             key = "filter",
@@ -777,14 +580,6 @@ fun LibraryMixScreen(
             contentType = CONTENT_TYPE_HEADER,
           ) {
             filterContent()
-          }
-
-          item(
-            key = "header",
-            span = { GridItemSpan(maxLineSpan) },
-            contentType = CONTENT_TYPE_HEADER,
-          ) {
-            headerContent()
           }
 
           item(
@@ -796,7 +591,9 @@ fun LibraryMixScreen(
               maxItemsInEachRow = 2,
               horizontalArrangement = Arrangement.spacedBy(8.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp),
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+              modifier =
+                Modifier.fillMaxWidth()
+                  .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
             ) {
               val itemModifier = Modifier.weight(1f)
               if (showLiked) {
@@ -805,7 +602,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.favorite,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/liked") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showDownloaded) {
@@ -814,7 +611,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.offline,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/downloaded") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showExported) {
@@ -823,7 +620,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.download,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("auto_playlist/exported") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showCached) {
@@ -832,7 +629,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.cached,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("cache_playlist/cached") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
 
@@ -842,7 +639,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.trending_up,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("top_playlist/$topSize") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               if (showBottom) {
@@ -851,7 +648,7 @@ fun LibraryMixScreen(
                   icon = R.drawable.trending_down,
                   iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                   onClick = { navController.navigate("bottom_playlist/50") },
-                  modifier = itemModifier
+                  modifier = itemModifier,
                 )
               }
               AutoPlaylistButton(
@@ -859,90 +656,40 @@ fun LibraryMixScreen(
                 icon = R.drawable.snippet_folder,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                 onClick = { navController.navigate("local_songs") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
               AutoPlaylistButton(
                 title = "Taste Mix",
                 icon = R.drawable.playlist_play,
                 iconTint = androidx.compose.material3.MaterialTheme.colorScheme.primary,
                 onClick = { navController.navigate("generate") },
-                modifier = itemModifier
+                modifier = itemModifier,
               )
             }
           }
 
+          val totalPlaylists = allPlaylists.size
           item(
             key = "playlists_header",
             span = { GridItemSpan(maxLineSpan) },
             contentType = CONTENT_TYPE_HEADER,
           ) {
-            androidx.compose.material3.Text(
-              text = stringResource(R.string.filter_playlists),
-              style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
-              fontWeight = FontWeight.Bold,
-              modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-            )
-          }
-
-          val allPlaylists = pinnedPlaylists + otherPlaylists
-          items(
-            items = allPlaylists.distinctBy { it.id },
-            key = { "playlist_${it.id}" },
-            contentType = { CONTENT_TYPE_PLAYLIST },
-          ) { item ->
-            PlaylistGridItem(
-              playlist = item,
-              fillMaxWidth = true,
+            Row(
               modifier =
                 Modifier.fillMaxWidth()
-                  .combinedClickable(
-                    onClick = { navController.navigate("local_playlist/${item.id}") },
-                    onLongClick = {
-                      haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                      menuState.show {
-                        PlaylistMenu(
-                          playlist = item,
-                          coroutineScope = coroutineScope,
-                          onDismiss = menuState::dismiss,
-                        )
-                      }
-                    },
-                  )
-                  .animateItem(),
-            )
-          }
-
-          item(
-            key = "spotify_playlists_header",
-            span = { GridItemSpan(maxLineSpan) },
-            contentType = CONTENT_TYPE_HEADER,
-          ) {
-            Row(
-              modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp),
+                  .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 2.dp),
               verticalAlignment = Alignment.CenterVertically,
               horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-              Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                  painter = painterResource(R.drawable.ic_spotify),
-                  contentDescription = null,
-                  tint = Color(0xFF1DB954),
-                  modifier = Modifier.size(22.dp)
-                )
-                Spacer(Modifier.width(8.dp))
+              Text(
+                text = stringResource(R.string.filter_playlists),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+              )
+              if (totalPlaylists > 0) {
                 Text(
-                  text = stringResource(R.string.spotify_playlists_title),
-                  style = MaterialTheme.typography.titleLarge,
-                  fontWeight = FontWeight.Bold,
-                  color = MaterialTheme.colorScheme.onSurface,
-                )
-              }
-              if (spotifyUiState.isAuthenticated) {
-                val total = spotifyUiState.playlists.size + 1
-                Text(
-                  text = pluralStringResource(R.plurals.n_playlist, total, total),
+                  text = pluralStringResource(R.plurals.n_playlist, totalPlaylists, totalPlaylists),
                   style = MaterialTheme.typography.titleSmall,
                   color = MaterialTheme.colorScheme.secondary,
                 )
@@ -950,134 +697,39 @@ fun LibraryMixScreen(
             }
           }
 
-          if (!spotifyUiState.isAuthenticated) {
+          item(
+            key = "header",
+            span = { GridItemSpan(maxLineSpan) },
+            contentType = CONTENT_TYPE_HEADER,
+          ) {
+            headerContent()
+          }
+
+          if (allPlaylists.isEmpty()) {
             item(
-              key = "spotify_connect_banner",
-              span = { GridItemSpan(maxLineSpan) }
+              key = "playlists_empty",
+              span = { GridItemSpan(maxLineSpan) },
+              contentType = CONTENT_TYPE_HEADER,
             ) {
-              SpotifyConnectBanner(
-                onConnect = { navController.navigate("settings/spotify_import") },
-                onRefresh = { spotifyViewModel.refresh() }
+              Text(
+                text = stringResource(R.string.library_playlist_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
               )
             }
           } else {
-            // Liked songs grid item
-            item(key = "spotify_liked_songs") {
-              val songCount = spotifyUiState.likedSongsCount ?: 0
-              GridItem(
-                title = {
-                  Text(
-                    text = stringResource(R.string.spotify_liked_songs),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                  )
-                },
-                subtitle = {
-                  Text(
-                    text = pluralStringResource(R.plurals.n_song, songCount, songCount),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                  )
-                },
-                badges = {
-                  Icon(
-                    painter = painterResource(R.drawable.ic_push_pin),
-                    contentDescription = null,
-                    tint = Color(0xFF1DB954),
-                    modifier = Modifier.size(14.dp).padding(end = 2.dp)
-                  )
-                },
-                thumbnailContent = {
-                  Box(
-                    modifier = Modifier
-                      .fillMaxSize()
-                      .clip(RoundedCornerShape(ThumbnailCornerRadius))
-                      .background(
-                        Brush.linearGradient(
-                          listOf(
-                            Color(0xFF450AF5),
-                            Color(0xFF8E8EE5),
-                            Color(0xFFABEDD8),
-                          )
-                        )
-                      ),
-                    contentAlignment = Alignment.Center,
-                  ) {
-                    Icon(
-                      painter = painterResource(R.drawable.favorite),
-                      contentDescription = null,
-                      tint = Color.White,
-                      modifier = Modifier.size(32.dp),
-                    )
-                    AsyncImage(
-                      model = SPOTIFY_LIKED_SONGS_COVER,
-                      contentDescription = null,
-                      contentScale = ContentScale.Crop,
-                      modifier = Modifier.fillMaxSize(),
-                    )
-                  }
-                },
-                fillMaxWidth = true,
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .clickable {
-                    val titleEnc = Uri.encode("Liked Songs")
-                    val coverEnc = Uri.encode(SPOTIFY_LIKED_SONGS_COVER)
-                    navController.navigate("spotify_playlist/liked?title=$titleEnc&cover=$coverEnc")
-                  }
-              )
-            }
-
-            // Spotify playlists grid items
             items(
-              items = spotifyUiState.playlists,
-              key = { "spotify_${it.id}" }
-            ) { spPlaylist ->
-              val coverUrl = SpotifyMapper.getPlaylistThumbnail(spPlaylist)
-              val countText = spPlaylist.tracks?.total?.let { "$it songs" } ?: ""
-
-              GridItem(
-                title = {
-                  Text(
-                    text = spPlaylist.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                  )
-                },
-                subtitle = {
-                  Text(
-                    text = countText,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                  )
-                },
-                thumbnailContent = {
-                  AsyncImage(
-                    model = coverUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                      .fillMaxSize()
-                      .clip(RoundedCornerShape(ThumbnailCornerRadius))
-                      .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-                  )
-                },
-                fillMaxWidth = true,
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .clickable {
-                    val titleEnc = Uri.encode(spPlaylist.name)
-                    val coverEnc = Uri.encode(coverUrl.orEmpty())
-                    navController.navigate("spotify_playlist/${spPlaylist.id}?title=$titleEnc&cover=$coverEnc")
-                  }
+              items = allPlaylists,
+              key = { "playlist_${it.id}" },
+              contentType = { CONTENT_TYPE_PLAYLIST },
+            ) { playlist ->
+              LibraryPlaylistGridItem(
+                navController = navController,
+                menuState = menuState,
+                coroutineScope = coroutineScope,
+                playlist = playlist,
+                modifier = Modifier.animateItem(),
               )
             }
           }
@@ -1092,7 +744,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_artists),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 4.dp),
               )
             }
 
@@ -1134,7 +786,7 @@ fun LibraryMixScreen(
                 text = stringResource(R.string.filter_albums),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 4.dp),
               )
             }
 

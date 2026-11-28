@@ -19,7 +19,10 @@ class ExportTaskQueueTest {
     val release = CompletableDeferred<Unit>()
     val exported = mutableListOf<String>()
     val queue = ExportTaskQueue(this, { idleCalls++ }, StandardTestDispatcher(testScheduler))
-    queue.submit("first") { release.await(); exported.add("first") }
+    queue.submit("first") {
+      release.await()
+      exported.add("first")
+    }
     queue.submit("second") { exported.add("second") }
     runCurrent()
 

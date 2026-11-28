@@ -44,7 +44,7 @@ constructor(
               null
             }) ?: false
           }
-          .distinctUntilChanged()
+          .distinctUntilChanged(),
       ) { period, hideVideoSongs ->
         period to hideVideoSongs
       }
@@ -52,7 +52,7 @@ constructor(
         database.mostPlayedSongs(
           period.toTimeMillis(),
           top.toInt(),
-          hideVideoSongs = hideVideoSongs
+          hideVideoSongs = hideVideoSongs,
         )
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())

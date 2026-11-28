@@ -1,5 +1,5 @@
 plugins {
-    id("com.diffplug.spotless") version "8.10.3"
+    id("com.diffplug.spotless") version "8.11.0"
 
     alias(libs.plugins.hilt) apply (false)
     alias(libs.plugins.kotlin.ksp) apply (false)
@@ -17,7 +17,7 @@ buildscript {
     dependencies {
         classpath(libs.gradle)
         classpath(kotlin("gradle-plugin", libs.versions.kotlin.get()))
-        classpath("com.google.gms:google-services:4.5.0")
+        classpath("com.google.gms:google-services:4.6.0")
         classpath("com.google.firebase:firebase-crashlytics-gradle:3.0.2")
     }
 }
@@ -63,7 +63,7 @@ allprojects {
 allprojects {
     configurations.all {
         resolutionStrategy {
-            force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.20")
+            force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
         }
     }
 }

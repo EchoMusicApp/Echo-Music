@@ -1,24 +1,19 @@
 package echo.music.iad1tya.ui.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,7 +42,7 @@ fun NavigationTitle(
         .fillMaxWidth()
         .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
         .clickable(enabled = onClick != null) { onClick?.invoke() }
-        .padding(horizontal = 12.dp, vertical = 12.dp)
+        .padding(horizontal = 12.dp, vertical = 12.dp),
   ) {
     thumbnail?.invoke()
 
@@ -55,34 +50,39 @@ fun NavigationTitle(
       label?.let { label ->
         Text(
           text = label,
-          style = MaterialTheme.typography.labelLarge,
+          style = MaterialTheme.typography.labelMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
           overflow = TextOverflow.Ellipsis,
+          maxLines = 1,
         )
       }
 
       Text(
-        text = title.uppercase(),
-        style = MaterialTheme.typography.titleMedium,
+        text = title,
+        style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MaterialTheme.colorScheme.onSurface,
         overflow = TextOverflow.Ellipsis,
         maxLines = 1,
       )
     }
 
+    // A round play button instead of a "Play all" pill on every section: the titles stay light.
     onPlayAllClick?.let { playAllClick ->
-      OutlinedButton(
+      androidx.compose.material3.FilledIconButton(
         onClick = playAllClick,
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)),
         colors =
-          ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+          androidx.compose.material3.IconButtonDefaults.filledIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface,
           ),
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
-        modifier = Modifier.height(24.dp)
+        modifier = Modifier.size(36.dp),
       ) {
-        Text(text = stringResource(R.string.play_all), style = MaterialTheme.typography.labelSmall)
+        Icon(
+          painter = painterResource(R.drawable.play),
+          contentDescription = stringResource(R.string.play_all),
+          modifier = Modifier.size(20.dp),
+        )
       }
     }
 
@@ -90,7 +90,7 @@ fun NavigationTitle(
       Icon(
         painter = painterResource(R.drawable.arrow_forward),
         contentDescription = null,
-        tint = MaterialTheme.colorScheme.onSurfaceVariant
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
   }

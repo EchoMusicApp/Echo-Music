@@ -21,8 +21,8 @@ class YouTubePlaylistQueue(
   private val maxRetries = 3
 
   /**
-   * Songs the playlist screen had already loaded beyond the initial window.
-   * They are handed out by [nextPage] before any new continuation is fetched.
+   * Songs the playlist screen had already loaded beyond the initial window. They are handed out by
+   * [nextPage] before any new continuation is fetched.
    */
   private var pendingSongs: List<SongItem> = emptyList()
 
@@ -56,9 +56,9 @@ class YouTubePlaylistQueue(
   override fun hasNextPage(): Boolean = pendingSongs.isNotEmpty() || continuation != null
 
   /**
-   * Whether songs already loaded by the playlist screen are still to be queued.
-   * They are part of the playlist the user started, so they are appended even
-   * when automatic loading of further pages is turned off.
+   * Whether songs already loaded by the playlist screen are still to be queued. They are part of
+   * the playlist the user started, so they are appended even when automatic loading of further
+   * pages is turned off.
    */
   fun hasPendingSongs(): Boolean = pendingSongs.isNotEmpty()
 

@@ -8,171 +8,173 @@ import androidx.media3.exoplayer.audio.AudioSink
 import java.nio.ByteBuffer
 
 /**
- * Delegating [AudioSink] that routes audio calls dynamically between [defaultSink] (system AudioTrack)
- * and [usbSink] (bit-perfect direct usbdevfs) based on [isBitPerfectActive].
+ * Delegating [AudioSink] that routes audio calls dynamically between [defaultSink] (system
+ * AudioTrack) and [usbSink] (bit-perfect direct usbdevfs) based on [isBitPerfectActive].
  */
 class RoutingAudioSink(
-    val defaultSink: AudioSink,
-    val usbSink: AudioSink,
-    private val isBitPerfectActive: () -> Boolean
+  val defaultSink: AudioSink,
+  val usbSink: AudioSink,
+  private val isBitPerfectActive: () -> Boolean,
 ) : AudioSink {
 
-    @Volatile
-    var activeSink: AudioSink = defaultSink
-        private set
+  @Volatile
+  var activeSink: AudioSink = defaultSink
+    private set
 
-    private data class LastConfiguration(
-        val inputFormat: Format,
-        val specifiedBufferSize: Int,
-        val outputChannels: IntArray?
-    )
-    private var lastConfig: LastConfiguration? = null
+  private data class LastConfiguration(
+    val inputFormat: Format,
+    val specifiedBufferSize: Int,
+    val outputChannels: IntArray?,
+  )
 
-    init {
-        reselect()
-    }
+  private var lastConfig: LastConfiguration? = null
 
-    @Volatile private var playing = false
+  init {
+    reselect()
+  }
 
-    fun reselect() {
-        val target = if (isBitPerfectActive()) {
-            val cfg = lastConfig
-            if (cfg != null && !usbSink.supportsFormat(cfg.inputFormat)) {
-                defaultSink
-            } else {
-                usbSink
-            }
+  @Volatile private var playing = false
+
+  fun reselect() {
+    val target =
+      if (isBitPerfectActive()) {
+        val cfg = lastConfig
+        if (cfg != null && !usbSink.supportsFormat(cfg.inputFormat)) {
+          defaultSink
         } else {
-            defaultSink
+          usbSink
         }
-        if (target !== activeSink) {
-            val oldSink = activeSink
-            activeSink = target
-            oldSink.pause()
-            oldSink.flush()
-            lastConfig?.let { cfg ->
-                if (activeSink.supportsFormat(cfg.inputFormat)) {
-                    activeSink.configure(cfg.inputFormat, cfg.specifiedBufferSize, cfg.outputChannels)
-                }
-            }
-            if (playing) {
-                activeSink.play()
-            }
+      } else {
+        defaultSink
+      }
+    if (target !== activeSink) {
+      val oldSink = activeSink
+      activeSink = target
+      oldSink.pause()
+      oldSink.flush()
+      lastConfig?.let { cfg ->
+        if (activeSink.supportsFormat(cfg.inputFormat)) {
+          activeSink.configure(cfg.inputFormat, cfg.specifiedBufferSize, cfg.outputChannels)
         }
-    }
-
-    override fun setListener(listener: AudioSink.Listener) {
-        defaultSink.setListener(listener)
-        usbSink.setListener(listener)
-    }
-
-    override fun supportsFormat(format: Format): Boolean = activeSink.supportsFormat(format)
-
-    override fun getFormatSupport(format: Format): Int = activeSink.getFormatSupport(format)
-
-    override fun getCurrentPositionUs(sourceEnded: Boolean): Long =
-        activeSink.getCurrentPositionUs(sourceEnded)
-
-    override fun configure(
-        inputFormat: Format,
-        specifiedBufferSize: Int,
-        outputChannels: IntArray?
-    ) {
-        lastConfig = LastConfiguration(inputFormat, specifiedBufferSize, outputChannels)
-        reselect()
-        activeSink.configure(inputFormat, specifiedBufferSize, outputChannels)
-    }
-
-    override fun play() {
-        reselect()
-        playing = true
+      }
+      if (playing) {
         activeSink.play()
+      }
     }
+  }
 
-    override fun handleDiscontinuity() {
-        activeSink.handleDiscontinuity()
-    }
+  override fun setListener(listener: AudioSink.Listener) {
+    defaultSink.setListener(listener)
+    usbSink.setListener(listener)
+  }
 
-    override fun handleBuffer(
-        buffer: ByteBuffer,
-        presentationTimeUs: Long,
-        encodedAccessUnitCount: Int
-    ): Boolean = activeSink.handleBuffer(buffer, presentationTimeUs, encodedAccessUnitCount)
+  override fun supportsFormat(format: Format): Boolean = activeSink.supportsFormat(format)
 
-    override fun playToEndOfStream() {
-        activeSink.playToEndOfStream()
-    }
+  override fun getFormatSupport(format: Format): Int = activeSink.getFormatSupport(format)
 
-    override fun isEnded(): Boolean = activeSink.isEnded()
+  override fun getCurrentPositionUs(sourceEnded: Boolean): Long =
+    activeSink.getCurrentPositionUs(sourceEnded)
 
-    override fun hasPendingData(): Boolean = activeSink.hasPendingData()
+  override fun configure(
+    inputFormat: Format,
+    specifiedBufferSize: Int,
+    outputChannels: IntArray?,
+  ) {
+    lastConfig = LastConfiguration(inputFormat, specifiedBufferSize, outputChannels)
+    reselect()
+    activeSink.configure(inputFormat, specifiedBufferSize, outputChannels)
+  }
 
-    override fun getAudioTrackBufferSizeUs(): Long = activeSink.getAudioTrackBufferSizeUs()
+  override fun play() {
+    reselect()
+    playing = true
+    activeSink.play()
+  }
 
-    override fun setPlaybackParameters(playbackParameters: PlaybackParameters) {
-        defaultSink.setPlaybackParameters(playbackParameters)
-        usbSink.setPlaybackParameters(playbackParameters)
-    }
+  override fun handleDiscontinuity() {
+    activeSink.handleDiscontinuity()
+  }
 
-    override fun getPlaybackParameters(): PlaybackParameters = activeSink.playbackParameters
+  override fun handleBuffer(
+    buffer: ByteBuffer,
+    presentationTimeUs: Long,
+    encodedAccessUnitCount: Int,
+  ): Boolean = activeSink.handleBuffer(buffer, presentationTimeUs, encodedAccessUnitCount)
 
-    override fun setSkipSilenceEnabled(skipSilenceEnabled: Boolean) {
-        defaultSink.setSkipSilenceEnabled(skipSilenceEnabled)
-        usbSink.setSkipSilenceEnabled(skipSilenceEnabled)
-    }
+  override fun playToEndOfStream() {
+    activeSink.playToEndOfStream()
+  }
 
-    override fun getSkipSilenceEnabled(): Boolean = activeSink.skipSilenceEnabled
+  override fun isEnded(): Boolean = activeSink.isEnded()
 
-    override fun setAudioAttributes(audioAttributes: AudioAttributes) {
-        defaultSink.setAudioAttributes(audioAttributes)
-        usbSink.setAudioAttributes(audioAttributes)
-    }
+  override fun hasPendingData(): Boolean = activeSink.hasPendingData()
 
-    override fun getAudioAttributes(): AudioAttributes =
-        activeSink.audioAttributes ?: AudioAttributes.DEFAULT
+  override fun getAudioTrackBufferSizeUs(): Long = activeSink.getAudioTrackBufferSizeUs()
 
-    override fun setAudioSessionId(audioSessionId: Int) {
-        defaultSink.setAudioSessionId(audioSessionId)
-        usbSink.setAudioSessionId(audioSessionId)
-    }
+  override fun setPlaybackParameters(playbackParameters: PlaybackParameters) {
+    defaultSink.setPlaybackParameters(playbackParameters)
+    usbSink.setPlaybackParameters(playbackParameters)
+  }
 
-    override fun setAuxEffectInfo(auxEffectInfo: AuxEffectInfo) {
-        defaultSink.setAuxEffectInfo(auxEffectInfo)
-        usbSink.setAuxEffectInfo(auxEffectInfo)
-    }
+  override fun getPlaybackParameters(): PlaybackParameters = activeSink.playbackParameters
 
-    override fun enableTunnelingV21() {
-        defaultSink.enableTunnelingV21()
-        usbSink.enableTunnelingV21()
-    }
+  override fun setSkipSilenceEnabled(skipSilenceEnabled: Boolean) {
+    defaultSink.setSkipSilenceEnabled(skipSilenceEnabled)
+    usbSink.setSkipSilenceEnabled(skipSilenceEnabled)
+  }
 
-    override fun disableTunneling() {
-        defaultSink.disableTunneling()
-        usbSink.disableTunneling()
-    }
+  override fun getSkipSilenceEnabled(): Boolean = activeSink.skipSilenceEnabled
 
-    override fun setVolume(volume: Float) {
-        defaultSink.setVolume(volume)
-        usbSink.setVolume(volume)
-    }
+  override fun setAudioAttributes(audioAttributes: AudioAttributes) {
+    defaultSink.setAudioAttributes(audioAttributes)
+    usbSink.setAudioAttributes(audioAttributes)
+  }
 
-    override fun pause() {
-        playing = false
-        defaultSink.pause()
-        usbSink.pause()
-    }
+  override fun getAudioAttributes(): AudioAttributes =
+    activeSink.audioAttributes ?: AudioAttributes.DEFAULT
 
-    override fun flush() {
-        reselect()
-        defaultSink.flush()
-        usbSink.flush()
-    }
+  override fun setAudioSessionId(audioSessionId: Int) {
+    defaultSink.setAudioSessionId(audioSessionId)
+    usbSink.setAudioSessionId(audioSessionId)
+  }
 
-    override fun reset() {
-        playing = false
-        defaultSink.reset()
-        usbSink.reset()
-        lastConfig = null
-        reselect()
-    }
+  override fun setAuxEffectInfo(auxEffectInfo: AuxEffectInfo) {
+    defaultSink.setAuxEffectInfo(auxEffectInfo)
+    usbSink.setAuxEffectInfo(auxEffectInfo)
+  }
+
+  override fun enableTunnelingV21() {
+    defaultSink.enableTunnelingV21()
+    usbSink.enableTunnelingV21()
+  }
+
+  override fun disableTunneling() {
+    defaultSink.disableTunneling()
+    usbSink.disableTunneling()
+  }
+
+  override fun setVolume(volume: Float) {
+    defaultSink.setVolume(volume)
+    usbSink.setVolume(volume)
+  }
+
+  override fun pause() {
+    playing = false
+    defaultSink.pause()
+    usbSink.pause()
+  }
+
+  override fun flush() {
+    reselect()
+    defaultSink.flush()
+    usbSink.flush()
+  }
+
+  override fun reset() {
+    playing = false
+    defaultSink.reset()
+    usbSink.reset()
+    lastConfig = null
+    reselect()
+  }
 }

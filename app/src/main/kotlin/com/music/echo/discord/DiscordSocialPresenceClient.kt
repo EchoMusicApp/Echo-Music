@@ -26,7 +26,7 @@ object DiscordSocialPresenceClient {
         val token = accessToken.trim()
         if (token.isBlank()) {
           return@withLock Result.failure(
-            IllegalArgumentException("Discord access token is missing")
+            IllegalArgumentException("Discord access token is missing"),
           )
         }
 
@@ -77,7 +77,7 @@ object DiscordSocialPresenceClient {
     }
 
   private fun ensureConnected(token: String): Result<Unit> {
-    if (activeToken == token && gateway != null) return Result.success(Unit)
+    if (activeToken == token && gateway?.isConnected == true) return Result.success(Unit)
 
     gateway?.disconnect()
     gateway = null
@@ -93,6 +93,7 @@ object DiscordSocialPresenceClient {
       gateway = newGateway
       activeToken = token
     }
+      .onFailure { newGateway.disconnect() }
   }
 
   private suspend fun buildPresencePayload(

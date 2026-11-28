@@ -28,9 +28,9 @@ class CastOptionsProvider : OptionsProvider {
             MediaIntentReceiver.ACTION_SKIP_PREV,
             MediaIntentReceiver.ACTION_TOGGLE_PLAYBACK,
             MediaIntentReceiver.ACTION_SKIP_NEXT,
-            MediaIntentReceiver.ACTION_STOP_CASTING
+            MediaIntentReceiver.ACTION_STOP_CASTING,
           ),
-          intArrayOf(1, 2)
+          intArrayOf(1, 2),
         )
         .build()
 

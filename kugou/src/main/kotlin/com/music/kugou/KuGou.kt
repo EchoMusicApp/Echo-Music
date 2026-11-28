@@ -52,7 +52,7 @@ object KuGou {
     title: String,
     artist: String,
     duration: Int,
-    album: String? = null
+    album: String? = null,
   ): Result<String> = runCatching {
     val keyword = generateKeyword(title, artist, album)
     getLyricsCandidate(keyword, duration)?.let { candidate ->
@@ -67,7 +67,7 @@ object KuGou {
     artist: String,
     duration: Int,
     album: String? = null,
-    callback: (String) -> Unit
+    callback: (String) -> Unit,
   ) {
     val keyword = generateKeyword(title, artist, album)
     searchSongs(keyword).data.info.forEach {
@@ -128,7 +128,7 @@ object KuGou {
         parameter("client", "pc")
         parameter(
           "duration",
-          duration.takeIf { it != -1 }?.times(1000)
+          duration.takeIf { it != -1 }?.times(1000),
         ) // if duration == -1, we don't care duration
         val searchQuery = buildString {
           append(keyword.title)

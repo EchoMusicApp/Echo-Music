@@ -14,6 +14,7 @@ data class MusicShelfRenderer(
   data class Content(
     val musicResponsiveListItemRenderer: MusicResponsiveListItemRenderer?,
     val continuationItemRenderer: ContinuationItemRenderer?,
+    val musicMultiRowListItemRenderer: MusicMultiRowListItemRenderer? = null, // podcast episode
   )
 }
 
@@ -22,9 +23,10 @@ fun List<MusicShelfRenderer.Content>.getItems(): List<MusicResponsiveListItemRen
     it.musicResponsiveListItemRenderer
   }
 
-fun List<MusicShelfRenderer.Content>.getContinuation(): String? =
-  firstOrNull { it.continuationItemRenderer != null }
-    ?.continuationItemRenderer
-    ?.continuationEndpoint
-    ?.continuationCommand
-    ?.token
+fun List<MusicShelfRenderer.Content>.getContinuation(): String? = firstOrNull {
+  it.continuationItemRenderer != null
+}
+  ?.continuationItemRenderer
+  ?.continuationEndpoint
+  ?.continuationCommand
+  ?.token

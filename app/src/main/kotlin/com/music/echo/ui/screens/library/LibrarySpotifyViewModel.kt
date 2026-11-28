@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class SpotifyLibraryUiState(
   val isAuthenticated: Boolean = false,
@@ -58,7 +59,15 @@ constructor(
   }
 
   fun loadLibrary(forceRefresh: Boolean = false) {
-    viewModelScope.launch(Dispatchers.IO) {
+    viewModelScope.launch {
+      fetchLibrary()
+    }
+  }
+
+  suspend fun refreshAndAwait(): Boolean = fetchLibrary()
+
+  private suspend fun fetchLibrary(): Boolean =
+    withContext(Dispatchers.IO) {
       _uiState.update { it.copy(isLoading = true, error = null) }
       try {
         val session = spotifyImportRepository.restoreSession()
@@ -73,16 +82,17 @@ constructor(
               likedSongsCount = null,
             )
           }
-          return@launch
+          return@withContext false
         }
 
         // Fetch liked songs count
-        val likedResult = runCatching { Spotify.likedSongs(limit = 1, offset = 0).getOrNull()?.total }
+        val likedResult = runCatching {
+          Spotify.likedSongs(limit = 1, offset = 0).getOrNull()?.total
+        }
         val likedCount = likedResult.getOrNull()
 
         // Fetch user playlists
-        val playlistsResult = Spotify.myPlaylists(limit = 50, offset = 0)
-        val playlists = playlistsResult.getOrNull()?.items.orEmpty()
+        val playlists = Spotify.myPlaylists(limit = 50, offset = 0).getOrThrow().items
 
         _uiState.update {
           it.copy(
@@ -90,11 +100,12 @@ constructor(
             accountName = session.accountName,
             avatarUrl = session.accountAvatarUrl,
             playlists = playlists,
-            likedSongsCount = likedCount,
+            likedSongsCount = likedCount ?: it.likedSongsCount,
             isLoading = false,
             error = null,
           )
         }
+        true
       } catch (e: Exception) {
         reportException(e)
         _uiState.update {
@@ -103,7 +114,7 @@ constructor(
             error = e.message ?: "Failed to load Spotify library",
           )
         }
+        false
       }
     }
-  }
 }

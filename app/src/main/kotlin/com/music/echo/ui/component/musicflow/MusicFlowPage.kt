@@ -18,11 +18,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,7 +51,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -115,28 +113,27 @@ fun MusicFlowPage(
   val playPauseLabel = stringResource(if (isPlaying) R.string.pause else R.string.play)
 
   var showHeartBurst by remember { mutableStateOf(false) }
-  val heartScale by animateFloatAsState(
-    targetValue = if (showHeartBurst) 1.25f else 0f,
-    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-    finishedListener = { if (it > 0f) showHeartBurst = false },
-    label = "HeartBurstScale",
-  )
+  val heartScale by
+    animateFloatAsState(
+      targetValue = if (showHeartBurst) 1.25f else 0f,
+      animationSpec =
+        spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+      finishedListener = { if (it > 0f) showHeartBurst = false },
+      label = "HeartBurstScale",
+    )
 
   Box(
     modifier =
-      modifier
-        .fillMaxSize()
-        .background(Color.Black)
-        .pointerInput(Unit) {
-          detectTapGestures(
-            onTap = { currentActions.onTogglePlay() },
-            onDoubleTap = {
-              if (!currentlyLiked) currentActions.onLike()
-              showHeartBurst = true
-            },
-            onLongPress = { currentActions.onMore() },
-          )
-        }
+      modifier.fillMaxSize().background(Color.Black).pointerInput(Unit) {
+        detectTapGestures(
+          onTap = { currentActions.onTogglePlay() },
+          onDoubleTap = {
+            if (!currentlyLiked) currentActions.onLike()
+            showHeartBurst = true
+          },
+          onLongPress = { currentActions.onMore() },
+        )
+      },
   ) {
     // 1. FULL-SCREEN MUSIC ART / VIDEO (Full-bleed Reel Experience)
     // Ambient soft blur underlay for smooth loading transitions
@@ -145,9 +142,10 @@ fun MusicFlowPage(
       contentDescription = null,
       contentScale = ContentScale.Crop,
       modifier =
-        Modifier.fillMaxSize().then(
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Modifier.blur(60.dp) else Modifier
-        ),
+        Modifier.fillMaxSize()
+          .then(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Modifier.blur(60.dp) else Modifier,
+          ),
     )
 
     // Full-screen high-resolution crisp album art
@@ -181,9 +179,9 @@ fun MusicFlowPage(
       }
     }
 
-    // 3. CENTER PLAY/PAUSE INDICATOR (Visible when paused, fades out on play)
+    // 3. CENTER PLAY/PAUSE INDICATOR / BUTTON
     AnimatedVisibility(
-      visible = isCurrentPlayback && !isPlaying,
+      visible = isCurrentPlayback,
       enter = fadeIn() + scaleIn(initialScale = 0.8f),
       exit = fadeOut() + scaleOut(targetScale = 0.8f),
       modifier = Modifier.align(Alignment.Center),
@@ -194,13 +192,19 @@ fun MusicFlowPage(
           Modifier.size(76.dp)
             .clip(CircleShape)
             .background(Color.Black.copy(alpha = 0.55f))
-            .border(1.5.dp, Color.White.copy(alpha = 0.30f), CircleShape),
+            .border(1.5.dp, Color.White.copy(alpha = 0.30f), CircleShape)
+            .clickable(
+              interactionSource = remember { MutableInteractionSource() },
+              indication = null,
+              onClick = { currentActions.onTogglePlay() },
+            ),
       ) {
         Icon(
-          painter = painterResource(R.drawable.play),
+          painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
           contentDescription = playPauseLabel,
           tint = Color.White,
-          modifier = Modifier.size(38.dp).offset(x = 2.dp),
+          modifier =
+            Modifier.size(38.dp).then(if (!isPlaying) Modifier.offset(x = 2.dp) else Modifier),
         )
       }
     }
@@ -212,13 +216,11 @@ fun MusicFlowPage(
         contentDescription = null,
         tint = MaterialTheme.colorScheme.error,
         modifier =
-          Modifier.align(Alignment.Center)
-            .size(88.dp)
-            .graphicsLayer {
-              scaleX = heartScale
-              scaleY = heartScale
-              alpha = (heartScale / 1.25f).coerceIn(0f, 1f)
-            },
+          Modifier.align(Alignment.Center).size(88.dp).graphicsLayer {
+            scaleX = heartScale
+            scaleY = heartScale
+            alpha = (heartScale / 1.25f).coerceIn(0f, 1f)
+          },
       )
     }
 
@@ -233,7 +235,7 @@ fun MusicFlowPage(
               0.18f to Color.Black.copy(alpha = 0.40f),
               0.55f to Color.Black.copy(alpha = 0.80f),
               1f to Color.Black.copy(alpha = 0.96f),
-            )
+            ),
           )
           .windowInsetsPadding(WindowInsets.safeDrawing)
           .padding(bottom = 20.dp),
@@ -269,23 +271,25 @@ private fun LyricPreviewCapsule(
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  val parsedLines = remember(lyricsText) {
-    if (lyricsText?.startsWith("[") == true) {
-      parseLyrics(lyricsText).filter { it.text.isNotBlank() }
-    } else {
-      emptyList()
+  val parsedLines =
+    remember(lyricsText) {
+      if (lyricsText?.startsWith("[") == true) {
+        parseLyrics(lyricsText).filter { it.text.isNotBlank() }
+      } else {
+        emptyList()
+      }
     }
-  }
 
   val currentPosition = position()
-  val activeLine = remember(currentPosition, parsedLines, lyricsText) {
-    if (parsedLines.isNotEmpty()) {
-      val idx = parsedLines.indexOfLast { it.time <= currentPosition }
-      parsedLines.getOrNull(if (idx >= 0) idx else 0)?.text.orEmpty()
-    } else {
-      lyricsText?.lines()?.firstOrNull { it.isNotBlank() }.orEmpty()
+  val activeLine =
+    remember(currentPosition, parsedLines, lyricsText) {
+      if (parsedLines.isNotEmpty()) {
+        val idx = parsedLines.indexOfLast { it.time <= currentPosition }
+        parsedLines.getOrNull(if (idx >= 0) idx else 0)?.text.orEmpty()
+      } else {
+        lyricsText?.lines()?.firstOrNull { it.isNotBlank() }.orEmpty()
+      }
     }
-  }
 
   AnimatedVisibility(
     visible = activeLine.isNotBlank(),
@@ -299,7 +303,11 @@ private fun LyricPreviewCapsule(
           .clip(RoundedCornerShape(22.dp))
           .background(Color.Black.copy(alpha = 0.50f))
           .border(1.dp, Color.White.copy(alpha = 0.20f), RoundedCornerShape(22.dp))
-          .clickable(role = Role.Button, onClickLabel = stringResource(R.string.lyrics), onClick = onClick)
+          .clickable(
+            role = Role.Button,
+            onClickLabel = stringResource(R.string.lyrics),
+            onClick = onClick,
+          )
           .padding(horizontal = 16.dp, vertical = 8.dp),
       contentAlignment = Alignment.Center,
     ) {
@@ -461,7 +469,11 @@ private fun FlowGlassIconButton(
       Modifier.size(46.dp)
         .clip(CircleShape)
         .background(if (active) tint.copy(alpha = 0.22f) else Color.Black.copy(alpha = 0.45f))
-        .border(1.dp, if (active) tint.copy(alpha = 0.45f) else Color.White.copy(alpha = 0.20f), CircleShape)
+        .border(
+          1.dp,
+          if (active) tint.copy(alpha = 0.45f) else Color.White.copy(alpha = 0.20f),
+          CircleShape,
+        )
         .clickable(enabled = enabled, role = Role.Button, onClickLabel = label, onClick = onClick)
         .semantics { contentDescription = label },
   ) {
@@ -527,8 +539,7 @@ fun MusicFlowPagePlaceholder(modifier: Modifier = Modifier) {
     ShimmerHost(modifier = Modifier.fillMaxWidth()) {
       Column(
         modifier =
-          Modifier
-            .fillMaxWidth()
+          Modifier.fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(bottom = 24.dp),
       ) {
@@ -555,7 +566,7 @@ fun MusicFlowPagePlaceholder(modifier: Modifier = Modifier) {
               modifier =
                 Modifier.size(46.dp)
                   .clip(CircleShape)
-                  .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f))
+                  .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f)),
             )
           }
         }

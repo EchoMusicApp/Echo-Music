@@ -50,22 +50,21 @@ object SimpMusicLyrics {
   }
 
   suspend fun getLyricsByVideoId(videoId: String): List<LyricsData> {
-    val primaryAttempt =
-      runCatching {
-          val response = client.get(BASE_URL + videoId)
+    val primaryAttempt = runCatching {
+      val response = client.get(BASE_URL + videoId)
 
-          if (response.status == HttpStatusCode.OK) {
-            val apiResponse = response.body<SimpMusicApiResponse>()
-            if (apiResponse.success) {
-              apiResponse.data
-            } else {
-              emptyList() // Successfully responded, but no lyrics
-            }
-          } else {
-            null // Return null to trigger fallback (e.g. 502, 403, etc.)
-          }
+      if (response.status == HttpStatusCode.OK) {
+        val apiResponse = response.body<SimpMusicApiResponse>()
+        if (apiResponse.success) {
+          apiResponse.data
+        } else {
+          emptyList() // Successfully responded, but no lyrics
         }
-        .getOrNull()
+      } else {
+        null // Return null to trigger fallback (e.g. 502, 403, etc.)
+      }
+    }
+      .getOrNull()
 
     if (primaryAttempt != null) {
       return primaryAttempt

@@ -111,8 +111,7 @@ class StereoWidenerAudioProcessorTest {
     processor.configure(format)
     assertTrue(processor.isActive)
 
-    @Suppress("DEPRECATION")
-    processor.flush()
+    @Suppress("DEPRECATION") processor.flush()
     assertFalse(processor.isEnded)
 
     processor.reset()

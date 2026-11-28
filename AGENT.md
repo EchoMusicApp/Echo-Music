@@ -218,6 +218,21 @@ widget/         Home-screen widget
   (spec `SPEC_2025`, style `TonalSpot`). See `ui/theme/Theme.kt`.
   A custom "pure black" dark mode variant is supported.
   Users can override the seed color from settings.
+
+- `AlbumArtThemeRecoloringKey` is an independent, opt-in Appearance setting
+  (default `false`). When enabled, `MainActivity` extracts a theme color from
+  the current track artwork only while `PlayerConnection.isEffectivelyPlaying`
+  is true, covering both local and Cast playback. When disabled, playback is
+  inactive, metadata or artwork is unavailable, or extraction fails, the app
+  falls back to the selected theme seed. With the default `DefaultThemeColor`
+  seed, Android 12+ continues to use system wallpaper colors. Monochrome mode
+  retains precedence. Selecting a palette must never change this preference.
+- Manual verification: on a fresh install, confirm album-art recoloring is off
+  and the default system palette remains active. Verify local and Cast playback
+  do not recolor the app while it is off; enable the setting and verify artwork
+  recoloring occurs only during effective playback. Pause or stop playback,
+  clear the current track, or test missing/invalid artwork and confirm the
+  selected/system palette is restored.
 - Adaptive layouts (`androidx.compose.material3.adaptive`) are used —
   design new screens to work across phone/tablet/foldable widths.
   A "floating tab bar" custom component exists at
@@ -369,3 +384,14 @@ Optional full-screen vertical swipe discovery (`echo.music.iad1tya.musicflow`, r
 ## Ambient Mode Canvas
 
 Ambient Mode keeps the existing album-art square and layers muted Canvas artwork inside that same clipped square. The normal album art remains underneath as the fallback; Canvas follows playback state and is non-interactive.
+
+## Library UI Separation
+
+`LibraryScreen.kt` separates the Library overview into two equal-width custom `Row`-based swipeable underlined source tabs (`In App Library` and `Spotify`, driven by `HorizontalPager` with a live sliding underline indicator and session UI state without a new DataStore preference) positioned directly below the `ChipsRow` category filter bar (`Playlists`, `Songs`, `Albums`, `Artists`, `Podcasts`, `Local`). `LibraryFilter.SPOTIFY` is omitted from `ChipsRow` and the Appearance Settings default-chip picker while remaining in `LibraryFilter` for legacy preference fallback (`SPOTIFY` maps to the `Spotify` source tab and resets `ChipSortTypeKey` to `LIBRARY`). `LibraryMixScreen.kt` has its own `SortHeader` (`MixSortType`), renders In-App shortcut cards (`AutoPlaylistButton` 2-column grid), a simple `Playlists` heading and horizontal circular `LazyRow` thumbnail preview (`PlaylistThumbnail` with `CircleShape`), followed by `Artists` and `Albums`. `LibrarySpotifyScreen.kt` renders exclusively inside the `Spotify` tab using `LazyVerticalGrid` + `GridItem` cards (`GridItemsSizeKey`), with its own `SortHeader` (`Default`, `Name`, `Song count`), shimmer placeholders while loading, existing Spotify content with an animated rotating refresh button and Toast sync feedback (`spotify_sync_success` / `spotify_sync_failed`) when available, and a minimal empty state with no login prompt or CTA when unavailable. `SpotifyPlaylistDetailScreen.kt` includes inline TopAppBar search filtering by track title or artist alongside an animated rotating refresh button and Toast sync feedback.
+
+## Spotify Authentication Architecture
+
+Spotify authentication is adapted from Vivi Music (`com.music.spotify`):
+- **WebView Login:** Rendered full-screen via `SpotifyLoginScreen.kt` (route `settings/spotify_login`). Uses an Android mobile Chrome User-Agent (`Linux; Android 14; SM-S921U...`) to avoid Google OAuth `disallowed_useragent` blocks and bot challenges. Navigation allows normal redirects (`return false`), extracting `sp_dc` and `sp_key` cookies directly from `CookieManager.getCookie("https://open.spotify.com")` on navigation events.
+- **Token Acquisition & Nuance Fallback:** `SpotifyAuth.kt` generates TOTP tokens using a hardcoded `DEFAULT_NUANCE` (v=61) and in-memory `cachedNuance`, avoiding blocking calls to GitHub during normal authentication. When an anonymous token is received, it executes a single retry with `forceRefreshNuance = true` via the GitHub Gist API. Server time offset is cached (`serverTimeOffsetSec`) with fallback to local epoch time (`System.currentTimeMillis() / 1000`).
+- **Session Management:** `SpotifySessionManager.kt` and `SpotifyImportRepository.kt` manage token caching, 60s expiration grace periods, and distinguish 401 unauthenticated errors (clears session and prompts re-login) from network failures (preserves cached session). All legacy DataStore keys (`SpotifySpDcKey`, `SpotifyAccessTokenKey`, etc.) are preserved.

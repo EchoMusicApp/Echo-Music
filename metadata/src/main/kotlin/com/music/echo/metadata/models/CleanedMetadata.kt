@@ -8,7 +8,7 @@ data class CleanedMetadata(
   val cleanArtist: String = primaryArtist,
   val featuredArtists: List<String> = emptyList(),
   val version: VersionInfo? = null,
-  val junkTags: List<String> = emptyList()
+  val junkTags: List<String> = emptyList(),
 ) {
   fun toDisplayTitle(): String {
     return if (version != null && version.type != VersionType.ORIGINAL) {
