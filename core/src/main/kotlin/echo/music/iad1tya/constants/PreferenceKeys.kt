@@ -853,6 +853,7 @@ val LiquidGlassMiniPlayerEnabledKey = booleanPreferencesKey("liquidGlassMiniPlay
 val LiquidGlassNavBarEnabledKey = booleanPreferencesKey("liquidGlassNavBarEnabled")
 
 val UseFloatingNavBarKey = booleanPreferencesKey("useFloatingNavBar")
+val CollapseNavBarOnScrollKey = booleanPreferencesKey("collapseNavBarOnScroll")
 val SavedAccountsKey = stringPreferencesKey("savedAccounts")
 val LiveBlurDensityKey = floatPreferencesKey("live_blur_density")
 

@@ -177,6 +177,7 @@ import echo.music.iad1tya.constants.PureBlackKey
 import echo.music.iad1tya.constants.SYSTEM_DEFAULT
 import echo.music.iad1tya.constants.SelectedThemeColorKey
 import echo.music.iad1tya.constants.StopMusicOnTaskClearKey
+import echo.music.iad1tya.constants.CollapseNavBarOnScrollKey
 import echo.music.iad1tya.constants.UseFloatingNavBarKey
 import echo.music.iad1tya.constants.UseNewMiniPlayerDesignKey
 import echo.music.iad1tya.db.MusicDatabase
@@ -939,10 +940,13 @@ class MainActivity : ComponentActivity() {
           )
 
         val (useFloatingNavBar) = rememberPreference(UseFloatingNavBarKey, defaultValue = false)
+        val (collapseNavBarOnScroll) =
+          rememberPreference(CollapseNavBarOnScrollKey, defaultValue = true)
         val floatingNavBarScrollConnection =
           rememberFloatingTabBarScrollConnection(scrollThreshold = 20.dp)
         val isDefaultNavCollapsed =
-          !useFloatingNavBar &&
+          collapseNavBarOnScroll &&
+            !useFloatingNavBar &&
             !showRail &&
             shouldShowNavigationBar &&
             floatingNavBarScrollConnection.isInline

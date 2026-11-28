@@ -116,6 +116,8 @@ fun GlassEffectSettings(
     rememberPreference(LiquidGlassNavBarEnabledKey, defaultValue = true)
   val (useFloatingNavBar, onUseFloatingNavBarChange) =
     rememberPreference(UseFloatingNavBarKey, defaultValue = false)
+  val (collapseNavBarOnScroll, onCollapseNavBarOnScrollChange) =
+    rememberPreference(CollapseNavBarOnScrollKey, defaultValue = true)
 
   var showVibrancyDialog by rememberSaveable { mutableStateOf(false) }
   var showBlurRadiusDialog by rememberSaveable { mutableStateOf(false) }
@@ -197,6 +199,32 @@ fun GlassEffectSettings(
               )
             },
             onClick = { onUseFloatingNavBarChange(!useFloatingNavBar) },
+          ),
+          // Only the default bar collapses this way; the floating bar has its own shrink.
+          Material3SettingsItem(
+            icon = painterResource(R.drawable.nav_bar),
+            title = { Text(stringResource(R.string.collapse_nav_bar_on_scroll)) },
+            description = { Text(stringResource(R.string.collapse_nav_bar_on_scroll_desc)) },
+            trailingContent = {
+              Switch(
+                checked = collapseNavBarOnScroll,
+                onCheckedChange = onCollapseNavBarOnScrollChange,
+                enabled = !useFloatingNavBar,
+                thumbContent = {
+                  Icon(
+                    painter =
+                      painterResource(
+                        id = if (collapseNavBarOnScroll) R.drawable.check else R.drawable.close,
+                      ),
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                  )
+                },
+              )
+            },
+            onClick = {
+              if (!useFloatingNavBar) onCollapseNavBarOnScrollChange(!collapseNavBarOnScroll)
+            },
           ),
         ),
     )
