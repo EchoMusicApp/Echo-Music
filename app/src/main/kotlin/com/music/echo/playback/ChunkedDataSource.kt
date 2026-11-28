@@ -169,10 +169,13 @@ class ChunkedDataSource(
     }
     // Ranges kept coming back empty with bytes still owed: that is a truncated stream, not the
     // end of it. Reporting END_OF_INPUT here would let a cut-off download be saved as complete.
-    throw IOException(
+    throw StreamTruncatedException(
       "Stream ended early: $bytesRemaining bytes missing after $MAX_EMPTY_RANGES empty ranges"
     )
   }
+
+  /** The stream kept returning empty ranges while bytes were still owed. */
+  class StreamTruncatedException(message: String) : IOException(message)
 
   private fun closeChunk() {
     if (chunkOpen) {

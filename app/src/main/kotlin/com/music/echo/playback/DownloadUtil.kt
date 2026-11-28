@@ -297,11 +297,24 @@ constructor(
           } catch (e: java.io.IOException) {
             if (isRefusal(e)) {
               mediaId?.let { id -> songUrlCache.keys.removeIf { it.startsWith("${id}_") } }
+            } else if (isTruncation(e)) {
+              // The URL kept serving empty ranges; don't hand it to the retry again.
+              mediaId?.let { id -> songUrlCache.keys.removeIf { it.startsWith("${id}_") } }
             }
             throw e
           }
       }
     }
+
+  private fun isTruncation(error: Throwable): Boolean {
+    var current: Throwable? = error
+    val seen = java.util.Collections.newSetFromMap(java.util.IdentityHashMap<Throwable, Boolean>())
+    while (current != null && seen.add(current)) {
+      if (current is com.music.echo.playback.ChunkedDataSource.StreamTruncatedException) return true
+      current = current.cause
+    }
+    return false
+  }
 
   private fun isRefusal(error: Throwable): Boolean {
     var current: Throwable? = error
