@@ -123,6 +123,10 @@ data class LanPeerState(
 class LanSyncManager private constructor(private val appContext: Context) {
 
   companion object {
+    /** Cellular, CLAT and VPN interfaces: never reachable from other devices on the LAN. */
+    private val NON_LAN_INTERFACE_PREFIXES =
+      listOf("rmnet", "v4-", "ccmni", "clat", "tun", "ppp", "dummy", "ipsec")
+
     private const val TAG = "LanSyncManager"
     private const val SERVICE_TYPE = "_echomusic._tcp."
     private const val PREFS_NAME = "lan_sync_prefs"
@@ -549,20 +553,75 @@ class LanSyncManager private constructor(private val appContext: Context) {
 
   // --- Client RPCs ---
 
-  private fun localIPv4Address(): String? {
-    return try {
-      java.net.NetworkInterface.getNetworkInterfaces()?.toList()?.firstNotNullOfOrNull { iface ->
-        if (!iface.isUp || iface.isLoopback) return@firstNotNullOfOrNull null
-        iface.inetAddresses
-          ?.toList()
-          ?.firstOrNull { addr ->
-            addr is java.net.Inet4Address && !addr.isLoopbackAddress && !addr.isLinkLocalAddress
-          }
+  /**
+   * The IPv4 address other devices on the LAN can reach this phone at.
+   *
+   * With Wi-Fi and mobile data both on, the first interface with an IPv4 address is often the
+   * cellular one: its 464XLAT CLAT address (192.0.0.x) or a carrier-grade NAT address
+   * (100.64.0.0/10). Announcing that made desktop pairing time out, so take the address of the
+   * Wi-Fi/Ethernet network first and never fall back to cellular, CLAT or VPN interfaces.
+   */
+  private fun localIPv4Address(): String? = lanAddressFromConnectivity() ?: lanAddressFromInterfaces()
+
+  @Suppress("DEPRECATION")
+  private fun lanAddressFromConnectivity(): String? =
+    try {
+      val cm =
+        appContext.getSystemService(Context.CONNECTIVITY_SERVICE)
+          as? android.net.ConnectivityManager
+      cm?.allNetworks?.firstNotNullOfOrNull { network ->
+        val caps = cm.getNetworkCapabilities(network) ?: return@firstNotNullOfOrNull null
+        // A VPN network also reports its underlying transport (e.g. Wi-Fi), so reject it
+        // explicitly: its tunnel address is not reachable from the LAN.
+        val isLan =
+          !caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_VPN) &&
+            (caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) ||
+              caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET))
+        if (!isLan) return@firstNotNullOfOrNull null
+        cm.getLinkProperties(network)
+          ?.linkAddresses
+          ?.map { it.address }
+          ?.firstOrNull { it is java.net.Inet4Address && isLanIPv4(it) }
           ?.hostAddress
       }
     } catch (_: Exception) {
       null
     }
+
+  private fun lanAddressFromInterfaces(): String? =
+    try {
+      val candidates =
+        java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty().flatMap { iface ->
+          val name = iface.name.orEmpty().lowercase()
+          // VPN tunnels are point-to-point interfaces whatever they are named; Wi-Fi and
+          // Ethernet never are.
+          val skip =
+            !iface.isUp ||
+              iface.isLoopback ||
+              iface.isPointToPoint ||
+              NON_LAN_INTERFACE_PREFIXES.any { name.startsWith(it) }
+          if (skip) emptyList()
+          else iface.inetAddresses?.toList().orEmpty().filter { it is java.net.Inet4Address && isLanIPv4(it) }
+        }
+      (candidates.firstOrNull { it.isSiteLocalAddress } ?: candidates.firstOrNull())?.hostAddress
+    } catch (_: Exception) {
+      null
+    }
+
+  /** False for addresses a LAN peer can't reach: loopback, link-local, CLAT, carrier NAT. */
+  private fun isLanIPv4(addr: java.net.InetAddress): Boolean {
+    if (addr.isLoopbackAddress || addr.isLinkLocalAddress) return false
+    val b = addr.address
+    if (b.size != 4) return false
+    val first = b[0].toInt() and 0xFF
+    val second = b[1].toInt() and 0xFF
+    val third = b[2].toInt() and 0xFF
+    val fourth = b[3].toInt() and 0xFF
+    // 192.0.0.0/29 (192.0.0.0-192.0.0.7): 464XLAT CLAT interface on IPv6-only mobile networks.
+    if (first == 192 && second == 0 && third == 0 && fourth <= 7) return false
+    // 100.64.0.0/10: carrier-grade NAT (mobile data) and Tailscale-style VPNs.
+    if (first == 100 && second in 64..127) return false
+    return true
   }
 
   private fun executeGetWithFallback(peer: LanPeer, path: String): String? {
