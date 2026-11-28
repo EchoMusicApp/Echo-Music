@@ -58,9 +58,21 @@ class SessionArtworkPlayer(
    * item has its own cover, the stream's is dropped; local files without a URI keep theirs.
    */
   private fun sessionMetadata(metadata: MediaMetadata): MediaMetadata {
-    val mapped = metadata.withAutomotiveArtworkUri(context)
+    val mapped = withHttpsArtworkExtra(metadata, metadata.withAutomotiveArtworkUri(context))
     if (mapped.artworkUri == null || mapped.artworkData == null) return withLyricInfo(mapped)
     return withLyricInfo(mapped.buildUpon().setArtworkData(null, null).build())
+  }
+
+  /**
+   * vivo Origin Player (Atomic Island) reads the cover of a `com.spotify.music` session from this
+   * String extra, an https URL, instead of the bitmap. Media3 copies String extras into the
+   * platform session metadata; other systems ignore the unknown key.
+   */
+  private fun withHttpsArtworkExtra(original: MediaMetadata, mapped: MediaMetadata): MediaMetadata {
+    val url = original.artworkUri?.toString() ?: return mapped
+    if (!url.startsWith("https://")) return mapped
+    val extras = Bundle(mapped.extras ?: Bundle()).apply { putString(SPOTIFY_ART_HTTPS_URI, url) }
+    return mapped.buildUpon().setExtras(extras).build()
   }
 
   /**
@@ -306,5 +318,9 @@ class SessionArtworkPlayer(
       other is MappingListener && other.delegate == delegate
 
     override fun hashCode(): Int = delegate.hashCode()
+  }
+
+  private companion object {
+    const val SPOTIFY_ART_HTTPS_URI = "com.spotify.music.extra.ART_HTTPS_URI"
   }
 }

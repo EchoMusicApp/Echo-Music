@@ -17,7 +17,13 @@ plugins {
   alias(libs.plugins.protobufPlugin)
 }
 
-val hasGoogleServicesConfig = file("google-services.json").exists()
+// vivo OriginOS Atomic Island only shows apps whose package name is on a list hardcoded in
+// com.vivo.musicwidgetmix. Build with -PvivoIslandPackage=<listed package> (for example
+// com.spotify.music, tested on OriginOS 7 / India) to install Echo under that package.
+val vivoIslandPackage = project.findProperty("vivoIslandPackage")?.toString()?.takeIf { it.isNotBlank() }
+
+// google-services.json only matches the default package, so skip Firebase for vivo builds.
+val hasGoogleServicesConfig = file("google-services.json").exists() && vivoIslandPackage == null
 
 if (hasGoogleServicesConfig) {
   apply(plugin = "com.google.gms.google-services")
@@ -30,7 +36,7 @@ android {
   ndkVersion = "28.2.13676358"
 
   defaultConfig {
-    applicationId = "echo.music.iad1tya"
+    applicationId = vivoIslandPackage ?: "echo.music.iad1tya"
     minSdk = 26
     targetSdk = 36
     versionCode = 171
@@ -166,7 +172,8 @@ android {
       buildConfigField("String", "ARCHITECTURE", "\"release\"")
     }
     debug {
-      applicationIdSuffix = ".debug"
+      // The island matches the exact package name, so no suffix for vivo builds.
+      applicationIdSuffix = if (vivoIslandPackage == null) ".debug" else null
       isDebuggable = true
       signingConfig = signingConfigs.getByName("debug")
       buildConfigField("String", "ARCHITECTURE", "\"debug\"")

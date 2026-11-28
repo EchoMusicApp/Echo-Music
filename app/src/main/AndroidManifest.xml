@@ -491,6 +491,7 @@
                 <action android:name="androidx.media3.session.MediaSessionService" />
                 <action android:name="androidx.media3.session.MediaLibraryService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
+                <action android:name="com.vivo.musicwidgetmix.support.service" />
             </intent-filter>
         </service>
 
