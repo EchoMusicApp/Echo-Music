@@ -1791,6 +1791,12 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/appearance/liquidglass",
     ),
     SearchableSetting(
+      stringResource(R.string.collapse_nav_bar_on_scroll),
+      stringResource(R.string.collapse_nav_bar_on_scroll_desc),
+      "Liquid Glass",
+      "settings/appearance/liquidglass",
+    ),
+    SearchableSetting(
       stringResource(R.string.liquid_glass_global_enabled),
       stringResource(R.string.liquid_glass_global_enabled_desc),
       "Liquid Glass",

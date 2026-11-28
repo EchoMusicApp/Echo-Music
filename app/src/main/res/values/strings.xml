@@ -618,6 +618,8 @@
     <string name="nav_bar_style">Navigation Bar Style</string>
     <string name="floating_nav_bar">Apple style navigation bar</string>
     <string name="floating_nav_bar_desc">iOS style floating tab bar that shrinks while scrolling</string>
+    <string name="collapse_nav_bar_on_scroll">Collapse navigation bar while scrolling</string>
+    <string name="collapse_nav_bar_on_scroll_desc">Shrink the bottom bar to a Home button and dock the mini player beside it while scrolling</string>
     <string name="color_picker_hex">Hex</string>
     <string name="color_white">White</string>
     <string name="color_light_gray">Light Gray</string>
