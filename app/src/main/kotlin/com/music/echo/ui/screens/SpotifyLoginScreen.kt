@@ -11,10 +11,9 @@
 package echo.music.iad1tya.ui.screens
 
 import android.annotation.SuppressLint
-import android.webkit.CookieManager
-import android.webkit.WebResourceRequest
+import android.view.ViewGroup
 import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -35,14 +34,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import echo.music.iad1tya.LocalPlayerAwareWindowInsets
 import echo.music.iad1tya.R
-import echo.music.iad1tya.spotify.SpotifyAuth
 import echo.music.iad1tya.ui.component.IconButton
 import echo.music.iad1tya.ui.utils.backToMain
 
-private const val SPOTIFY_LOGIN_USER_AGENT =
-  "Mozilla/5.0 (Linux; Android 14; SM-S921U; Build/UP1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36"
-
-@SuppressLint("ClickableViewAccessibility", "SetJavaScriptEnabled")
+@SuppressLint("ClickableViewAccessibility")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpotifyLoginScreen(
@@ -50,13 +45,10 @@ fun SpotifyLoginScreen(
   onCookiesCaptured: (spDc: String, spKey: String) -> Unit,
 ) {
   var webViewRef by remember { mutableStateOf<WebView?>(null) }
-  var captured by remember { mutableStateOf(false) }
 
   DisposableEffect(Unit) {
     onDispose {
-      webViewRef?.stopLoading()
-      webViewRef?.loadUrl("about:blank")
-      webViewRef?.destroy()
+      webViewRef?.destroySpotifyLoginWebView()
       webViewRef = null
     }
   }
@@ -64,99 +56,38 @@ fun SpotifyLoginScreen(
   AndroidView(
     modifier = Modifier.windowInsetsPadding(LocalPlayerAwareWindowInsets.current).fillMaxSize(),
     factory = { context ->
-      val cookieManager = CookieManager.getInstance()
-      cookieManager.setAcceptCookie(true)
-      cookieManager.removeAllCookies(null)
-      cookieManager.flush()
-
-      WebView(context).apply {
-        layoutParams =
-          android.view.ViewGroup.LayoutParams(
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-          )
-        settings.javaScriptEnabled = true
-        settings.domStorageEnabled = true
-        settings.setSupportZoom(true)
-        settings.builtInZoomControls = true
-        settings.displayZoomControls = false
-        settings.userAgentString = SPOTIFY_LOGIN_USER_AGENT
-        cookieManager.setAcceptThirdPartyCookies(this, true)
-
-        setOnTouchListener { v, event ->
-          when (event.action) {
-            android.view.MotionEvent.ACTION_DOWN,
-            android.view.MotionEvent.ACTION_MOVE -> {
-              v.parent.requestDisallowInterceptTouchEvent(true)
-            }
-            android.view.MotionEvent.ACTION_UP,
-            android.view.MotionEvent.ACTION_CANCEL -> {
-              v.parent.requestDisallowInterceptTouchEvent(false)
-            }
+      val container = FrameLayout(context)
+      val loginWebView =
+        createSpotifyLoginWebView(
+          container = container,
+          onCookiesCaptured = { spDc, spKey ->
+            onCookiesCaptured(spDc, spKey)
+            navController.navigateUp()
+          },
+          onActiveWebViewChanged = { active -> webViewRef = active },
+        )
+      loginWebView.setOnTouchListener { v, event ->
+        when (event.action) {
+          android.view.MotionEvent.ACTION_DOWN,
+          android.view.MotionEvent.ACTION_MOVE -> {
+            v.parent.requestDisallowInterceptTouchEvent(true)
           }
-          false
+          android.view.MotionEvent.ACTION_UP,
+          android.view.MotionEvent.ACTION_CANCEL -> {
+            v.parent.requestDisallowInterceptTouchEvent(false)
+          }
         }
-
-        webViewClient =
-          object : WebViewClient() {
-            private fun tryCapture(): Boolean {
-              if (captured) return false
-              cookieManager.flush()
-              val cookiesStr = cookieManager.getCookie("https://open.spotify.com") ?: ""
-              val cookies =
-                cookiesStr.split(";").associate {
-                  val parts = it.split("=")
-                  val key = parts.firstOrNull()?.trim().orEmpty()
-                  val value = parts.drop(1).joinToString("=").trim()
-                  key to value
-                }
-              val spDc = cookies["sp_dc"].orEmpty()
-              if (spDc.isBlank()) return false
-              captured = true
-              onCookiesCaptured(spDc, cookies["sp_key"].orEmpty())
-              navController.navigateUp()
-              return true
-            }
-
-            override fun shouldOverrideUrlLoading(
-              view: WebView,
-              request: WebResourceRequest,
-            ): Boolean {
-              tryCapture()
-              return false
-            }
-
-            @Deprecated("Deprecated in Java")
-            override fun shouldOverrideUrlLoading(
-              view: WebView,
-              url: String?,
-            ): Boolean {
-              tryCapture()
-              return false
-            }
-
-            override fun onPageStarted(
-              view: WebView,
-              url: String?,
-              favicon: android.graphics.Bitmap?,
-            ) {
-              tryCapture()
-            }
-
-            override fun onPageFinished(
-              view: WebView,
-              url: String?,
-            ) {
-              tryCapture()
-            }
-          }
-
-        webChromeClient = android.webkit.WebChromeClient()
-        webViewRef = this
-        loadUrl(SpotifyAuth.LOGIN_URL)
+        false
       }
+      container.addView(
+        loginWebView,
+        FrameLayout.LayoutParams(
+          ViewGroup.LayoutParams.MATCH_PARENT,
+          ViewGroup.LayoutParams.MATCH_PARENT,
+        ),
+      )
+      container
     },
-    update = { view -> webViewRef = view },
   )
 
   TopAppBar(

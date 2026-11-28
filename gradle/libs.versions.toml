@@ -9,6 +9,7 @@ lifecycle = "2.10.0"
 material3 = "1.5.0-alpha18"
 adaptive = "1.4.0-alpha03"
 appcompat = "1.8.0"
+webkit = "1.14.0"
 media3 = "1.7.1"
 mediarouter = "1.8.1"
 castFramework = "22.3.1"
@@ -85,6 +86,7 @@ compose-material-icons-extended = { module = "androidx.compose.material:material
 materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+webkit = { module = "androidx.webkit:webkit", version.ref = "webkit" }
 
 coil = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
