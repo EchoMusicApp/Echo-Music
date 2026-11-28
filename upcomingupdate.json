@@ -1,5 +1,6 @@
 {
   "features": [
+    "Listen Together: show a room invite QR code and scan it to fill the guest's room code",
     "Local Taste Engine: Offline, account-free algorithmic recommendation engine with skip tracking and taste mix generation",
     "Local Taste Engine (Slice 2): Multi-source Last.fm recommendation pipeline (similar tracks, similar artists, top genres) with 1-hour taste snapshot caching and additive scoring bonuses",
     "Local Taste Engine (Slice 3): Genre awareness with additive scoring bonus (+1.0), YouTube taste signals extraction, cross-screen generation status synchronization, and 'From Taste' quick action",
@@ -27,7 +28,8 @@
     "Home: show YouTube Music shelves made of list rows (Quick picks) and podcast episode cards, which were dropped",
     "Home: hide the live 'Listen together' stations in every language, and respect the Show speed dial setting",
     "Spotify: resolve login failures and session expiration using Vivi Music's mobile user-agent WebView flow, resilient nuance caching with GitHub Gist API fallback, server-time offset fallback, and automatic anonymous token recovery (#854, #884)",
-    "Artist page: the artist's video, or the Apple Music motion art of a top song, plays behind the photo instead of in a small square next to the name, with a chip naming the song; no more stretched YouTube clips, and a lighter fade over the header"
+    "Artist page: the artist's video, or the Apple Music motion art of a top song, plays behind the photo instead of in a small square next to the name, with a chip naming the song; no more stretched YouTube clips, and a lighter fade over the header",
+    "Listen Together follows the host more closely over Wi-Fi and the internet. It also handles cross-track seeks, repeated songs in a queue, Cast pauses, and interrupted room connections more reliably. Track changes preserve distinct queue updates on legacy relays."
   ],
   "contributors": [
     "PurveshShinde"

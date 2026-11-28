@@ -663,6 +663,15 @@
     <string name="listen_together_create_room_desc">Create a room and share the code with friends</string>
     <string name="listen_together_join_room">Join room</string>
     <string name="listen_together_room_code">Room code</string>
+    <string name="listen_together_room_qr">Room QR code</string>
+    <string name="listen_together_room_qr_code">QR invite for room %1$s</string>
+    <string name="listen_together_room_qr_help">Scan this code to join the room.</string>
+    <string name="listen_together_scan_qr">Scan QR code</string>
+    <string name="listen_together_scan_qr_help">Point the camera at the room QR code.</string>
+    <string name="listen_together_allow_camera">Allow camera</string>
+    <string name="listen_together_camera_permission">Allow camera access to scan, or enter the room code manually.</string>
+    <string name="listen_together_camera_unavailable">The camera is unavailable. You can still enter the room code.</string>
+    <string name="listen_together_invalid_qr">Use an Echo Music room QR code.</string>
     <string name="listen_together_leave_room">Leave room</string>
     <string name="listen_together_you_are_host">You are the host</string>
     <string name="listen_together_you_are_guest">You are a guest</string>
