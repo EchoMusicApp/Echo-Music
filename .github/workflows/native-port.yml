@@ -1,0 +1,100 @@
+name: Native port - compile original files
+
+on:
+  push:
+    branches: [ "native-port" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    name: Compile the portable original files on the JVM
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: desktop
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: '9.8.2'
+      - name: Compile
+        run: |
+          set +e
+          # the Kotlin compiler download from GitHub often returns 504; retry a few times
+          for i in 1 2 3 4; do
+            gradle --no-daemon --continue :core-jvm:compileKotlin :db-jvm:compileKotlin :lyrics-jvm:compileKotlin :canvas-jvm:compileKotlin :repo-jvm:compileKotlin :media-jvm:compileKotlin :playback-jvm:compileKotlin :dsp-jvm:compileKotlin :orig-core:compileKotlin > build.log 2>&1
+            rc=$?
+            grep -q "Could not download\|Could not GET\|Received status code 5" build.log || break
+            sleep 20
+          done
+          echo "exit=$rc" > exit.txt
+          exit 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-log
+          path: desktop/build.log
+      - name: Summarise errors
+        run: |
+          python3 -I - <<'PY'
+          import re,collections
+          log=open('build.log',errors='replace').read()
+          errs=[l for l in log.splitlines() if l.startswith('e: ')]
+          files=len(open('orig-core/files.txt').read().split())
+          out=[f"exit {open('exit.txt').read().strip()}; {len(errs)} errors; {files} files listed"]
+          kinds=collections.Counter(re.sub(r"^e: \S+ ","",e)[:90] for e in errs)
+          unresolved=collections.Counter(m for e in errs for m in re.findall(r"Unresolved reference '([^']+)'",e))
+          out.append("TOP UNRESOLVED: "+", ".join(f"{k}x{v}" for k,v in unresolved.most_common(40)))
+          bad=collections.Counter(re.sub(r'.*/kotlin/','',e.split(':')[1] if False else e.split(' ')[1]).split(':')[0] for e in errs)
+          out.append("FILES WITH ERRORS: %d; clean: %d"%(len(bad),files-len(bad)))
+          if not errs:
+              ls=log.splitlines()
+              i=next((n for n,l in enumerate(ls) if "What went wrong" in l or "Script compilation error" in l or l.startswith("e: ")),0)
+              out.append("GRADLE: "+" | ".join(ls[i:i+14])[:2500])
+          else: out.append("FIRST: "+" | ".join(kinds_ for kinds_ in list(kinds)[:12]))
+          per=collections.defaultdict(list)
+          for e in errs:
+              m=re.match(r"e: file://(\S+?):(\d+):\d+ (.*)",e)
+              if m: per[m.group(1).split('/kotlin/')[-1]].append((re.search(r"Unresolved reference '([^']+)'",m.group(3)) or [None,m.group(3)[:60]])[1])
+          for f,l in sorted(per.items()): out.append(f"{f} [{len(l)}] "+", ".join(list(dict.fromkeys(l))[:14]))
+          text="\n".join(out)
+          chunks=[text[i:i+3600] for i in range(0,len(text),3600)]
+          for n,c in enumerate(chunks):
+              print("::notice title=Native port part %d::%s"%(n,c.replace('%','%25').replace('\n','%0A')))
+          PY
+          python3 - <<'PY'
+          import re,json
+          log=open('build.log',errors='replace').read().splitlines()
+          skip=("SpotifyImportScreen","InnerTubeXResolver","AudioExportService","RecognitionScreen","LoginScreen","AppIconSettingsScreen")
+          out=[]
+          for l in log:
+              if l.startswith('e: ') and not any(k in l for k in skip):
+                  m=re.sub(r'.*/kotlin/','',l)
+                  m=re.sub(r'.*/patched/','P/',m)
+                  m=re.sub(r'^e: file:///.*?/(\w+\.kt)',r'e: \1',m)
+                  m=m.replace("Unresolved reference","UR").replace("Cannot infer type for type parameter","CITP")
+                  out.append(m[:120])
+          chunks=[];cur=''
+          for o in out:
+              if len(cur)+len(o)>3500: chunks.append(cur);cur=''
+              cur+=o+'\n'
+          chunks.append(cur)
+          json.dump(chunks,open('chunks.json','w'))
+          PY
+      - name: Details A
+        run: python3 -I -c "import json;[print('::notice title=Details%d::%s'%(n,c.replace('%','%25').replace('\n','%0A'))) for n,c in enumerate(json.load(open('chunks.json'))[:10])]"
+      - name: Details B
+        run: python3 -I -c "import json;[print('::notice title=Details%d::%s'%(n+10,c.replace('%','%25').replace('\n','%0A'))) for n,c in enumerate(json.load(open('chunks.json'))[10:20])]"
+      - name: Details C
+        run: python3 -I -c "import json;[print('::notice title=Details%d::%s'%(n+20,c.replace('%','%25').replace('\n','%0A'))) for n,c in enumerate(json.load(open('chunks.json'))[20:30])]"
+      - name: Fail when the compile had errors
+        run: |
+          if grep -q "^e: \|BUILD FAILED" build.log || ! grep -qx "exit=0" exit.txt; then echo "compile errors, see the build-log artifact"; exit 1; fi
