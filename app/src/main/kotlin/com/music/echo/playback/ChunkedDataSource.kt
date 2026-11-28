@@ -9,6 +9,7 @@ import androidx.media3.datasource.HttpDataSource
 import androidx.media3.datasource.TransferListener
 import echo.music.iad1tya.utils.InnerTubeXResolver
 import echo.music.iad1tya.utils.PlayerClient
+import java.io.IOException
 import java.io.InterruptedIOException
 
 /**
@@ -166,8 +167,15 @@ class ChunkedDataSource(
       }
       chunkRemaining = 0L
     }
-    return C.RESULT_END_OF_INPUT
+    // Ranges kept coming back empty with bytes still owed: that is a truncated stream, not the
+    // end of it. Reporting END_OF_INPUT here would let a cut-off download be saved as complete.
+    throw StreamTruncatedException(
+      "Stream ended early: $bytesRemaining bytes missing after $MAX_EMPTY_RANGES empty ranges"
+    )
   }
+
+  /** The stream kept returning empty ranges while bytes were still owed. */
+  class StreamTruncatedException(message: String) : IOException(message)
 
   private fun closeChunk() {
     if (chunkOpen) {

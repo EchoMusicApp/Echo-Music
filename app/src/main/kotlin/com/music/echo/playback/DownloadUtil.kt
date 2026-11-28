@@ -87,14 +87,18 @@ constructor(
 
   val downloads = MutableStateFlow<Map<String, Download>>(emptyMap())
 
-  private val dataSourceFactory: androidx.media3.datasource.DataSource.Factory =
+  private val resolvingDataSourceFactory: androidx.media3.datasource.DataSource.Factory =
     ResolvingDataSource.Factory(
-      ChunkingDataSourceFactory(
-        // Read already-streamed bytes from playerCache instead of re-downloading them:
-        // a song played before being downloaded would otherwise be fetched twice.
-        CacheDataSource.Factory()
-          .setCache(playerCache)
-          .setUpstreamDataSourceFactory(
+      // Read already-streamed bytes from playerCache instead of re-downloading them:
+      // a song played before being downloaded would otherwise be fetched twice.
+      CacheDataSource.Factory()
+        .setCache(playerCache)
+        .setUpstreamDataSourceFactory(
+          // Same ranged fetch as playback: googlevideo only reliably serves ~1 MB per range
+          // (512 KB for some clients, see PlayerClient.rangeBytesFor), and larger ranges get
+          // refused. It also reports refusals to InnerTubeX so the next resolve picks a
+          // different client.
+          com.music.echo.playback.ChunkedDataSource.Factory(
             OkHttpDataSource.Factory(
               OkHttpClient.Builder()
                 .dns(
@@ -119,10 +123,11 @@ constructor(
                 }
                 .build(),
             ),
-          )
-          .setCacheWriteDataSinkFactory(null)
-          .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR),
-      ),
+            1024L * 1024L,
+          ),
+        )
+        .setCacheWriteDataSinkFactory(null)
+        .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR),
     ) { dataSpec ->
       // If this is a Canvas request (e.g., Apple Music or Tidal), bypass YouTube resolution!
       if (
@@ -265,6 +270,63 @@ constructor(
       songUrlCache["${mediaId}_${downloadQuality.name}"] = stream
       stream.resolve(dataSpec)
     }
+
+  /**
+   * Download source that forgets a stream URL googlevideo refused. DownloadManager retries a failed
+   * download several times; without this every retry reused the same refused URL from
+   * [songUrlCache] until it expired, so the download always ended in STATE_FAILED. Dropping it
+   * makes the retry resolve a fresh URL (InnerTubeX has already been told to avoid the client).
+   */
+  private val dataSourceFactory: androidx.media3.datasource.DataSource.Factory =
+    androidx.media3.datasource.DataSource.Factory {
+      val upstream = resolvingDataSourceFactory.createDataSource()
+      object : androidx.media3.datasource.DataSource by upstream {
+        private var mediaId: String? = null
+
+        override fun open(dataSpec: androidx.media3.datasource.DataSpec): Long {
+          mediaId = dataSpec.key
+          return evictOnRefusal { upstream.open(dataSpec) }
+        }
+
+        override fun read(buffer: ByteArray, offset: Int, length: Int): Int =
+          evictOnRefusal { upstream.read(buffer, offset, length) }
+
+        private inline fun <T> evictOnRefusal(block: () -> T): T =
+          try {
+            block()
+          } catch (e: java.io.IOException) {
+            if (isRefusal(e)) {
+              mediaId?.let { id -> songUrlCache.keys.removeIf { it.startsWith("${id}_") } }
+            } else if (isTruncation(e)) {
+              // The URL kept serving empty ranges; don't hand it to the retry again.
+              mediaId?.let { id -> songUrlCache.keys.removeIf { it.startsWith("${id}_") } }
+            }
+            throw e
+          }
+      }
+    }
+
+  private fun isTruncation(error: Throwable): Boolean {
+    var current: Throwable? = error
+    val seen = java.util.Collections.newSetFromMap(java.util.IdentityHashMap<Throwable, Boolean>())
+    while (current != null && seen.add(current)) {
+      if (current is com.music.echo.playback.ChunkedDataSource.StreamTruncatedException) return true
+      current = current.cause
+    }
+    return false
+  }
+
+  private fun isRefusal(error: Throwable): Boolean {
+    var current: Throwable? = error
+    val seen = java.util.Collections.newSetFromMap(java.util.IdentityHashMap<Throwable, Boolean>())
+    while (current != null && seen.add(current)) {
+      if (current is androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException) {
+        return true
+      }
+      current = current.cause
+    }
+    return false
+  }
 
   val downloadNotificationHelper =
     DownloadNotificationHelper(context, ExoDownloadService.CHANNEL_ID)
