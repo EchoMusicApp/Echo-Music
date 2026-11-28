@@ -19,7 +19,7 @@ plugins {
 
 // vivo OriginOS Atomic Island only shows apps whose package name is on a list hardcoded in
 // com.vivo.musicwidgetmix. Build with -PvivoIslandPackage=<listed package> (for example
-// com.salt.music) to install Echo under that package so the island picks it up.
+// com.spotify.music, tested on OriginOS 7 / India) to install Echo under that package.
 val vivoIslandPackage = project.findProperty("vivoIslandPackage")?.toString()?.takeIf { it.isNotBlank() }
 
 // google-services.json only matches the default package, so skip Firebase for vivo builds.
