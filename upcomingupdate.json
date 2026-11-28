@@ -6,7 +6,8 @@
     "Music Flow: optional full-screen vertical swipe discovery (Home shortcut) that plays personalized songs through the existing player, with like/playlist/share/lyrics actions, Not interested / Less like this feedback, Restore previous queue, offline downloaded-song fallback and settings under Settings → Music Flow",
     "Android Auto: optional autoplay of the restored queue on automotive connect (Settings → Player, default off) and Home browse node with YouTube Home sections, suggested and recent content alongside local library",
     "Library UI: separate the Library overview into swipeable In App Library and Spotify underlined source tabs with separate sort controls, circular horizontal playlist preview, adaptive grid and inline track search for Spotify playlists, and animated refresh sync status messages (#808)",
-    "Home: simpler layout ordered like YouTube Music: filters first with Surprise me, shortcuts, YouTube Music's top sections, then personal ones; lighter section titles and song rows; community playlists off by default and the featured carousel switchable in Content settings"
+    "Home: simpler layout ordered like YouTube Music: filters first with Surprise me, shortcuts, YouTube Music's top sections, then personal ones; lighter section titles and song rows; community playlists off by default and the featured carousel switchable in Content settings",
+    "Settings: new \"Collapse navigation bar while scrolling\" option under Liquid Glass settings (on by default); turn it off to keep the bottom navigation bar expanded while scrolling"
   ],
   "bug_fixes": [
     "Queue: fix snackbar saying a song was removed from the playlist when swiping it out of the playback queue (#866)",
