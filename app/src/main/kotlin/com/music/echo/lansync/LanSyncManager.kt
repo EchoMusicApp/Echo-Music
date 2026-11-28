@@ -593,9 +593,12 @@ class LanSyncManager private constructor(private val appContext: Context) {
       val candidates =
         java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty().flatMap { iface ->
           val name = iface.name.orEmpty().lowercase()
+          // VPN tunnels are point-to-point interfaces whatever they are named; Wi-Fi and
+          // Ethernet never are.
           val skip =
             !iface.isUp ||
               iface.isLoopback ||
+              iface.isPointToPoint ||
               NON_LAN_INTERFACE_PREFIXES.any { name.startsWith(it) }
           if (skip) emptyList()
           else iface.inetAddresses?.toList().orEmpty().filter { it is java.net.Inet4Address && isLanIPv4(it) }
@@ -613,8 +616,9 @@ class LanSyncManager private constructor(private val appContext: Context) {
     val first = b[0].toInt() and 0xFF
     val second = b[1].toInt() and 0xFF
     val third = b[2].toInt() and 0xFF
-    // 192.0.0.0/29: 464XLAT CLAT interface on IPv6-only mobile networks.
-    if (first == 192 && second == 0 && third == 0) return false
+    val fourth = b[3].toInt() and 0xFF
+    // 192.0.0.0/29 (192.0.0.0-192.0.0.7): 464XLAT CLAT interface on IPv6-only mobile networks.
+    if (first == 192 && second == 0 && third == 0 && fourth <= 7) return false
     // 100.64.0.0/10: carrier-grade NAT (mobile data) and Tailscale-style VPNs.
     if (first == 100 && second in 64..127) return false
     return true
