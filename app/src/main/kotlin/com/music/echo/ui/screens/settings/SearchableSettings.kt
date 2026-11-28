@@ -304,6 +304,24 @@ fun getAllSearchableSettings(): List<SearchableSetting> {
       "settings/player",
     ),
     SearchableSetting(
+      stringResource(R.string.auto_download_on_listen),
+      stringResource(R.string.auto_download_on_listen_desc),
+      "Player and audio",
+      "settings/player",
+    ),
+    SearchableSetting(
+      stringResource(R.string.auto_download_limit),
+      null,
+      "Player and audio",
+      "settings/player",
+    ),
+    SearchableSetting(
+      stringResource(R.string.screen_off_volume_key_controls),
+      stringResource(R.string.screen_off_volume_key_controls_desc),
+      "Player and audio",
+      "settings/player",
+    ),
+    SearchableSetting(
       stringResource(R.string.auto_load_more),
       stringResource(R.string.auto_load_more_desc),
       "Player and audio",

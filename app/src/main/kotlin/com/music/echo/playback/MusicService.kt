@@ -83,7 +83,9 @@ import echo.music.iad1tya.R
 import echo.music.iad1tya.constants.AudioNormalizationKey
 import echo.music.iad1tya.constants.AudioOffload
 import echo.music.iad1tya.constants.AudioQuality
+import echo.music.iad1tya.constants.AutoDownloadOnListenKey
 import echo.music.iad1tya.constants.AutoDownloadOnLikeKey
+import echo.music.iad1tya.constants.AutoDownloadLimitKey
 import echo.music.iad1tya.constants.AutoLoadMoreKey
 import echo.music.iad1tya.constants.AutoSkipNextOnErrorKey
 import echo.music.iad1tya.constants.AutomixCrossfadeKey
@@ -113,6 +115,7 @@ import echo.music.iad1tya.constants.PauseOnMute
 import echo.music.iad1tya.constants.PersistentQueueKey
 import echo.music.iad1tya.constants.PersistentShuffleAcrossQueuesKey
 import echo.music.iad1tya.constants.PlayerVolumeKey
+import echo.music.iad1tya.constants.ScreenOffVolumeKeyControlsKey
 import echo.music.iad1tya.constants.PreferExtensionAudioKey
 import echo.music.iad1tya.constants.PreferredAudioAddonIdKey
 import echo.music.iad1tya.constants.PreloadLyricsEnabledKey
@@ -219,6 +222,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -235,6 +239,7 @@ private const val INSTANT_SILENCE_SKIP_SETTLE_MS = 350L
 @AndroidEntryPoint
 class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListener.Callback {
   @Inject lateinit var database: MusicDatabase
+  @Inject lateinit var downloadUtil: DownloadUtil
   @Inject lateinit var extensionManager: com.music.echo.extensions.ExtensionManager
 
   @Inject lateinit var lyricsHelper: echo.music.iad1tya.lyrics.LyricsHelper
@@ -386,6 +391,14 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     }
 
   private var scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+  private val autoDownloadMutex = Mutex()
+  private val pendingAutoDownloads = mutableSetOf<String>()
+  /** Retries scheduled per liked song whose automatic download failed; only touched by its collector. */
+  private val likedAutoDownloadRetryAttempts = mutableMapOf<String, Int>()
+  /** Song IDs with a retry currently waiting or running; main-thread only, like the collector. */
+  private val pendingLikedAutoDownloadRetries = mutableSetOf<String>()
+  private val maxLikedAutoDownloadRetries = 3
+  private val likedAutoDownloadRetryBaseDelayMs = 30_000L
 
   private val binder = MusicBinder()
 
@@ -513,6 +526,7 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
   private lateinit var mediaSession: MediaLibrarySession
   private val sessionLyricInfo = SessionLyricInfo()
   private var isSessionReleased = false
+  private var screenOffVolumeKeyController: ScreenOffVolumeKeyController? = null
 
   private fun releaseMediaSessionSafely() {
     if (::mediaSession.isInitialized && !isSessionReleased) {
@@ -724,11 +738,19 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
           Intent.ACTION_SCREEN_OFF -> {
+            screenOffVolumeKeyController?.update(
+              playWhenReady = player.playWhenReady,
+              playbackState = player.playbackState,
+            )
             if (!player.isPlaying) {
               scope.launch(Dispatchers.IO) { DiscordPresenceManager.stop() }
             }
           }
           Intent.ACTION_SCREEN_ON -> {
+            screenOffVolumeKeyController?.update(
+              playWhenReady = player.playWhenReady,
+              playbackState = player.playbackState,
+            )
             if (player.isPlaying) {
               scope.launch { currentSong.value?.let { song -> ensurePresenceManager() } }
             }
@@ -900,6 +922,27 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
         .setBitmapLoader(sessionBitmapLoader)
         .setCommandButtonsForMediaItems(automotiveItemActions())
         .build()
+    screenOffVolumeKeyController =
+      ScreenOffVolumeKeyController(
+        context = this,
+        audioManager = audioManager,
+        isPlaybackRequested = { player.playWhenReady },
+        onPlayRequested = { player.play() },
+        onPauseRequested = { player.pause() },
+        onNextTrack = { player.seekToNext() },
+        onPreviousTrack = { player.seekToPrevious() },
+        onLongPressPreviousTrack = { player.seekToPreviousMediaItem() },
+        onFastForwardRequested = { player.seekForward() },
+        onRewindRequested = { player.seekBack() },
+        onStopRequested = { player.stop() },
+      )
+    observeFailedLikedAutoDownloads()
+    scope.launch {
+      dataStore.data
+        .map { it[ScreenOffVolumeKeyControlsKey] ?: true }
+        .distinctUntilChanged()
+        .collect { screenOffVolumeKeyController?.setUserEnabled(it) }
+    }
     player.repeatMode = dataStore.get(RepeatModeKey, REPEAT_MODE_OFF)
 
     if (dataStore.get(RememberShuffleAndRepeatKey, true)) {
@@ -3031,23 +3074,170 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
       database.query {
         update(song)
         syncUtils.likeSong(song)
-
-        if (dataStore.get(AutoDownloadOnLikeKey, false) && song.liked) {
-
-          val downloadRequest =
-            androidx.media3.exoplayer.offline.DownloadRequest.Builder(song.id, song.id.toUri())
-              .setCustomCacheKey(song.id)
-              .setData(song.title.toByteArray())
-              .build()
-          androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
-            this@MusicService,
-            ExoDownloadService::class.java,
-            downloadRequest,
-            false,
-          )
-        }
+      }
+      if (song.liked && dataStore.get(AutoDownloadOnLikeKey, false)) {
+        enqueueAutomaticDownload(song.id, song.title)
       }
       currentMediaMetadata.value = player.currentMetadata
+    }
+  }
+
+  /**
+   * Queues a frequently played song while the automatic-download collection is below its cap.
+   * Manual downloads are neither counted nor removed; an already-downloaded song is left alone.
+   */
+  private suspend fun enqueueAutomaticDownload(songId: String, title: String): Boolean {
+    if (!YOUTUBE_VIDEO_ID.matches(songId)) {
+      Timber.tag(TAG).d("Skipping automatic download for non-YouTube media ID: $songId")
+      return false
+    }
+
+    return autoDownloadMutex.withLock {
+      val currentDownloads = downloadUtil.downloads.value
+      val existingDownload = currentDownloads[songId]
+      if (
+        (existingDownload != null &&
+          existingDownload.state != androidx.media3.exoplayer.offline.Download.STATE_FAILED) ||
+          songId in pendingAutoDownloads
+      ) {
+        return@withLock false
+      }
+
+      val limit = dataStore.get(AutoDownloadLimitKey, 25).coerceAtLeast(0)
+      // Reservations not already in automaticDownloadCount, so overlapping entries count once:
+      // a removing automatic entry is counted there and must not be counted again here.
+      val pendingNotYetCounted =
+        pendingAutoDownloads.count { pendingId ->
+          val download = currentDownloads[pendingId]
+          download == null ||
+            download.state == androidx.media3.exoplayer.offline.Download.STATE_FAILED ||
+            !DownloadUtil.isAutomaticDownload(download)
+        }
+      val currentAutoDownloads =
+        DownloadUtil.automaticDownloadCount(currentDownloads) + pendingNotYetCounted
+      if (limit != 0 && currentAutoDownloads >= limit) {
+        Timber.tag(TAG).d("Auto-download limit reached ($limit); skipping $songId")
+        return@withLock false
+      }
+
+      pendingAutoDownloads.add(songId)
+      try {
+        val downloadRequest =
+          androidx.media3.exoplayer.offline.DownloadRequest.Builder(songId, songId.toUri())
+            .setCustomCacheKey(songId)
+            .setData(DownloadUtil.autoDownloadData(title))
+            .build()
+        androidx.media3.exoplayer.offline.DownloadService.sendAddDownload(
+          this@MusicService,
+          ExoDownloadService::class.java,
+          downloadRequest,
+          false
+        )
+      } catch (error: Exception) {
+        pendingAutoDownloads.remove(songId)
+        Timber.tag(TAG).w(error, "Could not queue auto-download for $songId")
+        return@withLock false
+      }
+
+      // Release the reservation as soon as ExoPlayer's DownloadManager reports the request.
+      // A retried FAILED entry is already present in the map, so wait for a newer Download
+      // instance (DownloadManager publishes a fresh object for every state change) instead of
+      // releasing the reservation on the stale failed entry.
+      val isAcknowledged: (Map<String, androidx.media3.exoplayer.offline.Download>) -> Boolean =
+        { downloads ->
+          val download = downloads[songId]
+          download != null &&
+            download !== existingDownload &&
+            download.state != androidx.media3.exoplayer.offline.Download.STATE_REMOVING
+        }
+      scope.launch {
+        val acknowledged = withTimeoutOrNull(15_000) {
+          downloadUtil.downloads.first { isAcknowledged(it) }
+        }
+        if (acknowledged == null) {
+          Timber.tag(TAG).w("Auto-download acknowledgement timed out; retaining reservation for $songId")
+          // Keep the reservation until a late acknowledgement or a removal/absence is observed.
+          // The add request was sent successfully; absence now means the manager did not retain it.
+          var requestWasObserved = true
+          downloadUtil.downloads.first { downloads ->
+            val current = downloads[songId]
+            when {
+              isAcknowledged(downloads) -> true
+              current?.state == androidx.media3.exoplayer.offline.Download.STATE_REMOVING -> true
+              current != null -> {
+                if (current !== existingDownload) requestWasObserved = true
+                false
+              }
+              else -> requestWasObserved
+            }
+          }
+        }
+        autoDownloadMutex.withLock { pendingAutoDownloads.remove(songId) }
+      }
+      true
+    }
+  }
+
+  /**
+   * Retries automatic downloads of liked songs that end in STATE_FAILED, without waiting for
+   * another like toggle or for listen-based downloads. Each song gets at most
+   * [maxLikedAutoDownloadRetries] retries per service lifetime, with exponential backoff, and every
+   * retry goes through [enqueueAutomaticDownload] so the limit and pending-request guards apply.
+   */
+  private fun observeFailedLikedAutoDownloads() {
+    scope.launch {
+      combine(
+        downloadUtil.downloads.map { downloads ->
+          val failedIds = downloads.values
+            .filter { it.state == androidx.media3.exoplayer.offline.Download.STATE_FAILED && DownloadUtil.isAutomaticDownload(it) }
+            .map { it.request.id }
+            .toSet()
+          failedIds to DownloadUtil.automaticDownloadCount(downloads)
+        }.distinctUntilChanged(),
+        dataStore.data.map { preferences ->
+          (preferences[AutoDownloadOnLikeKey] == true) to (preferences[AutoDownloadLimitKey] ?: 25)
+        }.distinctUntilChanged(),
+      ) { downloadState, settings ->
+        Triple(downloadState.first, downloadState.second, settings)
+      }
+        .distinctUntilChanged()
+        .collect { (failedIds, _, settings) ->
+          val autoDownloadOnLike = settings.first
+          if (failedIds.isEmpty() || !autoDownloadOnLike) return@collect
+          failedIds.forEach { songId ->
+            // One retry per song at a time; don't count an attempt while one is still pending.
+            if (songId in pendingLikedAutoDownloadRetries) return@forEach
+            val attempts = likedAutoDownloadRetryAttempts[songId] ?: 0
+            if (attempts >= maxLikedAutoDownloadRetries) return@forEach
+            val song = database.song(songId).first()?.song ?: return@forEach
+            if (!song.liked) return@forEach
+            pendingLikedAutoDownloadRetries.add(songId)
+            scope.launch {
+              try {
+                delay(likedAutoDownloadRetryBaseDelayMs shl attempts)
+                // Re-check after the wait: the song may have been unliked or deleted meanwhile,
+                // and the user may have removed the failed download, which must not be recreated.
+                val current = database.song(songId).first()?.song
+                val download = downloadUtil.downloads.value[songId]
+                if (
+                  current != null &&
+                    current.liked &&
+                    download != null &&
+                    download.state == androidx.media3.exoplayer.offline.Download.STATE_FAILED &&
+                    DownloadUtil.isAutomaticDownload(download) &&
+                    dataStore.get(AutoDownloadOnLikeKey, false)
+                ) {
+                  if (enqueueAutomaticDownload(songId, current.title)) {
+                    likedAutoDownloadRetryAttempts[songId] = attempts + 1
+                  }
+                }
+              } finally {
+                // Runs on completion and cancellation, so later failures can retry again.
+                pendingLikedAutoDownloadRetries.remove(songId)
+              }
+            }
+          }
+        }
     }
   }
 
@@ -3626,6 +3816,11 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     player: Player,
     events: Player.Events,
   ) {
+    screenOffVolumeKeyController?.update(
+      playWhenReady = player.playWhenReady,
+      playbackState = player.playbackState,
+      refreshPriority = events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION),
+    )
     if (
       events.containsAny(
         Player.EVENT_PLAYBACK_STATE_CHANGED,
@@ -5102,6 +5297,33 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
           listenedMs = playbackStats.totalPlayTimeMs,
           completed = completed,
         )
+        if (completed && dataStore.get(AutoDownloadOnListenKey, false)) {
+          // Only cache tracks with repeated completed listens and recent activity.
+          // Failed entries stay eligible so enqueueAutomaticDownload can retry them. Queued,
+          // downloading, paused, completed and removing entries are excluded; a removed song
+          // becomes eligible again on a later listen once the removal has completed.
+          val downloads = downloadUtil.downloads.value
+          val candidates =
+            songPlayStatsRepository.automaticDownloadCandidates(
+              sinceMillis = System.currentTimeMillis() - 7L * 24L * 60L * 60L * 1000L,
+              isExcluded = { songId ->
+                // Non-YouTube IDs (e.g. local tracks) can never be downloaded, so keep them from
+                // filling the candidate window; enqueueAutomaticDownload still checks as a guard.
+                val state = downloads[songId]?.state
+                !YOUTUBE_VIDEO_ID.matches(songId) ||
+                  (state != null && state != androidx.media3.exoplayer.offline.Download.STATE_FAILED)
+              },
+              // Unlimited cap (0): return every eligible candidate. A configured cap keeps the
+              // bounded window; enqueueAutomaticDownload enforces the cap itself.
+              limit =
+                if (dataStore.get(AutoDownloadLimitKey, 25) <= 0) Int.MAX_VALUE else 1000,
+            )
+          candidates.forEach { candidate ->
+            candidate.videoId?.takeIf { it.isNotBlank() }?.let { songId ->
+              enqueueAutomaticDownload(songId, candidate.title)
+            }
+          }
+        }
       }
     }
 
@@ -5250,6 +5472,8 @@ class MusicService : MediaLibraryService(), Player.Listener, PlaybackStatsListen
     } finally {
       fadingLoudnessEnhancer = null
     }
+    screenOffVolumeKeyController?.release()
+    screenOffVolumeKeyController = null
     releaseMediaSessionSafely()
     player.removeListener(this)
     player.removeListener(sleepTimer)

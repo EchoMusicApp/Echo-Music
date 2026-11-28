@@ -37,7 +37,9 @@ import echo.music.iad1tya.constants.AudioNormalizationKey
 import echo.music.iad1tya.constants.AudioOffload
 import echo.music.iad1tya.constants.AudioQuality
 import echo.music.iad1tya.constants.AudioQualityKey
+import echo.music.iad1tya.constants.AutoDownloadOnListenKey
 import echo.music.iad1tya.constants.AutoDownloadOnLikeKey
+import echo.music.iad1tya.constants.AutoDownloadLimitKey
 import echo.music.iad1tya.constants.AutoLoadMoreKey
 import echo.music.iad1tya.constants.AutoSkipNextOnErrorKey
 import echo.music.iad1tya.constants.AutomixCrossfadeKey
@@ -62,6 +64,7 @@ import echo.music.iad1tya.constants.PreloadNextSongEnabledKey
 import echo.music.iad1tya.constants.PreloadNextSongLimitKey
 import echo.music.iad1tya.constants.PreventDuplicateTracksInQueueKey
 import echo.music.iad1tya.constants.RememberShuffleAndRepeatKey
+import echo.music.iad1tya.constants.ScreenOffVolumeKeyControlsKey
 import echo.music.iad1tya.constants.ResumeOnBluetoothConnectKey
 import echo.music.iad1tya.constants.SeekExtraSeconds
 import echo.music.iad1tya.constants.ShufflePlaylistFirstKey
@@ -172,6 +175,10 @@ fun PlayerSettings(
     rememberPreference(DisableLoadMoreWhenRepeatAllKey, defaultValue = false)
   val (autoDownloadOnLike, onAutoDownloadOnLikeChange) =
     rememberPreference(AutoDownloadOnLikeKey, defaultValue = false)
+  val (autoDownloadOnListen, onAutoDownloadOnListenChange) =
+    rememberPreference(AutoDownloadOnListenKey, defaultValue = false)
+  val (autoDownloadLimit, onAutoDownloadLimitChange) =
+    rememberPreference(AutoDownloadLimitKey, defaultValue = 25)
   val (downloadOnWifiOnly, onDownloadOnWifiOnlyChange) =
     rememberPreference(DownloadOnWifiOnlyKey, defaultValue = false)
   val (downloadWithMetadata, onDownloadWithMetadataChange) =
@@ -193,6 +200,8 @@ fun PlayerSettings(
   val (lanSyncEnabled, onLanSyncEnabledChange) =
     rememberPreference(echo.music.iad1tya.constants.LanSyncEnabledKey, defaultValue = true)
   val (pauseOnMute, onPauseOnMuteChange) = rememberPreference(PauseOnMute, defaultValue = false)
+  val (screenOffVolumeKeyControls, onScreenOffVolumeKeyControlsChange) =
+    rememberPreference(ScreenOffVolumeKeyControlsKey, defaultValue = true)
   val (resumeOnBluetoothConnect, onResumeOnBluetoothConnectChange) =
     rememberPreference(ResumeOnBluetoothConnectKey, defaultValue = false)
   val (autoplayOnAutomotiveConnect, onAutoplayOnAutomotiveConnectChange) =
@@ -204,6 +213,7 @@ fun PlayerSettings(
   var showAudioQualityWifiDialog by remember { mutableStateOf(false) }
   var showAudioQualityCellularDialog by remember { mutableStateOf(false) }
   var showDownloadQualityDialog by remember { mutableStateOf(false) }
+  var showAutoDownloadLimitDialog by remember { mutableStateOf(false) }
   var showPlaybackEngineDialog by remember { mutableStateOf(false) }
 
   val (playbackEngine, onPlaybackEngineChange) =
@@ -217,6 +227,27 @@ fun PlayerSettings(
       echo.music.iad1tya.constants.DownloadQualityKey,
       defaultValue = echo.music.iad1tya.constants.DownloadQuality.YOUTUBE,
     )
+
+  if (showAutoDownloadLimitDialog) {
+    EnumDialog(
+      onDismiss = { showAutoDownloadLimitDialog = false },
+      onSelect = {
+        onAutoDownloadLimitChange(it)
+        showAutoDownloadLimitDialog = false
+      },
+      title = stringResource(R.string.auto_download_limit),
+      current = autoDownloadLimit,
+      values = listOf(10, 25, 50, 100, 0),
+      valueText = {
+        if (it == 0) stringResource(R.string.auto_download_limit_unlimited)
+        else pluralStringResource(R.plurals.auto_download_limit_songs, it, it)
+      },
+      valueDescription = {
+        if (it == 0) stringResource(R.string.auto_download_limit_unlimited_desc)
+        else stringResource(R.string.auto_download_limit_finite_desc, it)
+      }
+    )
+  }
 
   if (showAudioQualityWifiDialog) {
     EnumDialog(
@@ -1155,6 +1186,41 @@ fun PlayerSettings(
             onClick = { onAutoDownloadOnLikeChange(!autoDownloadOnLike) },
           ),
           Material3SettingsItem(
+            isHighlighted = (highlightKey == stringResource(R.string.auto_download_on_listen)),
+            icon = painterResource(R.drawable.download),
+            title = { Text(stringResource(R.string.auto_download_on_listen)) },
+            description = { Text(stringResource(R.string.auto_download_on_listen_desc)) },
+            trailingContent = {
+              Switch(
+                checked = autoDownloadOnListen,
+                onCheckedChange = onAutoDownloadOnListenChange,
+                thumbContent = {
+                  Icon(
+                    painter =
+                      painterResource(
+                        id = if (autoDownloadOnListen) R.drawable.check else R.drawable.close
+                      ),
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                  )
+                }
+              )
+            },
+            onClick = { onAutoDownloadOnListenChange(!autoDownloadOnListen) }
+          ),
+          Material3SettingsItem(
+            isHighlighted = (highlightKey == stringResource(R.string.auto_download_limit)),
+            icon = painterResource(R.drawable.download),
+            title = { Text(stringResource(R.string.auto_download_limit)) },
+            description = {
+              Text(
+                if (autoDownloadLimit == 0) stringResource(R.string.auto_download_limit_unlimited)
+                else pluralStringResource(R.plurals.auto_download_limit_songs, autoDownloadLimit, autoDownloadLimit)
+              )
+            },
+            onClick = { showAutoDownloadLimitDialog = true }
+          ),
+          Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.enable_similar_content)),
             icon = painterResource(R.drawable.similar),
             title = { Text(stringResource(R.string.enable_similar_content)) },
@@ -1375,6 +1441,30 @@ fun PlayerSettings(
               )
             },
             onClick = { onPauseOnMuteChange(!pauseOnMute) },
+          ),
+          Material3SettingsItem(
+            isHighlighted =
+              (highlightKey == stringResource(R.string.screen_off_volume_key_controls)),
+            icon = painterResource(R.drawable.volume_up),
+            title = { Text(stringResource(R.string.screen_off_volume_key_controls)) },
+            description = { Text(stringResource(R.string.screen_off_volume_key_controls_desc)) },
+            trailingContent = {
+              Switch(
+                checked = screenOffVolumeKeyControls,
+                onCheckedChange = onScreenOffVolumeKeyControlsChange,
+                thumbContent = {
+                  Icon(
+                    painter =
+                      painterResource(
+                        id = if (screenOffVolumeKeyControls) R.drawable.check else R.drawable.close
+                      ),
+                    contentDescription = null,
+                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                  )
+                }
+              )
+            },
+            onClick = { onScreenOffVolumeKeyControlsChange(!screenOffVolumeKeyControls) }
           ),
           Material3SettingsItem(
             isHighlighted = (highlightKey == stringResource(R.string.resume_on_bluetooth_connect)),

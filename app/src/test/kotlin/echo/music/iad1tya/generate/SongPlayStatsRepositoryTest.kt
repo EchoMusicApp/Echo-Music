@@ -5,7 +5,9 @@ import echo.music.iad1tya.db.entities.SongPlayStatsEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlin.coroutines.cancellation.CancellationException
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -14,6 +16,8 @@ import org.junit.Test
 class FakeSongPlayStatsDao : SongPlayStatsDao {
   val map = mutableMapOf<String, SongPlayStatsEntity>()
   var shouldThrow = false
+  var candidateQueryError: Throwable? = null
+  var candidateQueryCount = 0
 
   override suspend fun upsert(entity: SongPlayStatsEntity) {
     if (shouldThrow) throw RuntimeException("Simulated SQLite write error")
@@ -32,6 +36,30 @@ class FakeSongPlayStatsDao : SongPlayStatsDao {
       .filter { it.lastPlayedAtMillis >= sinceMillis }
       .sortedByDescending { it.playCount }
       .take(limit)
+
+  override suspend fun automaticDownloadCandidatesSince(
+    sinceMillis: Long,
+    limit: Int,
+    offset: Int,
+  ): List<SongPlayStatsEntity> {
+    candidateQueryCount++
+    candidateQueryError?.let { throw it }
+    return map.values
+      .filter {
+        it.lastPlayedAtMillis >= sinceMillis &&
+          it.playCount >= 2 &&
+          it.skipCount < it.playCount &&
+          !it.videoId.isNullOrBlank() &&
+          it.title.isNotBlank()
+      }
+      .sortedWith(
+        compareByDescending<SongPlayStatsEntity> { it.playCount }
+          .thenByDescending { it.totalPlayTimeMs }
+          .thenBy { it.trackKey }
+      )
+      .drop(offset)
+      .take(limit)
+  }
 
   override suspend fun recentlyPlayed(limit: Int): List<SongPlayStatsEntity> =
     map.values.sortedByDescending { it.lastPlayedAtMillis }.take(limit)
@@ -168,6 +196,59 @@ class SongPlayStatsRepositoryTest {
     assertEquals(10_000L, stats?.totalPlayTimeMs)
     assertEquals(0, stats?.playCount)
     assertEquals(1, stats?.skipCount)
+  }
+
+  private fun candidate(key: String, playCount: Int, totalPlayTimeMs: Long = 1_000L) =
+    SongPlayStatsEntity(
+      trackKey = key,
+      title = "Title $key",
+      artist = "Artist",
+      videoId = "vid_$key",
+      totalPlayTimeMs = totalPlayTimeMs,
+      playCount = playCount,
+      skipCount = 0,
+      lastPlayedAtMillis = 10_000L,
+    )
+
+  @Test
+  fun automaticDownloadCandidatesPagesPastExcludedRows() = runTest {
+    // 401 ranked rows; the top 400 are excluded (e.g. already downloaded).
+    val rows = (0 until 401).map { i -> candidate(key = "k%03d".format(i), playCount = 1_000 - i) }
+    rows.forEach { fakeDao.upsert(it) }
+    val excluded = rows.take(400).mapNotNull { it.videoId }.toSet()
+
+    val result =
+      repository.automaticDownloadCandidates(
+        sinceMillis = 0L,
+        isExcluded = { it in excluded },
+        limit = 1,
+      )
+
+    assertEquals(listOf(rows.last().trackKey), result.map { it.trackKey })
+    assertTrue("should need more than one page", fakeDao.candidateQueryCount > 1)
+  }
+
+  @Test
+  fun automaticDownloadCandidatesOrderEqualRankDeterministically() = runTest {
+    listOf("c", "a", "b").forEach { fakeDao.upsert(candidate(key = it, playCount = 5)) }
+
+    val result =
+      repository.automaticDownloadCandidates(sinceMillis = 0L, isExcluded = { false }, limit = 3)
+
+    assertEquals(listOf("a", "b", "c"), result.map { it.trackKey })
+  }
+
+  @Test
+  fun automaticDownloadCandidatesPropagatesCancellation() = runTest {
+    fakeDao.upsert(candidate(key = "a", playCount = 3))
+    fakeDao.candidateQueryError = CancellationException("cancelled")
+
+    try {
+      repository.automaticDownloadCandidates(sinceMillis = 0L, isExcluded = { false }, limit = 1)
+      fail("CancellationException should propagate")
+    } catch (expected: CancellationException) {
+      assertEquals("cancelled", expected.message)
+    }
   }
 
   @Test

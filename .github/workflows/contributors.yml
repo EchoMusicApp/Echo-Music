@@ -57,7 +57,7 @@ jobs:
               avatars.append(
                   f'<td align="center">'
                   f'<a href="https://github.com/{username}">'
-                  f'<img src="{avatar}" width="60" height="60" />'
+                  f'<img src="{avatar}" alt="{username}" width="60" height="60" />'
                   f'</a>'
                   f'</td>'
               )

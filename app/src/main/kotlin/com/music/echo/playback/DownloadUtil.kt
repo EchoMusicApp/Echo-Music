@@ -294,17 +294,9 @@ constructor(
               scope.launch {
                 when (download.state) {
                   Download.STATE_COMPLETED -> {
-                    val timestamp =
-                      if (download.updateTimeMs > 0) download.updateTimeMs
-                      else System.currentTimeMillis()
-                    val downloadDate =
-                      LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-                    val title =
-                      runCatching {
-                        androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data)
-                      }
-                        .getOrNull()
-                        ?.takeIf { it.isNotBlank() } ?: "Unknown"
+                    val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
+                    val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
+                    val title = decodeDownloadTitle(download.request.data)
                     database.withTransaction {
                       val rowId =
                         insert(
@@ -356,14 +348,9 @@ constructor(
     scope.launch(Dispatchers.IO) {
       result.values.forEach { download ->
         if (download.state == Download.STATE_COMPLETED) {
-          val timestamp =
-            if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
-          val downloadDate =
-            LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
-          val title =
-            runCatching { androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data) }
-              .getOrNull()
-              ?.takeIf { it.isNotBlank() } ?: "Unknown"
+          val timestamp = if (download.updateTimeMs > 0) download.updateTimeMs else System.currentTimeMillis()
+          val downloadDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneOffset.UTC)
+          val title = decodeDownloadTitle(download.request.data)
           database.withTransaction {
             val rowId =
               insert(
@@ -403,6 +390,29 @@ constructor(
   }
 
   companion object {
+    /** Prefix stored in DownloadRequest.data to distinguish auto-downloads from manual ones. */
+    const val AUTO_DOWNLOAD_DATA_PREFIX = "echomusic:auto-download:"
+
+    fun autoDownloadData(title: String): ByteArray =
+      (AUTO_DOWNLOAD_DATA_PREFIX + title).toByteArray(Charsets.UTF_8)
+
+    fun isAutomaticDownload(download: Download): Boolean =
+      androidx.media3.common.util.Util.fromUtf8Bytes(download.request.data)
+        .startsWith(AUTO_DOWNLOAD_DATA_PREFIX)
+
+    /**
+     * Count queued, paused, downloading, completed and removing auto-downloads, excluding failed
+     * ones. A removing entry keeps its slot until DownloadManager reports the removal finished
+     * (onDownloadRemoved drops it from the map), so the cap can't be exceeded in the meantime.
+     */
+    fun automaticDownloadCount(downloads: Map<String, Download>): Int =
+      downloads.values.count { isAutomaticDownload(it) && it.state != Download.STATE_FAILED }
+
+    fun decodeDownloadTitle(data: ByteArray): String =
+      androidx.media3.common.util.Util.fromUtf8Bytes(data)
+        .removePrefix(AUTO_DOWNLOAD_DATA_PREFIX)
+        .takeIf { it.isNotBlank() } ?: "Unknown"
+
     /**
      * Computes the aggregated download state for a collection of song IDs.
      * - [Download.STATE_COMPLETED] if all songs are completed.
